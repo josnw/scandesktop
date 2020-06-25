@@ -45,10 +45,8 @@ function time2dec($timestring, $dtrenn = ",") {
 
 function Proto($logdata) {
 	
- //$loguser = preg_replace("[^a-zA-Z0-9]","",$_SESSION['user']);
- $logfile = getcwd() . DIRECTORY_SEPARATOR . realpath( "log/Protokoll_".date("Y-m").".log");
- $log = fopen($logfile ,"a+");
- fwrite ($log, date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata."\n");
+ $log = fopen(md5( uniqid() ."logfile".".txt" ,"a+"));
+ fwrite ($log, "TEST\n");
  fclose($log);
 
 }
