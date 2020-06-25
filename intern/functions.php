@@ -44,9 +44,9 @@ function time2dec($timestring, $dtrenn = ",") {
 
 
 function Proto($logdata) {
-
- $log = fopen($_SERVER['DOCUMENT_ROOT']."/calendar/log/Protokoll_".date("Y-m").".log","a+");
- fwrite ($log, date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata."\n");
+ $loguser = preg_replace("[^a-zA-Z0-9]","",$_SESSION['user']);
+ $log = fopen($logpath."/Protokoll_".date("Y-m").".log","a+");
+ fwrite ($log, date("Y.m.d H:i")."\t".$loguser."\t".$logdata."\n");
  fclose($log);
 
 }
