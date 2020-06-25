@@ -9,11 +9,11 @@ session_start();
 	 
 	if ((isset($_GET["typ"])) and ($_GET["typ"] == 'productid')) {
 		
-		$getItemID = preg_replace("[0-9A-Z]","",$_GET["itemId"]);
-		$getOrderID = preg_replace("[0-9]","",$_GET["orderId"]);
-		$getPackId = preg_replace("[0-9]","",$_GET["packId"]);
+		$getItemID = preg_replace("[^0-9A-Z]","",$_GET["itemId"]);
+		$getOrderID = preg_replace("[^0-9]","",$_GET["orderId"]);
+		$getPackId = preg_replace("[^0-9]","",$_GET["packId"]);
 		
-		$scanedItem = new product($getItemID );
+		$scanedItem = new product($getItemID);
 		$packingOrder = new order($getOrderID);
 		$productID = $scanedItem->getProductId();
 				

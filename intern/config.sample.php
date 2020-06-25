@@ -18,6 +18,8 @@ $wwsAdminUsers = [ 999, 998 ];
 $wwsChiefGroups = [ 1,2 ];
 
 $docpath = "./docs/";
+$logpath = "../log/";
+
 $parcelPath["DHL"] = './docs/';
 $parcelPath["DPD"] = '';
 
