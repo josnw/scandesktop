@@ -320,13 +320,13 @@ class order {
 
 		$dhlfilename = time()."_dhlversand.TEST";
 		$dhl = array_merge($this->orderHeader, $static); 
-		$dhlfile = fopen($parcelPath["DHL"]."/".$dhlfilename,"a");
-		fputcsv($dhlfile, array_keys($dhl),";");
+		$dhlfile = new myFile($parcelPath["DHL"]."/".$dhlfilename,"append");
+		$dhlfile->writeCSV(array_keys($dhl));
 		foreach ($parcelData as $pack) {
 			print $pack["parcelService"]."/".$pack["packWeight"]."<br>";
 			if ($pack["parcelService"] == "DHL") {
 				$dhl["Gewicht"] = $pack["packWeight"];
-				fputcsv($dhlfile, $dhl,";");
+				$dhlfile->writeCSV($dhl);
 			}
 		}
 		
@@ -420,8 +420,10 @@ class order {
 			$mailto = "tester@localhost";
 			$subject = "Shipment 2.0 Test Invoice";
 			$message = "invoice test ...";
-
-			file_put_contents($docpath.$invoice["name"],  $invoice["document"]);
+			
+			$invoiceDoc = new myfile($docpath.$invoice["name"], "append");
+			$invoiceDoc->putContent($invoice["document"]);
+			
 			$dateien = $docpath.$invoice["name"];
 			$email = new email($mailto, $subject, $message, $sender, $sender_email, $reply_email, $dateien);
 			return $email;

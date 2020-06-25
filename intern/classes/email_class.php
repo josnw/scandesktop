@@ -5,7 +5,7 @@ class email {
 
 
 	public function __construct($to, $subject, $message, $sender, $sender_email, $reply_email, $dateien) {
-
+		
  		   if(!is_array($dateien)) {
 			  $dateien = array($dateien);
 		   }   
@@ -20,9 +20,10 @@ class email {
 				$name = basename($val);
 			 }
 		   
-			  $size = filesize($datei);
-			  $data = file_get_contents($datei);
-			  $type = mime_content_type($datei);
+			  $myDatei = new myfile($datei,"readfull");
+			  $size = $myDatei->filesize();
+			  $data = $myDatei->getContents();
+			  $type = $myDatei->type();
 			 
 			  $attachments[] = array("name"=>$name, "size"=>$size, "type"=>$type, "data"=>$data);
 		   }
