@@ -44,9 +44,11 @@ function time2dec($timestring, $dtrenn = ",") {
 
 
 function Proto($logdata) {
+	
  $loguser = preg_replace("[^a-zA-Z0-9]","",$_SESSION['user']);
  $checkeddata = preg_replace("[^a-zA-Z0-9 \.\-]","",$logdata);
- $log = fopen($logpath."/Protokoll_".date("Y-m").".log","a+");
+ 
+ $log = fopen(getcwd() . "/log/Protokoll_".date("Y-m").".log","a+");
  fwrite ($log, date("Y.m.d H:i")."\t".$loguser."\t".$checkeddata."\n");
  fclose($log);
 
