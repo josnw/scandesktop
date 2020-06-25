@@ -17,10 +17,9 @@ $wwspass='';
 $wwsAdminUsers = [ 999, 998 ];
 $wwsChiefGroups = [ 1,2 ];
 
-$docpath = "./docs/";
-$logpath = "../log/";
+$docpath = "docs/";
 
-$parcelPath["DHL"] = './docs/';
+$parcelPath["DHL"] = 'docs/';
 $parcelPath["DPD"] = '';
 
 $sender = "me and myself"; 

@@ -113,8 +113,7 @@ class dhl {
 	
 	public function trackingIdImport() {
 		
-		$trigger = fopen("http://");
-		fclose($trigger);
+
 	}
 }	
 

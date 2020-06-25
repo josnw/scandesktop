@@ -64,7 +64,7 @@ class tradebytePanda {
 			$exportarray["a_vk[".$price[0]."]"] = "";
 		}
 		
-		$panda = fopen($pandafile, "a+");
+		$panda = new myFile($pandafile, "append");
 		
 		$cnt = 0;
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
@@ -76,13 +76,13 @@ class tradebytePanda {
 
 			$temp_array = array_merge($basedata,$exportarray,$parameters,$prices);
 			if ($cnt++ == 0) {
-				fputcsv($panda,array_keys($temp_array ),";",'"');
+				$panda->writeCSV(array_keys($temp_array ));
 			}
 			
-			fputcsv($panda,$temp_array ,";",'"');
+			$panda->writeCSV($temp_array);
 			
 		}
-		fclose($panda);			
+		$panda->close();			
 		return $cnt;
 		
 	}

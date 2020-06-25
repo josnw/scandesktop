@@ -44,10 +44,13 @@ function time2dec($timestring, $dtrenn = ",") {
 
 
 function Proto($logdata) {
-	
- $log = fopen(md5( uniqid() ."logfile".".txt" ,"a+"));
- fwrite ($log, "TEST\n");
- fclose($log);
+
+ include './intern/autoload.php';
+ include ("./intern/config.php");
+
+ $log = new myfile("log/Protokoll".date("Y-m").".log");
+ $log->writeLn(date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata);
+ $log->close();
 
 }
 
