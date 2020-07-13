@@ -335,14 +335,7 @@ class order {
 		$parcel_qry->bindValue(':BelegID',$this->belegId);
 		$parcel_qry->execute() or die (print_r($parcel_qry->errorInfo()));
 
-		fclose($dhlfile);
-		if ($DEBUG == 1) {
-			print "DEBUGMODUS!<br>";
-			print $parcelPath["DHL"]."/".$dhlfilename."<br>";
-			print "<textarea cols=120 rows=10>";
-			print file_get_contents($parcelPath["DHL"]."/".$dhlfilename);
-			print "</textarea>";
-		}		
+		$dhlfile->close();		
 	}
 	
 	public function calcPacks($maxWeight) {
