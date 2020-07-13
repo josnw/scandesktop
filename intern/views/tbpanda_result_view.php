@@ -1,7 +1,10 @@
+<div class="DSEdit">
+	<div class="DSFeld4 smallBorder">
+		<?php
 
-<?php
-print $rowCount." Datensätze exportiert!";
-print "<a href=".$exportfile.">[Download PANDA.CSV]</a>";
+		print $rowCount." Datensätze exportiert!<br/>";
+		print "<a href=".$exportfile.">[Download PANDA.CSV]</a>";
 
-?>
-
+		?>
+	</div>
+</div>

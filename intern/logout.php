@@ -7,7 +7,7 @@ $_SESSION['level'] = '0';
 $_SESSION['user'] = '';
 $_SESSION['name'] = '<B>Zum Bearbeiten bitte mit Factodaten einloggen!</B>';
 $_SESSION['uid'] = 0;
-setcookie("RHG_calendar", base64_encode(serialize($_SESSION)), time());
+setcookie("scandesk", base64_encode(serialize($_SESSION)), time());
 session_destroy();
 
 print "Sie sind ausgeloggt!<BR>";

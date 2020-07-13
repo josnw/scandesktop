@@ -6,28 +6,37 @@ class myfile {
 	private $fileHandle;
 	private $mode;
 	private $fullText;
+	private $checkedPathName;
 	private $checkedName;
 
 	public function __construct($filename, $mode = "read") {
 
-		$realname = realpath( preg_replace("[^a-zA-Z0-9_\-\.". DIRECTORY_SEPARATOR ."]","_",$filename) );
-		$this->checkedName =  getcwd() . realpath($filename);
-		
+		$realpath = realpath( dirname($filename) );
+		$subpath = str_replace(getcwd() . DIRECTORY_SEPARATOR , '', $realpath);
+		$realname = preg_replace("[^a-zA-Z0-9_\-\.". DIRECTORY_SEPARATOR ."]","_",basename($filename)) ;
+		$this->checkedPathName =  getcwd() . DIRECTORY_SEPARATOR . $subpath.  DIRECTORY_SEPARATOR . $realname;
+		$this->checkedName = $realname;
 		if ($mode == "append") {
-			$this->fileHandle = fopen($this->checkedName , "a+");
+			$this->fileHandle = fopen($this->checkedPathName , "a+");
 			$this->mode = "append";
 		} elseif ($mode == "readfull") {
 			$this->fileHandle = NULL;
-			$this->fullText = file_get_contents($this->checkedName);
+			$this->fullText = file_get_contents($this->checkedPathName);
 			$this->mode = "readfull";
 		} elseif ($mode == "read") {
-			$this->fileHandle = fopen($this->checkedName , "r");
+			$this->fileHandle = fopen($this->checkedPathName , "r");
 			$this->mode = "read";
 		} elseif ($mode == "writefull") {
 			$this->mode = "writefull";
 		} else {
 			return false;
 		}
+		
+	}
+	
+	public function getCheckedName() {
+
+		return $this->checkedName;
 	}
 	
 	public function write($line) {

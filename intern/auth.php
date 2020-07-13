@@ -6,7 +6,7 @@ if (isset($_GET['mode']) and ($_GET['mode'] == 'DEMO')) {
 		//print "Cookie found ...";
 		$_SESSION = unserialize(base64_decode($_COOKIE['scandesk']));
 		if ((!isset($_SESSION['level'])) or ( $_SESSION['level'] == 0)) {
-			setcookie("shipment", '', time()-28800);
+			setcookie("scandesk", '', time()-28800);
 		} else {
 			//print "and initialized";
 		}
@@ -27,7 +27,7 @@ if (isset($_GET['mode']) and ($_GET['mode'] == 'DEMO')) {
 		//print "Cookie found ....";
 		$_SESSION = unserialize(base64_decode($_COOKIE['scandesk']));
 		if ((!isset($_SESSION['level'])) or ( $_SESSION['level'] == 0)) {
-			setcookie("shipment", '', time()-28800);
+			setcookie("scandesk", '', time()-28800);
 		} else {
 			//print "and initialized";
 		}
@@ -80,7 +80,7 @@ elseif (isset($_POST['loginuser']) and strlen($_POST['loginuser']) > 0)
 		$_SESSION['user'] = $_POST['loginuser'];
 		$_SESSION['uid'] = $pw_row['penr'];
 		$_SESSION['PENR'] = $pw_row['penr'];
-        $_SESSION['name'] = $pw_row['qna1'];
+	        $_SESSION['name'] = $pw_row['qna1'];
 		$_SESSION['pickId'] = 0;
 		if (in_array($pw_row['penr'],$wwsAdminUsers) ) {
 			$_SESSION['typ'] = 'root';
