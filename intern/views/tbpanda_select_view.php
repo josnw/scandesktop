@@ -4,18 +4,18 @@
 	<div class="DSEdit">
 		<div class="DSFeld4 smallBorder">
 			<div class="DSFeld1">
-				von Lieferant Nr <br/><input name="vonlinr" value="0" length=10>
+				von Lieferant Nr <br/><input name="vonlinr" value="<?php print $vonlinr; ?>" length=10>
 			</div>
 			<div class="DSFeld1">
-				bis Lieferant Nr <br/><input name="bislinr" value="9999999" length=10>
+				bis Lieferant Nr <br/><input name="bislinr" value="<?php print $bislinr; ?>" length=10>
 			</div>
 		</div>
 		<div class="DSFeld4">
 			<div class="DSFeld1 smallBorder">
-				von Artikelgruppe <br/><input name="vonqgrp" value="0" length=10>
+				von Artikelgruppe <br/><input name="vonqgrp" value="<?php print $vonqgrp; ?>" length=10>
 			</div>
 			<div class="DSFeld1">
-				bis Artikelgruppe <br/><input name="bisqgrp" value="899" length=10>
+				bis Artikelgruppe <br/><input name="bisqgrp" value="<?php print $bisqgrp; ?>" length=10>
 			</div>
 		</div>
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="pandaDownload" value="Download"></div>

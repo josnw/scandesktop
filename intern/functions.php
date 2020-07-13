@@ -48,7 +48,7 @@ function Proto($logdata) {
  include './intern/autoload.php';
  include ("./intern/config.php");
 
- $log = new myfile("log/Protokoll".date("Y-m").".log");
+ $log = new myfile("log/Protokoll".date("Y-m").".log","append");
  $log->writeLn(date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata);
  $log->close();
 
