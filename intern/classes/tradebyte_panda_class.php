@@ -101,6 +101,9 @@ class tradebytePanda {
 			// print data line
 			foreach($temp_array as $key=>$value) {
 				$temp_array[$key] = trim($value);
+				if (is_numeric($value)) {
+					$temp_array[$key] = str_replace(".",",",$value);
+				}
 			}
 			$panda->writeCSV($temp_array);
 			
