@@ -23,7 +23,7 @@
 		// read article base data
 		$article = new product(sprintf("%08d",$stockData['ordernumber']));
 		// calculate aviable base stock
-		if (isset(*$article->productData[0]['amgm'])) {
+		if (isset($article->productData[0]['amgm'])) {
 			$baseStock = $stockData['stock']*$article->productData[0]['amgm'];
 		} else {
 			$baseStock = $stockData['stock'];
