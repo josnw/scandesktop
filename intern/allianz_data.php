@@ -1,3 +1,6 @@
+<h2>Download Allianz Daten</h2>
+<p>Bestände und Preise der Allianz Mitglieder</p>
+
 <pre>
 <?php
  include './intern/autoload.php';
@@ -20,7 +23,11 @@
 		// read article base data
 		$article = new product(sprintf("%08d",$stockData['ordernumber']));
 		// calculate aviable base stock
-		$baseStock = $stockData['stock']*$article->productData[0]['amgm'];
+		if (isset(*$article->productData[0]['amgm'])) {
+			$baseStock = $stockData['stock']*$article->productData[0]['amgm'];
+		} else {
+			$baseStock = $stockData['stock'];
+		}
 		$aviableStock = round(($baseStock - $security_distance_abs) * (1 - $security_distance_rel),3);
 		if ($aviableStock < 0) {
 			$aviableStock = 0;
