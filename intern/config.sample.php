@@ -7,7 +7,16 @@ $error_qort=0;
 $error_osdt=0;
 $devel=0;
 
+$allianz_stock_user = 'apiuser';
+$allianz_stock_key= 'api-key';
+$allianz_stock_url = 'apiurl';
 
+$facImportFile = './docs/ScanDesktopImport.FAC'
+$scanDeskFacFiliale = 916;
+$FacFiliale = 1;
+
+$security_distance_abs = 1;
+$security_distance_rel = 0.1;
 
 $options  = null;
 $wwsserver	= "pgsql:host=;port=5432;dbname=";

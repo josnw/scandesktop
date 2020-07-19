@@ -7,6 +7,7 @@ class tradebytePanda {
 	private $parameterTypeList;
 	private $priceTypeList;
 	private $basepriceTypeList;
+	private $mdbTypesTypeList;
 	
 	public function __construct() {
 		
@@ -45,6 +46,20 @@ class tradebytePanda {
 		$baseprice_qry->execute() or die (print_r($baseprice_qry->errorInfo()));
 		$this->basepriceTypeList = $baseprice_qry->fetchall(PDO::FETCH_NUM );
 
+		// sql check mdb types and counts per articles
+		$mdbTypesqry  = "select qbez, max(cnt) as cnt from ( select arnr, qbez, count(*) as CNT from art_liefdok  d 
+							inner join art_0 a using (arnr) where adtp = 91701 and
+							a.linr between :vonlinr and :bislinr and a.qgrp between :vongrp and :bisgrp 
+							group by arnr, qbez) X group by qbez";
+
+		$mdbTypes_qry = $this->pg_pdo->prepare($mdbTypesqry);
+		$mdbTypes_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
+		$mdbTypes_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
+		$mdbTypes_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
+		$mdbTypes_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
+		$mdbTypes_qry->execute() or die (print_r($mdbTypes_qry->errorInfo()));
+		$this->mdbTypesTypeList = $mdbTypes_qry->fetchall(PDO::FETCH_NUM );
+
 		// select article list for export, create handle only for scaling up big artile lists
 		$fqry  = "select arnr from art_0 a where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp order by linr, qgrp, arnr";	
 		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
@@ -75,6 +90,12 @@ class tradebytePanda {
 			$exportarray["a_vk[".$price[0]."]"] = "";
 		}
 
+		foreach($this->mdbTypesTypeList as $mdbTypesType) {
+			for($i = 0; $i < $mdbTypesType[1]; $i++) {
+				$exportarray["a_media[".$mdbTypesType[0]."]{".$i."}"] = "";
+			}
+		}
+		
 		foreach($this->basepriceTypeList as $baseprice) {
 			$exportarray["a_base_price[".$baseprice[0]."]"] = "";
 		}
@@ -90,8 +111,9 @@ class tradebytePanda {
 			$basedata = $article->getTradebyteFormat("basedata");
 			$parameters = $article->getTradebyteFormat("p_comp");
 			$prices = $article->getTradebyteFormat("a_vk");
+			$media = $article->getTradebyteFormat("a_media");
 
-			$temp_array = array_merge($exportarray, $basedata, $parameters, $prices);
+			$temp_array = array_merge($exportarray, $basedata, $parameters, $prices, $media);
 			
 			// print table header in first line
 			if ($cnt++ == 0) {
@@ -101,7 +123,7 @@ class tradebytePanda {
 			// print data line
 			foreach($temp_array as $key=>$value) {
 				$temp_array[$key] = trim($value);
-				if (is_numeric($value)) {
+			if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z²³°]{1,5}/",$value))) {
 					$temp_array[$key] = str_replace(".",",",$value);
 				}
 			}
