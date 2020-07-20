@@ -81,9 +81,12 @@ class product {
 					$this->productDataTradeByteFormat['p_brand'] = $frow[0]["lqsbz"];
 				}	
 				$this->productDataTradeByteFormat['p_prefix'] = $this->productDataTradeByteFormat['p_brand'];
-				
-				
-		}	
+		} else {
+			$this->productDataTradeByteFormat = [
+				'a_nr' =>  $frow[0]["arnr"],
+			];
+		}
+		
 	}
 	
 	public function getProductId() {
@@ -138,8 +141,9 @@ class product {
 		}
 		
 		// select prices
-		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
-		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date ";
+		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
+					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
+		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date order by csog, qdtm";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 
@@ -149,9 +153,9 @@ class product {
 		// calulate price for one 
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
 				if (isset($row["apjs"]) and ($row["apjs"] > 0)) { 
-					$this->productPrices[$row["mprn"]] = ($row["cprs"]/$row["apjs"]);
+					$this->productPrices[$row["mprn"]] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
 				} else {
-					$this->productPrices[$row["mprn"]] = ($row["cprs"]);
+					$this->productPrices[$row["mprn"]] = round(($row["cprs"]*$row["amgm"]),2);
 				}
 				if ($row["mprb"] == 6) {
 					$standardPrice = $this->productPrices[$row["mprn"]];
@@ -205,6 +209,31 @@ class product {
 			return $this->productPictures;
 	}	
 	
+	private function getStocksFromDB() {
+		
+		$fqry  = "select ifnr, case when a.amgn > 0 then cast((amge*a.amgz/a.amgn) as decimal(8,2)) else amge end as amgb 
+					from art_0 a inner join art_best b using (arnr) where arnr = :aamr order by ifnr";
+		
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->bindValue(':aamr',$this->productId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+
+		$this->productStocks = [] ;
+
+		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			
+			$this->productStocks[$row["ifnr"]] = $row["amgb"];
+			
+		}
+	}
+	
+	public function getStocks() {
+			if (! isset($this->productStocks) or $this->productStocks == NULL ) {
+					$this->getStocksFromDB();
+			}
+			return $this->productStocks;
+	}	
+		
 	
 	public function getTradebyteFormat($arrayName = "p_comp", $parameter = NULL) {
 			if ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "p_comp")) {
@@ -217,8 +246,9 @@ class product {
 					return $this->productDataTradeByteFormat;
 			} elseif ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "a_media")) {
 					$parameter = $this->getPictures() ;
-			}
-
+			} elseif ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "a_stock")) {
+					$parameter = $this->getStocks() ;
+			} 
 			
 			$TbParam = [];
 			

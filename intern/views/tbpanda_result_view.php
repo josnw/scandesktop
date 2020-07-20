@@ -3,7 +3,7 @@
 		<?php
 
 		print $rowCount." Datensätze exportiert!<br/>";
-		print "<a href=".$exportfile.">[Download PANDA.CSV]</a>";
+		print "<a href=".$exportfile.">[Download ".$filename."]</a>";
 
 		?>
 	</div>

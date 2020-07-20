@@ -15,6 +15,8 @@ $facImportFile = './docs/ScanDesktopImport.FAC'
 $scanDeskFacFiliale = 916;
 $FacFiliale = 1;
 
+$TradebyteWebshopNumber = 1;
+
 $security_distance_abs = 1;
 $security_distance_rel = 0.1;
 

@@ -1,5 +1,5 @@
 <h2>Download Allianz Daten</h2>
-<p>Bestände und Preise der Allianz Mitglieder</p>
+<p>BestÃ¤nde und Preise der Allianz Mitglieder</p>
 
 <pre>
 <?php
@@ -33,13 +33,12 @@
 			$aviableStock = 0;
 		}
 		// write to wws import file
-		$facimp->facHead('ART_BEST');
+		$facimp->facHead('ART_BEST',stockData['shopid'],'NB');
 		$facimp->facData([
 			'ARNR' => sprintf("%08d",$stockData['ordernumber']),
 			'XXAK' => '',
 			'XYAK' => '',
 			'ACHB' => '',
-			'ALGO' => 'Lager '.$stockData['shopid'],
 			'IFNR' => $stockData['shopid'],
 			'AMGE' => $aviableStock,
 		]);
