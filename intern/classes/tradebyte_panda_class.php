@@ -116,7 +116,29 @@ class tradebytePanda {
 	}
 
 	public function mediaUpdate($pandafile) {
+		
+		/*
+		include './intern/config.php';
+		
+		// sql check stock list for export array
+		$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+		$stock_qry = $this->pg_pdo->prepare($stockqry);
+		$stock_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
+		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
+
+		// select article list for export, create handle only for scaling up big artile lists
+		$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		
+		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
+		
+		return $this->exportToFile($pandafile, "stock");
+
+		*/
 		return false;
+	
 	}
 	
 	public function exportToFile($pandafile, $type = "panda") {
