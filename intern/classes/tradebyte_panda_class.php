@@ -8,6 +8,7 @@ class tradebytePanda {
 	private $priceTypeList;
 	private $basepriceTypeList;
 	private $mdbTypesTypeList;
+	private $stockList;
 	
 	public function __construct() {
 		
@@ -16,7 +17,6 @@ class tradebytePanda {
 
 		return true;
 	}
-	
 	
 	public function selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp) {
 
@@ -74,31 +74,91 @@ class tradebytePanda {
 		
 	}
 
-	public function exportToFile($pandafile) {
+	public function stockUpdate($pandafile) {
+		include './intern/config.php';
+		
+		// sql check stock list for export array
+		$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+		$stock_qry = $this->pg_pdo->prepare($stockqry);
+		$stock_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
+		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
+
+		// select article list for export, create handle only for scaling up big artile lists
+		$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		
+		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
+		
+		return $this->exportToFile($pandafile, "stock");
+
+	}
+
+	public function priceUpdate($pandafile) {
+		include './intern/config.php';
+		
+		// sql check pricekey list
+		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
+		$price_qry = $this->pg_pdo->prepare($priceqry);
+		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
+		$this->priceTypeList = $price_qry->fetchall(PDO::FETCH_NUM );
+
+		// select article list for export, create handle only for scaling up big artile lists
+		$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
+					where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
+		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		
+		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
+
+		return $this->exportToFile($pandafile, "price");
+	}
+
+	public function mediaUpdate($pandafile) {
+		return false;
+	}
+	
+	public function exportToFile($pandafile, $type = "panda") {
 	
 		if (!isset($this->articleList_qry) or ($this->articleList_qry == NULL)) {
 			return(false);
 		}
 		
-		//prepare array 
-		$exportarray = ['p_nr' => null, 'a_nr' => null, 'a_prodnr' => null, 'a_ean' => null, 'p_name_keyword' => null, 'p_name_propper' => null, 'p_text' => null ];
-		
-		foreach( $this->parameterTypeList as $parameter) {
-			$exportarray["p_comp[".$parameter[0]."]"] = "";
-		}
-		foreach($this->priceTypeList as $price) {
-			$exportarray["a_vk[".$price[0]."]"] = "";
-		}
+		if ($type == 'panda') {
+			//prepare array 
+			$exportarray = ['p_nr' => null, 'a_nr' => null, 'a_prodnr' => null, 'a_ean' => null, 'p_name_keyword' => null, 'p_name_propper' => null, 'p_text' => null ];
+			
+			foreach( $this->parameterTypeList as $parameter) {
+				$exportarray["p_comp[".$parameter[0]."]"] = "";
+			}
+			foreach($this->priceTypeList as $price) {
+				$exportarray["a_vk[".$price[0]."]"] = "";
+			}
 
-		foreach($this->mdbTypesTypeList as $mdbTypesType) {
-			for($i = 0; $i < $mdbTypesType[1]; $i++) {
-				$exportarray["a_media[".$mdbTypesType[0]."]{".$i."}"] = "";
+			foreach($this->mdbTypesTypeList as $mdbTypesType) {
+				for($i = 0; $i < $mdbTypesType[1]; $i++) {
+					$exportarray["a_media[".$mdbTypesType[0]."]{".$i."}"] = "";
+				}
+			}
+			
+			foreach($this->basepriceTypeList as $baseprice) {
+				$exportarray["a_base_price[".$baseprice[0]."]"] = "";
+			}
+		} elseif ($type == 'price') {
+			foreach($this->priceTypeList as $price) {
+				$exportarray["a_vk[".$price[0]."]"] = "";
+			}
+		} elseif ($type == 'stock') {
+			foreach($this->stockList as $stock) {
+				$exportarray["a_stock[".$stock[0]."]"] = "";
+			}
+		} elseif ($type == 'media') {
+			foreach($this->priceTypeList as $media) {
+				$exportarray["a_media[".$media[0]."]"] = "";
 			}
 		}
 		
-		foreach($this->basepriceTypeList as $baseprice) {
-			$exportarray["a_base_price[".$baseprice[0]."]"] = "";
-		}
 		
 		$panda = new myFile($pandafile, "append");
 		
@@ -106,14 +166,39 @@ class tradebytePanda {
 		
 		// fill array and write to file
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
-			$article = new product($frow["arnr"],"tradebyte");
 			
-			$basedata = $article->getTradebyteFormat("basedata");
-			$parameters = $article->getTradebyteFormat("p_comp");
-			$prices = $article->getTradebyteFormat("a_vk");
-			$media = $article->getTradebyteFormat("a_media");
+			if ($type == 'panda') {
+				$article = new product($frow["arnr"],"tradebyte");
+				
+				$basedata = $article->getTradebyteFormat("basedata");
+				$parameters = $article->getTradebyteFormat("p_comp");
+				$prices = $article->getTradebyteFormat("a_vk");
+				$media = $article->getTradebyteFormat("a_media");
 
-			$temp_array = array_merge($exportarray, $basedata, $parameters, $prices, $media);
+				$temp_array = array_merge($exportarray, $basedata, $parameters, $prices, $media);
+			} elseif ($type == 'stock') {
+				$article = new product($frow["arnr"]);
+				$index = $article->getTradebyteFormat("basedata");
+				$stock = $article->getTradebyteFormat("a_stock");
+
+				$temp_array = array_merge($index, $stock);
+
+			} elseif ($type == 'price') {
+				$article = new product($frow["arnr"]);
+				$index = $article->getTradebyteFormat("basedata");
+				$prices = $article->getTradebyteFormat("a_vk");
+
+				$temp_array = array_merge($index, $price);
+
+			} elseif ($type == 'media') {
+				$article = new product($frow["arnr"]);
+				$index = $article->getTradebyteFormat("basedata");
+				$media = $article->getTradebyteFormat("a_media");
+
+				$temp_array = array_merge($index, $media);
+
+			} 
+
 			
 			// print table header in first line
 			if ($cnt++ == 0) {

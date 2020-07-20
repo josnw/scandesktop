@@ -128,15 +128,15 @@ class myfile {
 		$this->checkedName = NULL;
 	}
 	
-	public function facHead($table) {
+	public function facHead($table, $fromFil = 0, $typ = "N ") {
 	
 		include './intern/config.php';
 		
-		$this->writeLn('<<<5N ;E000998F000000D'.date("dmyZHi").'P_ScanDesk0V5.3');
+		$this->writeLn('<<<:5'.$typ.';E000998F000000D'.date("dmyZHi").'P_ScanDesk0V5.3');
 		$this->writeLn('DBN:2');
-		$this->writeLn('INF:'.sprintf("%03d",$scanDeskFacFiliale));
+		$this->writeLn('INF:'.sprintf("%03d",$fromFil));
 		$this->writeLn('TAB:'.$table);
-		$this->writeLn('008:'.sprintf("%03d",$scanDeskFacFiliale));
+		$this->writeLn('008:'.sprintf("%03d",$fromFil));
 		$this->writeLn('FIL:'.sprintf("%03d",$FacFiliale));
 		
 		$this->isFacFile = true;

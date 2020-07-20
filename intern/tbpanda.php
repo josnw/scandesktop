@@ -1,6 +1,56 @@
 <?php
  include './intern/autoload.php';
  include ("./intern/config.php");
+
+ if (isset($_POST["priceStockUpdate"]) or isset($_GET["priceStockUpdate"])) {
+	$export = new tradebytePanda();					
+	
+	// Select price updates
+	$pricefile = $docpath."ARTICLE_prices_".date("Ymd_his").".csv";
+	if (($priceresult = $export->priceUpdate($pricefile)) and ($priceresult['count'] > 0)) {
+		$rowCount = $priceresult['count'];
+		$exportfile = $docpath.$priceresult['filename'];
+		$filename = $priceresult['filename'];
+		if (php_sapi_name() != 'cli') {
+			include("./intern/views/tbpanda_result_view.php");
+		} else {
+			print $exportfile."\n";
+		}
+	} 
+
+	// select stock updates
+	$stockfile = $docpath."ARTICLE_stockup_".date("Ymd_his").".csv";
+	if (( $stockresult = $export->stockUpdate($stockfile) ) and ($stockresult['count'] > 0) ){
+		$rowCount = $stockresult['count'];
+		$exportfile = $docpath.$stockresult['filename'];
+		$filename = $stockresult['filename'];
+		if (php_sapi_name() != 'cli') {
+			include("./intern/views/tbpanda_result_view.php");
+		} else {
+			print $exportfile."\n";
+		}
+	}
+
+	// select media updates
+	$mediafile = $docpath."ARTICLE_media_".date("Ymd_his").".csv";
+	if (($mediaresult = $export->mediaUpdate($mediafile)) and ( $mediaresult['count'] > 0)) {
+		$rowCount = $mediaresult['count'];
+		$exportfile = $docpath.$mediaresult['filename'];
+		$filename = $mediaresult['filename'];
+		if (php_sapi_name() != 'cli') {
+			include("./intern/views/tbpanda_result_view.php");
+		} else {
+			print $exportfile."\n";
+		}
+	}
+	if (php_sapi_name() == 'cli') {
+		exit;
+	}
+	
+}
+
+ 
+ 
  
   // Artikelauswahl Formular
     if (isset($_POST['vonlinr'])) { $vonlinr = preg_replace('[^0-9]','', $_POST['vonlinr']); } else { $vonlinr = 0;}
@@ -18,17 +68,19 @@
     if (isset($_POST["pandaDownload"])) {
 		$export = new tradebytePanda();					
 		if ($export->selectByQgrpLinr($_POST["vonlinr"],$_POST["bislinr"],$_POST["vonqgrp"],$_POST["bisqgrp"])) {
-			$exportfile = $docpath."panda_".date("Ymd_his").".csv";
+			$exportfile = $docpath."PANDA_".date("Ymd_his").".csv";
 			
 			$result = $export->exportToFile($exportfile);
 			$rowCount = $result['count'];
 			$exportfile = $docpath.$result['filename'];
+			$filename = $result['filename'];
 			
 			include("./intern/views/tbpanda_result_view.php");
-			
+
 		}
 		
 	}
+	
   
   
  ?> 
