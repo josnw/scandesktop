@@ -91,6 +91,14 @@ class myfile {
 			return false;
 		}
 	}
+
+	public function readCSV($sep = ';') {
+		if ($this->mode == "read") {
+			return fgetcsv($this->fileHandle, 4048, $sep);
+		} else {
+			return false;
+		}
+	}
 	
 	public function getContent() {
 		if ($this->mode == "readfull") {
