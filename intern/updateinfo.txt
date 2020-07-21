@@ -1,0 +1,2 @@
+2020-07-21;Update Kennzeichen; Beim PANDA Export werden die Artikel für die automatischen Updates von Preis und Bestand markiert
+2020-07-19;Media Export;Exportiert MEDIA-URLS mit MDB Key
