@@ -65,7 +65,7 @@ class product {
 				'a_ean' =>  $frow[0]["asco"],
 				'p_text' =>  $frow[0]["atxt"],
 				'p_name_keyword' =>  $frow[0]["abz1"].' '.$frow[0]["abz2"].' '.$frow[0]["abz3"],
-				'p_name_propper' =>  $frow[0]["abz4"],
+				'p_name_proper' =>  $frow[0]["abz4"],
 				//'a_media[IMAGE]{0}' =>  $frow[0]["qurl"],
 				];
 				

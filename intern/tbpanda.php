@@ -49,10 +49,8 @@
 	
 }
 
- 
- 
- 
-  // Artikelauswahl Formular
+
+  // articles select form
     if (isset($_POST['vonlinr'])) { $vonlinr = preg_replace('[^0-9]','', $_POST['vonlinr']); } else { $vonlinr = 0;}
     if (isset($_POST['bislinr'])) { $bislinr = preg_replace('[^0-9]','', $_POST['bislinr']); } else { $bislinr = 9999999;}
     if (isset($_POST['vonqgrp'])) { $vonqgrp = preg_replace('[^0-9]','', $_POST['vonqgrp']); } else { $vonqgrp = 0;}
@@ -61,13 +59,13 @@
   	include("./intern/views/tbpanda_select_view.php");
   
   // Mapping Formular
-  // vorerst nur Standard
+  // not used
     include("./intern/views/tbpanda_mapping_view.php");
   
-  // Export
+  // export
     if (isset($_POST["pandaDownload"])) {
 		$export = new tradebytePanda();					
-		if ($export->selectByQgrpLinr($_POST["vonlinr"],$_POST["bislinr"],$_POST["vonqgrp"],$_POST["bisqgrp"])) {
+		if ($export->selectByQgrpLinr($_POST["vonlinr"],$_POST["bislinr"],$_POST["vonqgrp"],$_POST["bisqgrp"], $_POST["autoUpdate"])) {
 			$exportfile = $docpath."PANDA_".date("Ymd_his").".csv";
 			
 			$result = $export->exportToFile($exportfile);

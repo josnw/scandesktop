@@ -9,16 +9,17 @@ class tradebytePanda {
 	private $basepriceTypeList;
 	private $mdbTypesTypeList;
 	private $stockList;
+	private $TradebyteWebshopNumber;
 	
 	public function __construct() {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
-
+		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
 		return true;
 	}
 	
-	public function selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp) {
+	public function selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp, $setAutoUpdate = false) {
 
 		// sql check parameter list for export array
 		$paraqry  = "select distinct qpky from art_param p where arnr in (select arnr from art_0 a where  p.arnr = a.arnr and linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )";	
@@ -69,6 +70,23 @@ class tradebytePanda {
 		$this->articleList_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
 		
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
+		
+		if ($setAutoUpdate) {
+			// set flag for standard 
+			print "Set Flag Autoupdate ...";
+			$updateFlagqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson) (select arnr, '','', :wsnr, 1 from art_0 where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )
+								on conflict (arnr, xxak,xyak, wsnr) do update set wson=1 ";	
+			$updateFlag_qry = $this->pg_pdo->prepare($updateFlagqry);
+			$updateFlag_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
+			$updateFlag_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
+			$updateFlag_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
+			$updateFlag_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
+			$updateFlag_qry->bindValue(':wsnr',preg_replace("/[^0-9]/","",$this->TradebyteWebshopNumber));
+			$updateFlag_qry->execute() or print (print_r($updateFlag_qry->errorInfo()));
+
+
+		}
+		
 		
 		return true;
 		
@@ -230,7 +248,7 @@ class tradebytePanda {
 			// print data line
 			foreach($temp_array as $key=>$value) {
 				$temp_array[$key] = trim($value);
-			if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z²³°]{1,5}/",$value))) {
+				if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z²³°]{1,5}/",$value))) {
 					$temp_array[$key] = str_replace(".",",",$value);
 				}
 			}
