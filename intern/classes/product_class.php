@@ -193,6 +193,7 @@ class product {
 		$this->productPictures = [] ;
 		$typeCounter = [];
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			$row["qbez"] = preg_replace("(MDB |\(|\))","",$row["qbez"]);
 			if ( !isset($typeCounter[$row["qbez"]])) {
 				$typeCounter[$row["qbez"]] = 0;
 			} else {
