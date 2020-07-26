@@ -74,7 +74,7 @@ class tradebytePanda {
 		if ($setAutoUpdate) {
 			// set flag for standard 
 			print "Set Flag Autoupdate ...";
-			$updateFlagqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson) (select arnr, '','', :wsnr, 1 from art_0 where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )
+			$updateFlagqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson, wsdt) (select arnr, '','', :wsnr, 1 , '1999-12-31' as wsdt from art_0 where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )
 								on conflict (arnr, xxak,xyak, wsnr) do update set wson=1 ";	
 			$updateFlag_qry = $this->pg_pdo->prepare($updateFlagqry);
 			$updateFlag_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
@@ -167,7 +167,7 @@ class tradebytePanda {
 		
 		if ($type == 'panda') {
 			//prepare array 
-			$exportarray = ['p_nr' => null, 'a_nr' => null, 'a_prodnr' => null, 'a_ean' => null, 'p_name_keyword' => null, 'p_name_propper' => null, 'p_text' => null ];
+			$exportarray = ['p_nr' => null, 'a_nr' => null, 'a_prodnr' => null, 'a_ean' => null, 'p_name_keyword' => null, 'p_name_proper' => null, 'p_text' => null ];
 			
 			foreach( $this->parameterTypeList as $parameter) {
 				$exportarray["p_comp[".$parameter[0]."]"] = "";
@@ -183,7 +183,9 @@ class tradebytePanda {
 			}
 			
 			foreach($this->basepriceTypeList as $baseprice) {
-				$exportarray["a_base_price[".$baseprice[0]."]"] = "";
+				if (strlen($baseprice[0]) > 0) {
+					$exportarray["a_base_price[".$baseprice[0]."]"] = "";
+				}
 			}
 		} elseif ($type == 'price') {
 			foreach($this->priceTypeList as $price) {

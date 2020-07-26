@@ -15,7 +15,7 @@ session_set_cookie_params(36000);session_start();
 <script type="text/javascript" src="./js/ui17/ui/jquery-ui.js"></script>
 <link rel="stylesheet" type="text/css" href="./js/ui17/themes/base/jquery-ui.css"/>
 
-<script src="./js/script.js" type="text/javascript"></script>
+<script src="./js/scripts.js" type="text/javascript"></script>
 	
 <title>Scandesktop</title>
 </head>
@@ -62,7 +62,9 @@ if (isset($_GET['menu']) and strlen($_GET['menu']) > 0) {
 }
 ?>
 </main>
+
 <footer>
+<div id="wait"><div id="waittext"><BR><BR><BR>Bitte warten...<BR>Die Daten werden verarbeitet!<BR></div></div>
 <div id="infobox">...</div>
 <div><?php print date("Y-m-d h:i"); ?></div>
 </footer>
