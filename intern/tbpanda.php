@@ -2,7 +2,7 @@
  include './intern/autoload.php';
  include ("./intern/config.php");
 
- if (isset($_POST["priceStockUpdate"]) or isset($argv["/priceStockUpdate"])) {
+ if (isset($_POST["priceStockUpdate"]) or (isset($argv) and in_array("/priceStockUpdate", $argv))) {
 	$export = new tradebytePanda();					
 	
 	// Select price updates
