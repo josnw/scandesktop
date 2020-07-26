@@ -33,7 +33,7 @@
 			$aviableStock = 0;
 		}
 		// write to wws import file
-		$facimp->facHead('ART_BEST',stockData['shopid'],'NB');
+		$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
 		$facimp->facData([
 			'ARNR' => sprintf("%08d",$stockData['ordernumber']),
 			'XXAK' => '',
