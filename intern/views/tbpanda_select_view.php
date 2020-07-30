@@ -29,6 +29,6 @@
 <h3>Aktualisierung manuell erstellen</h3>
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit">
-		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="autoUpdate" value="Aktualisierung" onclick="wartemal('on')"></div>
+		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="priceStockUpdate" value="Aktualisierung" onclick="wartemal('on')"></div>
 	</div>
 </form>
