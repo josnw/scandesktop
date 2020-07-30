@@ -43,6 +43,10 @@
 			print $exportfile."\n";
 		}
 	}
+	
+	//set uploadtime
+	$export->setUpdateTime();
+	
 	if (php_sapi_name() == 'cli') {
 		exit;
 	}

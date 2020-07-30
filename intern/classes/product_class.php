@@ -171,7 +171,6 @@ class product {
 			}
 		}
 		
-		
 	}
 	
 	
@@ -222,7 +221,9 @@ class product {
 		$this->productStocks = [] ;
 
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
-			
+			if ($row["amgb"] == null) {
+				$row["amgb"] = 0;
+			}
 			$this->productStocks[$row["ifnr"]] = $row["amgb"];
 			
 		}

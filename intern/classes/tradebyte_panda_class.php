@@ -10,6 +10,7 @@ class tradebytePanda {
 	private $mdbTypesTypeList;
 	private $stockList;
 	private $TradebyteWebshopNumber;
+	private	$startTime;
 	
 	public function __construct() {
 		
@@ -93,19 +94,22 @@ class tradebytePanda {
 	}
 
 	public function stockUpdate($pandafile) {
-		include './intern/config.php';
 		
+		if (!isset($this->startTime) or (!$this->startTime > 0)) {
+			$this->startTime = time();
+		}
+
 		// sql check stock list for export array
 		$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
 		$stock_qry = $this->pg_pdo->prepare($stockqry);
-		$stock_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		$stock_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
 		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
 
 		// select article list for export, create handle only for scaling up big artile lists
 		$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
 		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
-		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		$this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
 		
@@ -114,7 +118,11 @@ class tradebytePanda {
 	}
 
 	public function priceUpdate($pandafile) {
-		include './intern/config.php';
+		
+		if (!isset($this->startTime) or (!$this->startTime > 0)) {
+			$this->startTime = time();
+		}
+
 		
 		// sql check pricekey list
 		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
@@ -126,7 +134,7 @@ class tradebytePanda {
 		$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
 					where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
 		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
-		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
+		$this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
 
@@ -134,26 +142,14 @@ class tradebytePanda {
 	}
 
 	public function mediaUpdate($pandafile) {
-		
+
+		if (!isset($this->startTime) or (!$this->startTime > 0)) {
+			$this->startTime = time();
+		}
+	
 		/*
-		include './intern/config.php';
-		
-		// sql check stock list for export array
-		$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
-		$stock_qry = $this->pg_pdo->prepare($stockqry);
-		$stock_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
-		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
-		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
-
-		// select article list for export, create handle only for scaling up big artile lists
-		$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
-		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
-		$this->articleList_qry->bindValue(':wsnr',$TradebyteWebshopNumber);
-		
-		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
-		
-		return $this->exportToFile($pandafile, "stock");
-
+			ToDo
+			add filter setUpdateTime 
 		*/
 		return false;
 	
@@ -223,21 +219,21 @@ class tradebytePanda {
 				$index = $article->getTradebyteFormat("basedata");
 				$stock = $article->getTradebyteFormat("a_stock");
 
-				$temp_array = array_merge($index, $stock);
+				$temp_array = array_merge($index,$exportarray, $stock);
 
 			} elseif ($type == 'price') {
 				$article = new product($frow["arnr"]);
 				$index = $article->getTradebyteFormat("basedata");
 				$prices = $article->getTradebyteFormat("a_vk");
 
-				$temp_array = array_merge($index, $price);
+				$temp_array = array_merge($index,$exportarray, $prices);
 
 			} elseif ($type == 'media') {
 				$article = new product($frow["arnr"]);
 				$index = $article->getTradebyteFormat("basedata");
 				$media = $article->getTradebyteFormat("a_media");
 
-				$temp_array = array_merge($index, $media);
+				$temp_array = array_merge($index,$exportarray, $media);
 
 			} 
 
@@ -263,4 +259,22 @@ class tradebytePanda {
 		return [ 'filename' => $exportname, 'count' => $cnt ];
 		
 	}
-}		
+	
+
+	public function setUpdateTime() {
+		
+		// select article list for export, create handle only for scaling up big artile lists
+		$fqry  = "update web_art w set wsdt = :wsdt where w.wsnr = :wsnr and wson = 1 and wsdt is not null
+		           and ( 
+						arnr in (select arnr from cond_vk c where c.arnr = w.arnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01')
+						or arnr in (select arnr from art_best b where b.arnr = w.arnr and b.qedt > w.wsdt) 
+				   ) ";	
+		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		$this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
+		$this->articleList_qry->bindValue(':wsdt',date("Y-m-d H:i:s", $this->startTime));
+		
+		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
+
+		return true;
+	}
+}	
