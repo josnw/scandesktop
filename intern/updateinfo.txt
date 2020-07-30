@@ -1,3 +1,4 @@
+2020-07-30;Export Preis/Bestand;Exportkey für Bestand und Preise angepasst; Exportdatum wird in DB gespeichert, d.h. nach dem initialen Export werden dann nur noch die Änderungen seit dem letzten Export berücksichtigt
 2020-07-26;Media Key;Media Key ohne Klammern und ohne Präfix, Bugfixes
 2020-07-21;Update Kennzeichen; Beim PANDA Export werden die Artikel für die automatischen Updates von Preis und Bestand markiert
 2020-07-19;Media Export;Exportiert MEDIA-URLS mit MDB Key
