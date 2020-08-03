@@ -13,6 +13,7 @@ class tradebyteOrders {
 	private $headData;
 	private $posData;
 	private $channel;
+	private $facFiliale;
 	
 	public function __construct($filename) {
 		
@@ -24,6 +25,7 @@ class tradebyteOrders {
 		$this->importKeyList = $this->importHandle->readCSV();
 
 		$this->channel = $channelFacData;
+		$this->facFiliale = $FacFiliale;
 		
 		return true;
 	}
@@ -57,7 +59,7 @@ class tradebyteOrders {
 			'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
 			'FXNS' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
 			'FXNA' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-			'IFNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'],
+			'IFNR' => $this->facFiliale,
 			'FTYP' => 2,
 			'FPRJ' => '000000',
             'CKSS' => '000000',
@@ -69,7 +71,6 @@ class tradebyteOrders {
 			'FLDT' => date("Y-m-d", time()+(60*60*18)),
 			'SIGS' => $this->OrdersData[$orderId]['head']['TOTAL_AMOUNT'],
 			'SGES' => $this->OrdersData[$orderId]['head']['TOTAL_AMOUNT'],
-			'QBEZ' => 'Payment: '.$this->OrdersData[$orderId]['head']['PAYMENT_TYPE'],
 			'QANR' => $this->OrdersData[$orderId]['head']['CUST_SELL_SALUTATION'],
 			'QNA2' => $this->OrdersData[$orderId]['head']['CUST_SELL_SURNAME'],
 			'QNA1' => $this->OrdersData[$orderId]['head']['CUST_SELL_FIRSTNAME'],
@@ -98,10 +99,15 @@ class tradebyteOrders {
 		}
 
 		// head text 
+		$customerComment = $this->SplitABZ($this->OrdersData[$orderId]['head']['CUSTOMER_COMMENT']);
 		$facHead['QTXK'] = [
+			'Payment: '.$this->OrdersData[$orderId]['head']['PAYMENT_TYPE'],
 			'Payment ID: '.$this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID'],
-			'Kundenkommentar: '.$this->OrdersData[$orderId]['head']['CUSTOMER_COMMENT']
+			'Kundenkommentar: '
 		];
+		foreach($customerComment as $commentLine) {
+			$facHead['QTXK'][] = $commentLine;
+		}
 		
 		// shipping adress
 		$facHead['LFA'] = [
@@ -132,16 +138,20 @@ class tradebyteOrders {
 				print "Article ".$posData['POS_ANR']." ".$posData['POS_TEXT']." not found!</br>";
 				$posFmge = $posData['POS_QUANTITY'] ; 
 				$posPrice = $posData['POS_SALESPRICE'];				
+				$posApjs = 1;
+				$posApkz = 1;
 			} else {
 				$posFmge = $posData['POS_QUANTITY'] / $article->productData[0]['amgm']; 
 				$posPrice = $posData['POS_SALESPRICE'] / $article->productData[0]['amgm'] * $article->productData[0]['apjs'];
+				$posApjs = $article->productData[0]['apjs'];
+				$posApkz = $article->productData[0]['apkz'];
 			}
 			
 			$facPos[$cnt] = [
 				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
 				'FXNS' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
 				'FXNA' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'IFNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'],
+				'IFNR' => $this->facFiliale,
 				'FTYP' => 2,
 				'FPRJ' => '000000',
 				'CKSS' => '000000',
@@ -164,6 +174,7 @@ class tradebyteOrders {
 				'ALGO' => 'HL',
 				'APKZ' => $article->productData[0]['apkz'],
 				'ASMN' => 1,
+				'QPRA' => 0,
 				'ASMZ' => 1,
 				'ABZ1' => $posText[0],
 				'ABZ2' => $posText[1],
@@ -194,6 +205,10 @@ class tradebyteOrders {
 
 	public function getOrderIds() {
 		return $this->OrdersIdList;
+	}
+
+	public function getChannel($orderId) {
+		return $this->OrdersData[$orderId]['head']['CHANNEL_KEY'];
 	}
 
 }	
