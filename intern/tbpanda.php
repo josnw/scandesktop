@@ -49,20 +49,20 @@
 	
 } elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/orders2fac", $argv))) {
 	
-	$fname = $docpath."/ORDERS_".uniqid()."csv";
+	$fname = $docpath."/ORDERS_".uniqid().".csv";
 	move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
 	
 	$orders = new tradebyteorders($fname);		
-	$facfile = new myfile($docpath."/ORDERS_".time()."FAC","new");
+	$facfile = new myfile($docpath."/ORDERS_".time().".FAC","new");
 	
 	$orders->readFullData();
 	$rowCount = 0;
 	foreach ($orders->getOrderIds() as $orderId) {
-		$facfile->facHead("AUFST_KOPF");
+		$facfile->facHead("AUFST_KOPF", $channelFacData[$orders->getChannel($orderId)]['Filiale']);
 		$facfile->facData($orders->getFacHeadData($orderId));
 		$rowCount++;
 		foreach($orders->getFacPosData($orderId) as $facpos) {
-			$facfile->facHead("AUFST_POS");
+			$facfile->facHead("AUFST_POS", $channelFacData[$orders->getChannel($orderId)]['Filiale']);
 			$facfile->facData($facpos);
 		}
 	}
