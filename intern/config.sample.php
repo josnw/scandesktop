@@ -28,6 +28,10 @@ $wwspass='';
 $wwsAdminUsers = [ 999, 998 ];
 $wwsChiefGroups = [ 1,2 ];
 
+$channelFacData['ebde']['CustomerNumber'] = 200001;
+$channelFacData['ebde']['Filiale'] = 918;
+$channelFacData['ebde']['formId'] = '0090';
+
 $docpath = "docs/";
 
 $parcelPath["DHL"] = 'docs/';

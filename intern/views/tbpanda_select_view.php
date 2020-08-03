@@ -1,4 +1,4 @@
-<h1>Neue PANDA Abfrage generieren</h1>
+<h2>Neue PANDA Abfrage generieren</h2>
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit">
 		<div class="DSFeld4 smallBorder">
@@ -26,9 +26,22 @@
 	</div>
 </form>
 
-<h3>Aktualisierung manuell erstellen</h3>
+<h2>ARTICLE_ Aktualisierung manuell erstellen *</h2>
+
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit">
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="priceStockUpdate" value="Aktualisierung" onclick="wartemal('on')"></div>
 	</div>
 </form>
+
+<h2>TB.Orders2Facto Konverter *</h2>
+<form action="#" method="POST" enctype="multipart/form-data" >
+	<div class="DSEdit">
+		<div class="DSFeld2 smallBorder">
+			TB.Orders CSV Datei</br><input type="file" name="csvorders" >
+		</div>
+		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="orders2fac" value="Konvertieren" onclick="wartemal('on')"></div>
+	</div>
+</form>
+
+<p> * Diese Dateien werden bei konfiguriertem Cronjob automatisch in das entsprechende System übertragen. Die zum Download angebotenen Dateien sind nur zu Kontrollzwecken zu verwenden.</p>
