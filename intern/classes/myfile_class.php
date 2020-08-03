@@ -140,6 +140,10 @@ class myfile {
 	
 		include './intern/config.php';
 		
+		if ($this->isFacFile) {
+			$this->facfoot();
+		}
+		
 		$this->writeLn('<<<:5'.$typ.';E000998F000000D'.date("dmyZHi").'P_ScanDesk0V5.3');
 		$this->writeLn('DBN:2');
 		$this->writeLn('INF:'.sprintf("%03d",$fromFil));
@@ -152,15 +156,28 @@ class myfile {
 
 	public function facData($data) {
 		foreach($data as $key=>$value) {
-			$value = preg_replace("/[\n\r]/","",$value);
-			$this->writeLn($key.":".$value);
+			if (is_array($value)) {
+				$cnt = 0;
+				foreach($value as $subkey=>$subvalue) {
+					$subvalue = preg_replace("/[\n\r]/","",$subvalue);
+					if ($cnt++ == 0) {
+						$this->writeLn($key.":".$subvalue);
+					} else {
+						$this->writeLn($key."+".$subvalue);
+					}
+				}
+			} else {
+				$value = preg_replace("/[\n\r]/","",$value);
+				$this->writeLn($key.":".$value);
+			}
 		}
 	}
 
-	
 	public function facfoot() {
 	
 		$this->writeLn('>>>');
 		$this->isFacFile = false;
 	}
+
+	
 }
