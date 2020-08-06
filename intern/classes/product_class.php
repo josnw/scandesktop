@@ -53,40 +53,46 @@ class product {
 		if ($this->resultCount == 1) {
 			$this->productId = $frow[0]["arnr"];
 			$this->productGtin = $frow[0]["asco"];
+
+			// convert to TB Panda format
+			if ($level == 'tradebyte') {
+				$this->productDataTradeByteFormat = [
+					'p_nr' =>  $frow[0]["arnr"],
+					'a_nr' =>  $frow[0]["arnr"],
+					'a_prodnr' =>  $frow[0]["abst"],
+					'a_ean' =>  $frow[0]["asco"],
+					'p_text' =>  $frow[0]["atxt"],
+					'p_name_keyword' =>  $frow[0]["abz1"].' '.$frow[0]["abz2"].' '.$frow[0]["abz3"],
+					'p_name_proper' =>  $frow[0]["abz4"],
+					//'a_media[IMAGE]{0}' =>  $frow[0]["qurl"],
+					];
+					
+					if ( (isset($frow[0]["ameg"])) and (strlen($frow[0]["ameg"]) > 1) ) {
+						$this->productDataTradeByteFormat['a_base_price['.$frow[0]["ameg"].']'] =  $frow[0]["agpf"];
+		
+					}
+
+					
+					if ( (isset($frow[0]["amrk"])) and (strlen($frow[0]["amrk"]) > 1) ) {
+						$this->productDataTradeByteFormat['p_brand'] = $frow[0]["amrk"];
+					} else {
+						$this->productDataTradeByteFormat['p_brand'] = $frow[0]["lqsbz"];
+					}	
+					$this->productDataTradeByteFormat['p_prefix'] = $this->productDataTradeByteFormat['p_brand'];
+			} else {
+				$this->productDataTradeByteFormat = [
+					'a_nr' =>  $frow[0]["arnr"],
+				];
+			}
+
+
 		} else {
 			$this->productId = NULL;
-		}
-
-		// convert to TB Panda format
-		if ($level == 'tradebyte') {
 			$this->productDataTradeByteFormat = [
-				'p_nr' =>  $frow[0]["arnr"],
-				'a_nr' =>  $frow[0]["arnr"],
-				'a_prodnr' =>  $frow[0]["abst"],
-				'a_ean' =>  $frow[0]["asco"],
-				'p_text' =>  $frow[0]["atxt"],
-				'p_name_keyword' =>  $frow[0]["abz1"].' '.$frow[0]["abz2"].' '.$frow[0]["abz3"],
-				'p_name_proper' =>  $frow[0]["abz4"],
-				//'a_media[IMAGE]{0}' =>  $frow[0]["qurl"],
-				];
-				
-				if ( (isset($frow[0]["ameg"])) and (strlen($frow[0]["ameg"]) > 1) ) {
-					$this->productDataTradeByteFormat['a_base_price['.$frow[0]["ameg"].']'] =  $frow[0]["agpf"];
-	
-				}
-
-				
-				if ( (isset($frow[0]["amrk"])) and (strlen($frow[0]["amrk"]) > 1) ) {
-					$this->productDataTradeByteFormat['p_brand'] = $frow[0]["amrk"];
-				} else {
-					$this->productDataTradeByteFormat['p_brand'] = $frow[0]["lqsbz"];
-				}	
-				$this->productDataTradeByteFormat['p_prefix'] = $this->productDataTradeByteFormat['p_brand'];
-		} else {
-			$this->productDataTradeByteFormat = [
-				'a_nr' =>  $frow[0]["arnr"],
+				'a_nr' =>  NULL,
 			];
 		}
+
 		
 	}
 	
