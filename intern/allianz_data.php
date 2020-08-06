@@ -53,7 +53,7 @@
   } 
 
  // select last update date for every allianz company
- $sql_fil = "select qbnr, qbtl, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qbtl where ifnr > 1 and qbnr <> '' group by qbnr, qbtl";
+ $sql_fil = "select qbnr, qbtl, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qbtl::integer where ifnr > 1 and qbnr <> '' group by qbnr, qbtl";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die(print $fil_qry->errorInfo()[2]);
  $facimp = new myfile($docpath.$facImportFile,'new');
