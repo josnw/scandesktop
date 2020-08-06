@@ -18,11 +18,7 @@ class allianz_stock_api {
 		
 		//get last date from foreign allianz stock
 		if ($from_datetime == NULL) {
-			$sql_timestamp = "select max(qedt) as date from art_best where algo like 'Filiale%'";
-			$time_qry = $this->my_pdo->prepare($sql_timestamp);
-			$time_qry->execute() or die(print $time_qry->errorInfo()[2]);
-			$stockrow = $time_qry->fetch( PDO::FETCH_ASSOC );
-			$from_datetime = $stockrow["date"];
+			$from_datetime = '1999-12-31';
 		}
 
 		$result = $this->client->get('Stock/', [ "stockid" => $stockId , "datetime" => date("Y-m-d H:i:s", strtotime($from_datetime))] );
@@ -35,15 +31,10 @@ class allianz_stock_api {
 		
 		//get last date from foreign allianz stock
 		if ($from_datetime == NULL) {
-			$sql_timestamp = "select max(qedt) as date from art_lief where linr = :linr";
-			$time_qry = $this->my_pdo->prepare($sql_timestamp);
-			$time_qry->execute() or die(print $time_qry->errorInfo()[2]);
-			$stockrow = $time_qry->fetch( PDO::FETCH_ASSOC );
-			$from_datetime = $stockrow["date"];
+			$from_datetime = '1999-12-31';
 		}
-		
-		$result = $this->client->get('Stock/', [ "stockid" => $stockId , "datetime" => date("Y-m-d H:i:s", strtotime($from_datetime))] );
-
+		$result = $this->client->get('articles/', [ "customerGroupKey" => $priceGroup , "datetime" => date("Y-m-d H:i:s", strtotime($from_datetime))] );
+			
 		return $result;
 	    
 	    
