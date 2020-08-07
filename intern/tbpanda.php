@@ -53,7 +53,7 @@
 		$fname = $docpath."/ORDERS_".uniqid().".csv";
 		move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
 	} else {
-		$fname = $argv[ $array_search("/convertOrders",$argv) + 1 ];
+		$fname = $argv[ array_search("/convertOrders",$argv) + 1 ];
 	}
 	
 	$orders = new tradebyteorders($fname);		
