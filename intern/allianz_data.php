@@ -107,7 +107,7 @@
 		// write to wws import file
 		$facimp->facHead('COND_EK',0,'N ');
 		$facimp->facData([
-			'CONR' => $filrow['qbtl'].printf("%08d",$priceData['ordernumber']),
+			'CONR' => $filrow['qbtl'].sprintf("%08d",$priceData['ordernumber']),
 			'MPRB' => '1',
 			'ARNR' => sprintf("%08d",$priceData['ordernumber']),
 			'XXAK' => '',
