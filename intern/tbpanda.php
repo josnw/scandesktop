@@ -47,10 +47,14 @@
 	//set uploadtime
 	$export->setUpdateTime();
 	
-} elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/orders2fac", $argv))) {
+} elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/convertOrders", $argv))) {
 	
-	$fname = $docpath."/ORDERS_".uniqid().".csv";
-	move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
+	if (php_sapi_name() != 'cli') {
+		$fname = $docpath."/ORDERS_".uniqid().".csv";
+		move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
+	} else {
+		$fname = $argv[ $array_search("/convertOrders",$argv) + 1 ];
+	}
 	
 	$orders = new tradebyteorders($fname);		
 	$facfile = new myfile($docpath."/ORDERS_".time().".FAC","new");
