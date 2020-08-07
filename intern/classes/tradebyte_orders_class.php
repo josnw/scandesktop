@@ -201,7 +201,11 @@ class tradebyteOrders {
 	
 	private function SplitABZ($abz, $cnt = 60) {
 		$abz = wordwrap($abz, $cnt ,"\t",TRUE);
-		return explode("\t",$abz);
+		$posarray = explode("\t",$abz);
+		for ($i = count($posarray); $i < 4; $i++) {
+			$posarray[$i] = '';
+		}
+		return $posarray;
 	}
 
 	public function getOrderIds() {
