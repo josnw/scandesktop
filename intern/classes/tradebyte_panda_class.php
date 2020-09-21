@@ -93,22 +93,36 @@ class tradebytePanda {
 		
 	}
 
-	public function stockUpdate($pandafile) {
+	public function stockUpdate($pandafile, $checkDate = NULL) {
 		
 		if (!isset($this->startTime) or (!$this->startTime > 0)) {
 			$this->startTime = time();
 		}
 
 		// sql check stock list for export array
-		$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
-		$stock_qry = $this->pg_pdo->prepare($stockqry);
+		// if no CheckDate set, select only lines newer then last upload
+		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
+			$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+			$stock_qry = $this->pg_pdo->prepare($stockqry);
+		} else {
+			$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > :wsdt";	
+			$stock_qry = $this->pg_pdo->prepare($stockqry);
+			$stock_qry->bindValue(':wsdt',$checkDate);
+		}
 		$stock_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
 		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
 
 		// select article list for export, create handle only for scaling up big artile lists
-		$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
-		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		// if no CheckDate set, select only lines newer then last upload
+		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
+			$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		} else {
+			$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > :wsdt";	
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+			$this->articleList_qry->bindValue(':wsdt',$checkDate);
+		}
 		$this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
@@ -117,12 +131,11 @@ class tradebytePanda {
 
 	}
 
-	public function priceUpdate($pandafile) {
+	public function priceUpdate($pandafile, $checkDate = NULL) {
 		
 		if (!isset($this->startTime) or (!$this->startTime > 0)) {
 			$this->startTime = time();
 		}
-
 		
 		// sql check pricekey list
 		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
@@ -131,9 +144,17 @@ class tradebytePanda {
 		$this->priceTypeList = $price_qry->fetchall(PDO::FETCH_NUM );
 
 		// select article list for export, create handle only for scaling up big artile lists
-		$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
-					where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
-		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		// if no CheckDate set, select only lines newer then last upload
+		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
+			$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
+						where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+		} else {
+			$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
+						where w.wsnr = :wsnr and c.qvon > :wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+			$this->articleList_qry->bindValue(':wsdt',$checkDate);
+		}
 		$this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
@@ -260,7 +281,6 @@ class tradebytePanda {
 		
 	}
 	
-
 	public function setUpdateTime() {
 		
 		// select article list for export, create handle only for scaling up big artile lists

@@ -5,9 +5,15 @@
  if (isset($_POST["priceStockUpdate"]) or (isset($argv) and in_array("/priceStockUpdate", $argv))) {
 	$export = new tradebytePanda();					
 	
+	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+		$checkDate = '2000-01-01';
+	} else {
+		$checkDate = NULL;
+	}
+	
 	// Select price updates
 	$pricefile = $docpath."ARTICLE_prices_".date("Ymd_His").".csv";
-	if (($priceresult = $export->priceUpdate($pricefile)) and ($priceresult['count'] > 0)) {
+	if (($priceresult = $export->priceUpdate($pricefile, $checkDate)) and ($priceresult['count'] > 0)) {
 		$rowCount = $priceresult['count'];
 		$exportfile = $docpath.$priceresult['filename'];
 		$filename = $priceresult['filename'];
@@ -20,7 +26,7 @@
 
 	// select stock updates
 	$stockfile = $docpath."ARTICLE_stockup_".date("Ymd_His").".csv";
-	if (( $stockresult = $export->stockUpdate($stockfile) ) and ($stockresult['count'] > 0) ){
+	if (( $stockresult = $export->stockUpdate($stockfile, $checkDate) ) and ($stockresult['count'] > 0) ){
 		$rowCount = $stockresult['count'];
 		$exportfile = $docpath.$stockresult['filename'];
 		$filename = $stockresult['filename'];
@@ -50,14 +56,14 @@
 } elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/convertOrders", $argv))) {
 	
 	if (php_sapi_name() != 'cli') {
-		$fname = $docpath."/ORDERS_".uniqid().".csv";
+		$fname = $docpath."/ORDER_".uniqid().".csv";
 		move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
 	} else {
 		$fname = $argv[ array_search("/convertOrders",$argv) + 1 ];
 	}
 	
-	$orders = new tradebyteorders($fname);		
 	$facfile = new myfile($docpath."/ORDERS_".time().".FAC","new");
+	$orders = new tradebyteorders($fname);		
 	
 	$orders->readFullData();
 	$rowCount = 0;
