@@ -218,7 +218,7 @@ class product {
 	
 	private function getStocksFromDB() {
 		
-		$fqry  = "select ifnr, case when a.amgn > 0 then cast((amge*a.amgz/a.amgn) as decimal(8,2)) else amge end as amgb 
+		$fqry  = "select ifnr, case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end as amgb 
 					from art_0 a inner join art_best b using (arnr) where arnr = :aamr order by ifnr";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
