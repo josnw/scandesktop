@@ -118,6 +118,7 @@
 			'CPRS' => $priceData['price'],
 			'APJS' => $apjs,
 			'CPCR' => 'EUR',
+			'CCRU' => 'C',
 			'QDTM' => date("d.m.Y"),
 			'QVON' => date("01.m.Y"),
 			'QBIS' => '31.12.9999',
