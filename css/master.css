@@ -813,3 +813,21 @@ visibility: hidden;
 	text-align: center;
 	border: 1px solid silver;
 }
+
+.resultBox {
+	display: block;
+	font-family: monospace;
+    white-space: pre;
+    margin: 1em 0;
+	height: 200px;
+	width:  90%;
+	background: #FFFFFF;
+	position: relative;
+	top:0px;
+	left:0px;
+	float:left;
+	border:	solid 1px #FF0000;
+	overflow-x:hidden;
+	overflow-y:scroll;
+	text-align: left;
+}
