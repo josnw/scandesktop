@@ -66,6 +66,11 @@ class ShopwareArticles {
 			$cnt++;
 			$article = new product($frow["arnr"]);
 			$stocks = $article->getStocks();
+			
+			if (($_GLOBAL['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "StockList: ".print_r($this->ShopwareStockList,1)."<br/>";
+				print_r($stocks);
+			}
 
 			$stockSum = 0;
 			foreach($stocks as $stockNumber => $stockAmount ) { 
@@ -75,6 +80,13 @@ class ShopwareArticles {
 			}
 			
 			$prices = $article->getPrices( true );
+
+			if (($_GLOBAL['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "PriceBase: ".$this->ShopwarePriceBase."<br/>";
+				print_r($prices);
+			}
+
+
 			$restdata = [ "mainDetail" => [ 
 					"instock" => $stockSum,
 					"prices" => [ 
