@@ -30,16 +30,16 @@ class ShopwareArticles {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and   w.wsnr = :wsnr
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and   w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt or wsdt is null)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or wsdt is null) and c.qvon <= current_date and c.qbis > current_date and mprb = 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
-					    and b.qedt is not null and c.qbis is not null
+					    and b.qedt is not null or c.qbis is not null
 					  order by arnr
 					";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
-			$fqry  = "select a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
+			$fqry  = "select dsitinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
 						left join cond_vk c on c.arnr = w.arnr and w.wsnr = :wsnr and c.qvon > :wsdt and c.qvon <= current_date and c.qbis > current_date and mprb = 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null ))

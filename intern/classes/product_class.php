@@ -182,9 +182,9 @@ class product {
 		
 	}
 		
-	public function getPrices() {
+	public function getPrices($withStdPrice = false) {
 			if (! isset($this->productPrices) or $this->productPrices == NULL ) {
-					$this->getPricesFromDB();
+					$this->getPricesFromDB( $withStdPrice );
 			}
 			return $this->productPrices;
 	}	

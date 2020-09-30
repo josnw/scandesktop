@@ -1,3 +1,4 @@
+2020-09-29;Shopware API;Upload der Bestände mehrerer Läger asl Summe und einen VK-Preis an eine Shopwareinstallation
 2020-08-06;Import Allianz EK; Importiert die Bezugspreise von Allianzpartnern als Lieferantenangebot
 2020-08-02;Order Konverter; TB.Orders (CSV) werden konvertiert, angereichert und als Auftrag zum Import auf eine Channel-individuelle Kundennummer bereitgestellt. 
 2020-07-30;Export Preis/Bestand;Exportkey für Bestand und Preise angepasst; Exportdatum wird in DB gespeichert, d.h. nach dem initialen Export werden dann nur noch die Änderungen seit dem letzten Export berücksichtigt
