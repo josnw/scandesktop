@@ -74,7 +74,7 @@ class ShopwareArticles {
 				}
 			}
 			
-			$prices = $article->getPrices();
+			$prices = $article->getPrices( true );
 			$restdata = [ "mainDetail" => [ 
 					"instock" => $stockSum,
 					"prices" => [ 
