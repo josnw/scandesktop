@@ -67,8 +67,8 @@ class ShopwareArticles {
 			$article = new product($frow["arnr"]);
 			$stocks = $article->getStocks();
 			
-			if (($GLOBALS['debug'] == 1) and ($_SESSION["level"] == 9)) {
-				print "StockList: ".print_r($this->ShopwareStockList,1)."<br/>";
+			if (($SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "<br/>StockList: ".print_r($this->ShopwareStockList,1)."<br/>";
 				print_r($stocks);
 			}
 
@@ -81,8 +81,8 @@ class ShopwareArticles {
 			
 			$prices = $article->getPrices( true );
 
-			if (($GLOBALS['debug'] == 1) and ($_SESSION["level"] == 9)) {
-				print "PriceBase: ".$this->ShopwarePriceBase."<br/>";
+			if (($SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "<br/>PriceBase: ".$this->ShopwarePriceBase."<br/>";
 				print_r($prices);
 			}
 

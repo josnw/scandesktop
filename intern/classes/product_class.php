@@ -21,7 +21,7 @@ class product {
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		if ($level == 'basic') {
-			$fqry  = "select a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn, 
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn, 
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
