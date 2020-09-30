@@ -134,13 +134,13 @@ class product {
 			return $this->productParameter;
 	}	
 	
-	private function getPricesFromDB() {
+	private function getPricesFromDB( $withStdPrice = false) {
 
 		$this->productPrices = [] ;
 		$standardPrice = null;
 		
 		// sql check pricekey list
-		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
+		$priceqry  = "select qbez from mand_prsbas where mprb >= 6";	
 		$price_qry = $this->pg_pdo->prepare($priceqry);
 		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
 		while ($row = $price_qry->fetch( PDO::FETCH_ASSOC ) ) {
@@ -166,8 +166,10 @@ class product {
 				}
 				if ($row["mprb"] == 6) {
 					$standardPrice = $this->productPrices[$row["mprn"]];
-					//no export for standard price
-					unset($this->productPrices[$row["mprn"]]);
+					//default no export for standard price
+					if (! $withStdPrice ) {
+						unset($this->productPrices[$row["mprn"]]);
+					}
 				}
 		}
 		
