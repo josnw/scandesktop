@@ -179,8 +179,7 @@ class product {
 		}
 		
 	}
-	
-	
+		
 	public function getPrices() {
 			if (! isset($this->productPrices) or $this->productPrices == NULL ) {
 					$this->getPricesFromDB();
@@ -242,7 +241,6 @@ class product {
 			}
 			return $this->productStocks;
 	}	
-		
 	
 	public function getTradebyteFormat($arrayName = "p_comp", $parameter = NULL) {
 			if ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "p_comp")) {
