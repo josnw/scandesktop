@@ -33,8 +33,8 @@ class ShopwareArticles {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and   w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt or wsdt is null)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or wsdt is null) and c.qvon <= current_date and c.qbis > current_date and mprb = 6 and cbez = 'PR01'
-					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
-					    and b.qedt is not null or c.qbis is not null
+					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) and a.arnr = '90050300' 
+					    and ( b.qedt is not null or c.qbis is not null )
 					  order by arnr
 					";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
@@ -102,7 +102,7 @@ class ShopwareArticles {
 			if ( ! $noupload ) {
 				$result = $api->put('articles/'.$frow['aenr'].'?useNumberAsId=true',  $restdata);
 			} else {
-				$result = [ "success" => 0, "restdata" => $restdata];
+				$result = [ "success" => 0, "put" => 'articles/'.$frow['aenr'].'?useNumberAsId=true', "restdata" => $restdata, "json" => json_encode($restdata)];
 
 			}
 			
