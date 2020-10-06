@@ -91,6 +91,12 @@ class tradebyteOrders {
             'QHWG' => 'EUR',
             'QZWG' => 'EUR'
 		];
+
+		//split channel order number 
+		$facHead['FFBG'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],0,20);
+		if (strlen($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID']) > 20 ) {
+			$facHead['FFBZ'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],19,20);
+		}
 		
 		// automatic flag if payed
 		if (strlen($this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID']) > 0 ){
