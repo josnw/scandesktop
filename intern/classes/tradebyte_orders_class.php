@@ -168,7 +168,6 @@ class tradebyteOrders {
 				'QSBZ' => $this->OrdersData[$orderId]['head']['CHANNEL_KEY'].' '.$this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],
 				'FDTM' => date("d.m.Y",strtotime($this->OrdersData[$orderId]['head']['ORDER_DATE'])),
 				'FLDT' => date("d.m.Y", time()+(60*60*18)),
-				
 				'FPOS' => $cnt++,
 				'FPNZ' => $posData['POS_LFDNR'],
 				'AAMR' => $posData['POS_ANR'],
@@ -198,6 +197,11 @@ class tradebyteOrders {
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
 				'FACT' => 9219,
+				'FABL' => 'TB_PAYMENT_TRANSACTION_ID='.$this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID']."\n".
+						  'TB_POS_TB_ID='.$posData['POS_TB_ID']."\n". 	
+						  'TB_POS_A_ID='.$posData['POS_A_ID']."\n". 	
+						  'TB_POS_CHANNEL_ID='.$posData['POS_CHANNEL_ID']."\n". 	
+						  'TB_POS_BILLING_TEXT='.$posData['POS_BILLING_TEXT']."\n" ,
 			];	
 				
 		}
