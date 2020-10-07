@@ -14,7 +14,7 @@ $TradebyteWebshopNumber = 1;
 $security_distance_abs = 1;
 $security_distance_rel = 0.1;
 
-$isPaidPaymentType = ['otdm' ];
+$isPaidPaymentTypes = ['otdm' ];
 
 $channelFacData['ebde']['CustomerNumber'] = 200001;
 $channelFacData['ebde']['Filiale'] = 918;
