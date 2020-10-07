@@ -14,14 +14,14 @@ class tradebyteOrders {
 	private $posData;
 	private $channel;
 	private $facFiliale;
-	private $isPaidPaymentType
+	private $isPaidPaymentTypes;
 	
 	public function __construct($filename) {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
-		$this->isPaidPaymentType = $isPaidPaymentType;
+		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->importHandle = new myfile($filename);
 		$this->importKeyList = $this->importHandle->readCSV();
 
@@ -101,7 +101,7 @@ class tradebyteOrders {
 		
 		// automatic flag if payed
 		if ((strlen($this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID']) > 0 )
-		     or ( in_array( $this->OrdersData[$orderId]['head']['PAYMENT_TYPE'] , $this->isPaidPaymentType) ) {
+		     or ( in_array( $this->OrdersData[$orderId]['head']['PAYMENT_TYPE'] , $this->isPaidPaymentTypes) )) {
 			$facHead['FFKT'] = 0;
 		} else {
 			$facHead['FFKT'] = 1;
@@ -199,25 +199,15 @@ class tradebyteOrders {
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
 				'FACT' => 9219,
-				'FABL' => 'TB_PAYMENT_TRANSACTION_ID='.$this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID']."\n".
-						  'TB_POS_TB_ID='.$posData['POS_TB_ID']."\n". 	
-						  'TB_POS_A_ID='.$posData['POS_A_ID']."\n". 	
-						  'TB_POS_CHANNEL_ID='.$posData['POS_CHANNEL_ID']."\n". 	
-						  'TB_POS_BILLING_TEXT='.$posData['POS_BILLING_TEXT']."\n" ,
 			];	
 
-			$facPos[[$cnt]['FABL'] = [
+			$facPos[$cnt]['FABL'] = [
 				'TB_PAYMENT_TRANSACTION_ID='.$this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID'],
 				'TB_POS_TB_ID='.$posData['POS_TB_ID'],
 				'TB_POS_A_ID='.$posData['POS_A_ID'],
 				'TB_POS_CHANNEL_ID='.$posData['POS_CHANNEL_ID'],
 				'TB_POS_BILLING_TEXT='.$posData['POS_BILLING_TEXT'],
 			];
-			
-			
-			
-		}
-
 			
 		}
 		
