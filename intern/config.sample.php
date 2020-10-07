@@ -14,9 +14,15 @@ $TradebyteWebshopNumber = 1;
 $security_distance_abs = 1;
 $security_distance_rel = 0.1;
 
+$isPaidPaymentType = ['otdm' ];
+
 $channelFacData['ebde']['CustomerNumber'] = 200001;
 $channelFacData['ebde']['Filiale'] = 918;
 $channelFacData['ebde']['formId'] = '0090';
+
+$channelFacData['otdm']['CustomerNumber'] = 200002;
+$channelFacData['otdm']['Filiale'] = 918;
+$channelFacData['otdm']['formId'] = '0091';
 
 
 // Shopware Config
