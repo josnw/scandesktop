@@ -23,17 +23,20 @@
 		 // read article base data
 		$article = new product(sprintf("%08d",$stockData['ordernumber']));
 		if (!isset($article->productData[0])) {
-			continue;
+			continue;			
 		}
+		
+		$aviableStock = round(($$stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
+		
 		// calculate aviable base stock
 		if (isset($article->productData[0]['amgm'])) {
-			$baseStock = $stockData['stock']*$article->productData[0]['amgm'];
+			$baseStock = $aviableStock*$article->productData[0]['amgm'];
 		} else {
-			$baseStock = $stockData['stock'];
+			$baseStock = $aviableStock;
 		}
-		$aviableStock = round(($baseStock - $security_distance_abs) * (1 - $security_distance_rel),3);
-		if ($aviableStock < 0) {
-			$aviableStock = 0;
+		
+		if ($baseStock < 0) {
+			$baseStock = 0;
 		}
 		// write to wws import file
 		$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
@@ -43,7 +46,7 @@
 			'XYAK' => '',
 			'ACHB' => '',
 			'IFNR' => $stockData['shopid'],
-			'AMGE' => $aviableStock,
+			'AMGE' => $baseStock,
 		]);
 		
 		$facimp->facFoot();
