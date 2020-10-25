@@ -11,34 +11,46 @@ class myfile {
 	private $isFacFile;
 
 	public function __construct($filename, $mode = "read") {
-		$this->isFacFile = false;
-		$realpath = realpath( dirname($filename) );
-		$subpath = str_replace(getcwd() . DIRECTORY_SEPARATOR , '', $realpath);
-		$realname = preg_replace("[^a-zA-Z0-9_\-\.". DIRECTORY_SEPARATOR ."]","_",basename($filename)) ;
-		$this->checkedPathName =  getcwd() . DIRECTORY_SEPARATOR . $subpath.  DIRECTORY_SEPARATOR . $realname;
-		$this->checkedName = $realname;
-		if ($mode == "append") {
-			$this->fileHandle = fopen($this->checkedPathName , "a+");
-			$this->mode = "append";
-		} elseif ($mode == "new") {
-			if (file_exists($this->checkedPathName)) {
-				$this->findNewName();
+		try {
+			if (in_array(substr($filename,-4),['.php','html','.htm'])) {
+				$filename .= '.txt';			
 			}
-			$this->fileHandle = fopen($this->checkedPathName , "a+");
-			$this->mode = "append";
-		} elseif ($mode == "readfull") {
-			$this->fileHandle = NULL;
-			$this->fullText = file_get_contents($this->checkedPathName);
-			$this->mode = "readfull";
-		} elseif ($mode == "read") {
-			$this->fileHandle = fopen($this->checkedPathName , "r");
-			$this->mode = "read";
-		} elseif ($mode == "writefull") {
-			$this->mode = "writefull";
-		} else {
-			return false;
+			
+			$this->isFacFile = false;
+			$realpath = realpath( dirname($filename) );
+			$subpath = str_replace(getcwd() . DIRECTORY_SEPARATOR , '', $realpath);
+			$realname = preg_replace("[^a-zA-Z0-9_\-\.". DIRECTORY_SEPARATOR ."]","_",basename($filename)) ;
+			$this->checkedPathName =  getcwd() . DIRECTORY_SEPARATOR . $subpath.  DIRECTORY_SEPARATOR . $realname;
+			$this->checkedName = $realname;
+			if ($mode == "append") {
+				$this->fileHandle = fopen($this->checkedPathName , "a+");
+				$this->mode = "append";
+			} elseif ($mode == "new") {
+				if (file_exists($this->checkedPathName)) {
+					$this->findNewName();
+				}
+				$this->fileHandle = fopen($this->checkedPathName , "a+");
+				$this->mode = "append";
+			} elseif ($mode == "newUpload") {
+				if (file_exists($this->checkedPathName)) {
+					$this->findNewName();
+				}
+				$this->mode = "newUpload";
+			} elseif ($mode == "readfull") {
+				$this->fileHandle = NULL;
+				$this->fullText = file_get_contents($this->checkedPathName);
+				$this->mode = "readfull";
+			} elseif ($mode == "read") {
+				$this->fileHandle = fopen($this->checkedPathName , "r");
+				$this->mode = "read";
+			} elseif ($mode == "writefull") {
+				$this->mode = "writefull";
+			} else {
+				return false;
+			}
+		} catch (Exception $e) {
+			die("Exception: ".$e->getMessage());
 		}
-		
 	}
 	
 	private function findNewName() {
@@ -58,6 +70,11 @@ class myfile {
 	public function getCheckedName() {
 
 		return $this->checkedName;
+	}
+
+	public function getCheckedPathName() {
+
+		return $this->checkedPathName;
 	}
 	
 	public function write($line) {
@@ -83,6 +100,14 @@ class myfile {
 			return false;
 		}
 	}
+
+	public function writeJson($array) {
+		if ($this->mode == "append") {
+			fwrite($this->fileHandle, json_encode($array));
+		} else {
+			return false;
+		}
+	}
 	
 	public function readLn() {
 		if ($this->mode == "read") {
@@ -93,6 +118,9 @@ class myfile {
 	}
 
 	public function readCSV($sep = ';') {
+		if ($this->fileHandle == NULL) {
+			return false;
+		}
 		if ($this->mode == "read") {
 			return fgetcsv($this->fileHandle, 4048, $sep);
 		} else {
@@ -110,11 +138,20 @@ class myfile {
 	
 	public function putContent( $data ) {
 		if ($this->mode == "writefull") {
-			file_put_contents($data);
+			file_put_contents($this->checkedPathName, $data);
 		} else {
 			return false;
 		}
 	}
+
+	public function readJson() {
+		if ($this->mode == "readfull") {
+			return json_decode($this->fullText,true);
+		} else {
+			return false;
+		}
+	}
+
 	
 	public function fileSize() {
 		return filesize($this->checkedName);
@@ -179,5 +216,7 @@ class myfile {
 		$this->isFacFile = false;
 	}
 
-	
+	public function moveUploaded($uploadFile) {
+		move_uploaded_file($uploadFile,$this->checkedPathName);	
+	}
 }
