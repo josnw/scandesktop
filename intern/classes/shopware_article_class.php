@@ -73,12 +73,13 @@ class ShopwareArticles {
 			}
 
 			$stockSum = 0;
-			foreach($stocks as $stockNumber => $stockAmount ) { 
-				if (in_array( $stockNumber , $this->ShopwareStockList)) {
-					$stockSum += $stockAmount;
+			if ($frow["wson"] == 1) {
+				foreach($stocks as $stockNumber => $stockAmount ) { 
+					if (in_array( $stockNumber , $this->ShopwareStockList)) {
+						$stockSum += $stockAmount;
+					}
 				}
 			}
-			
 			$prices = $article->getPrices( true );
 
 			if (($SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
@@ -107,7 +108,7 @@ class ShopwareArticles {
 			}
 			
 			if ($result["success"] == 1) {
-			  $this->setUpdateTime($frow['arnr']);
+			  $this->setUpdateTime($frow['arnr'], $frow['wson']);
 			} else {
 			  $errorlist .= $frow['arnr']."\t".print_r($result,1); 
 			}
@@ -118,15 +119,21 @@ class ShopwareArticles {
 		
 	}
 	
-	public function setUpdateTime($article) {
+	public function setUpdateTime($article, $state = 1) {
 		
 		// select article list for export, create handle only for scaling up big artile lists
 		$fqry  = "update web_art w set wsdt = :wsdt where w.wsnr = :wsnr and arnr = :arnr";	
 		
+		if ($state) {
+			$updTime = date("Y-m-d H:i:s", $this->startTime);
+		} else {
+			$updTime = NULL;
+		}
+		
 		$uploadDate_upd = $this->pg_pdo->prepare($fqry);
 		$uploadDate_upd->bindValue(':wsnr',$this->ShopwareWebshopNumber);
 		$uploadDate_upd->bindValue(':arnr',$article);
-		$uploadDate_upd->bindValue(':wsdt',date("Y-m-d H:i:s", $this->startTime));
+		$uploadDate_upd->bindValue(':wsdt',$updTime);
 		
 		$uploadDate_upd->execute() or die (print_r($uploadDate_upd->errorInfo()));
 
