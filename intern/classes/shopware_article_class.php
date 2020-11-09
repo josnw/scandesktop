@@ -34,7 +34,7 @@ class ShopwareArticles {
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt or wsdt is null)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or wsdt is null) and c.qvon <= current_date and c.qbis > current_date and mprb = 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
-					    and ( b.qedt is not null or c.qbis is not null )
+					    and ( b.qedt is not null or c.qbis is not null  or wson = 0 )
 					  order by arnr
 					";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);

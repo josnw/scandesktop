@@ -56,7 +56,7 @@
   } 
 
  // select last update date for every allianz company
- $sql_fil = "select qbnr, qbtl, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qbtl::integer where ifnr > 1 and qbnr <> '' group by qbnr, qbtl";
+ $sql_fil = "select ifnr, qlnr, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qlnr::integer where ifnr > 1 and qlnr > 0 group by ifnr, qlnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die(print $fil_qry->errorInfo()[2]);
  $facimp = new myfile($docpath.$facImportFile,'new');
@@ -64,7 +64,7 @@
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single price
 
-	$pricelist = $allianzdata->getPrice($filrow['qbnr'], $filrow['date']);
+	$pricelist = $allianzdata->getPrice($filrow['ifnr'], $filrow['date']);
 
 	foreach ($pricelist["data"] as $priceData) {
 
@@ -102,7 +102,7 @@
 			'XXAK' => '',
 			'XYAK' => '',
 			'OBNR' => '0',
-			'LINR' => $filrow['qbtl'],
+			'LINR' => $filrow['qlnr'],
 		]);
 		
 		$facimp->facFoot();
@@ -110,7 +110,7 @@
 		// write to wws import file
 		$facimp->facHead('COND_EK',0,'N ');
 		$facimp->facData([
-			'CONR' => $filrow['qbtl'].sprintf("%08d",$priceData['ordernumber']),
+			'CONR' => $filrow['qlnr'].sprintf("%08d",$priceData['ordernumber']),
 			'MPRB' => '1',
 			'ARNR' => sprintf("%08d",$priceData['ordernumber']),
 			'XXAK' => '',
@@ -126,7 +126,7 @@
 			'QVON' => date("01.m.Y"),
 			'QBIS' => '31.12.9999',
 			'AMEH' => $article->productData[0]['ameh'],
-			'LINR' => $filrow['qbtl'],
+			'LINR' => $filrow['qlnr'],
 		]);
 		
 		$facimp->facFoot();

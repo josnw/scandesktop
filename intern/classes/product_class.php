@@ -6,13 +6,14 @@ class product {
 	private $my_pdo;
 	private $pg_pdo;
 	
-	private $poductData;
+	public $productData;
 	private $resultCount;
 	private $productGtin;
 	private $productParameter;
 	private $productPrices;
 	private $productPictures;
 	private $productDataTradeByteFormat;
+	private $productStckListData;
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic') {
@@ -22,7 +23,7 @@ class product {
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		if ($level == 'basic') {
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn, 
-			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh
+			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						where i.aamr = :aamr ";
@@ -274,6 +275,28 @@ class product {
 			return $TbParam;
 	}	
 
+	public function getStcklistData() {
+
+		if ($this->productData[0][aart] != 2) {
+			return false;
+		}
+		if ($this->productStckListData == null) {
+			$fqry  = "select a.astl, (a.asmz/a.asmn) as asmg, t.abz1, m.mmss, b.ameh, b.qgrp, a.asmz, a.asmn from art_stl a 
+						left join art_0 b on a.astl = b.arnr 
+						inner join art_txt t on a.astl = t.arnr and t.xxak = '' and t.xyak = '' and t.qscd = 'DEU' 
+						left join mand_mwst m on b.apkz = m.mmid 
+					  where a.arnr = :arnr";
+
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':arnr',$this->productId);
+			$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+
+			$this->productStckListData = $f_qry->fetchAll( PDO::FETCH_ASSOC );
+		}
+	
+		return $this->productStckListData;
+		
+	}
 
 	
 }
