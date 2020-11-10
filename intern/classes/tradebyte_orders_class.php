@@ -22,7 +22,7 @@ class tradebyteOrders {
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
-		$this->ShippingNumber = $ShippingNumber;
+		$this->Shipping = $Shipping;
 		$this->importHandle = new myfile($filename);
 		$this->importKeyList = $this->importHandle->readCSV();
 
@@ -227,7 +227,12 @@ class tradebyteOrders {
 		
 		if ($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'] > 0) {
 			
-			$article = new product($this->ShippingNumber);
+			if (isset($this->Shipping['article'])) {
+				$article = new product($this->Shipping['article']);
+			} else {
+			$article = new product($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
+				$this->Shipping['article'] = $article->getProductId();
+			}
 			
 			$facPos[$cnt] = [
 				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
@@ -245,8 +250,8 @@ class tradebyteOrders {
 				'FLDT' => date("d.m.Y", time()+(60*60*18)),
 				'FPOS' => $cnt,
 				'FPNZ' => '',
-				'AAMR' => $this->ShippingNumber,
-				'ARNR' => $this->ShippingNumber,
+				'AAMR' => $this->Shipping['article'],
+				'ARNR' => $this->Shipping['article'],
 				'QGRP' => $article->productData[0]['qgrp'],
 				'FART' => 1,
 				'XXAK' => '',

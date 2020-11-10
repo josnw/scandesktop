@@ -16,7 +16,7 @@ class product {
 	private $productStckListData;
 	
 	// Artikeldaten einlesen
-	public function __construct($indexvalue, $level = 'basic') {
+	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
 
 		include ("./intern/config.php");
 
@@ -27,6 +27,8 @@ class product {
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						where i.aamr = :aamr ";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':aamr',$indexvalue);
 		} elseif ($level == 'tradebyte') {
 			// ,
 			//		   coalesce( ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 and qbez ~ 'prim..r' order by qvon desc limit 1 ),  
@@ -41,9 +43,23 @@ class product {
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
 						left join lif_0 l on a.linr = l.linr
 						where a.arnr = :aamr ";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':aamr',$indexvalue);
+		} elseif ($level == 'searchPrice') {
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, a.apjs, a.linr, asco, a.apkz, a.amgz, a.amgn, 
+								  case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
+								  cprs, abs(cprs - :price) as diff
+								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
+									left join art_ean e on a.arnr = e.arnr and e.qskz = 1
+									where v.arnr between :fromarnr and :toarnr and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
+									order by diff limit 1";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':price',$indexvalue);
+			$f_qry->bindValue(':fromarnr',$searchoptions['fromArticle']);
+			$f_qry->bindValue(':toarnr',$searchoptions['toArticle']);
+		
 		}
-		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':aamr',$indexvalue);
+
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
 		$frow = $f_qry->fetchAll( PDO::FETCH_ASSOC );
