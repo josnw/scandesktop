@@ -109,7 +109,7 @@ class tradebytePanda {
 			$stock_qry = $this->pg_pdo->prepare($stockqry);
 			$stock_qry->bindValue(':wsdt',$checkDate);
 		}
-		$stock_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
+		//$stock_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
 		$this->stockList = $stock_qry->fetchall(PDO::FETCH_NUM );
 
