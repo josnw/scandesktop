@@ -101,7 +101,7 @@ class ShopwareOrders {
 	
 	public function setOrderState($orderId, $state) {
 		if ($orderId > 0) {
-			$client->put('orders/'.$orderId, array(
+			$this->ShopwareApiClient->put('orders/'.$orderId, array(
 					'orderStatusId' => $state
 				)
 			);  
