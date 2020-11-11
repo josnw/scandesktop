@@ -34,6 +34,46 @@
 	}
 }
 
+ if (isset($_POST["getOrders"]) or (isset($argv) and in_array("/getOrders", $argv))) {
+	
+	$facfile = new myfile($docpath."/ORDERS_SW".time().".FAC","new");
+	$facfile->writeUTF8BOM();
+	
+	$shopwareApi = new RestApiClient($shopware_url, $shopware_user, $shopware_key); 
+	
+	$ordersApi = new ShopwareOrders($shopwareApi);
+	$orders = $ordersApi->getOrderList();
+
+	$rowCount = 0;
+	foreach ($orders['data'] as $order) {
+
+		$facOrderData = $ordersApi->getOrderFacData($order['id']);
+		if (isset($facOrderData["Customer"])) {
+			$facfile->facHead("KUN_0", $channelFacData['shopware']['Filiale']);
+			$facfile->facData($facOrderData["Customer"]);
+		}
+		
+		$facfile->facHead("AUFST_KOPF", $channelFacData['shopware']['Filiale']);
+		$facfile->facData($facOrderData["Head"]);
+		$rowCount++;
+		foreach($facOrderData["Pos"] as $facpos) {
+			$facfile->facHead("AUFST_POS",  $channelFacData['shopware']['Filiale']);
+			$facfile->facData($facpos);
+		}
+		
+		$facOrderData->setOrderState($order['id'], 1);
+	}
+	$facfile->facfoot();
+	$exportfile = $docpath.$facfile->getCheckedName();
+	$filename = $facfile->getCheckedName();
+
+	if (php_sapi_name() != 'cli') {
+		include("./intern/views/shopware_result_view.php");
+	} else {
+		print_r($result);
+	}
+}
+
 if (php_sapi_name() == 'cli') {
 	// no form output on console
 	exit;

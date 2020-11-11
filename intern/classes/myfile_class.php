@@ -109,6 +109,14 @@ class myfile {
 		}
 	}
 	
+	public function writeUTF8BOM() {
+		if ($this->mode == "append") {
+			fwrite($this->fileHandle, chr(239) . chr(187) . chr(191);
+		} else {
+			return false;
+		}
+	}
+	
 	public function readLn() {
 		if ($this->mode == "read") {
 			return fgets($this->fileHandle, 4048);
@@ -219,4 +227,6 @@ class myfile {
 	public function moveUploaded($uploadFile) {
 		move_uploaded_file($uploadFile,$this->checkedPathName);	
 	}
-}
+
+	
+	}

@@ -2,6 +2,7 @@
 	<div class="DSFeld4 smallBorder">
 		<?php
 			print $rowCount." Datensätze exportiert!<br/>";
+			if (isset($exportfile) ) { print "<a href=".$exportfile.">[Download ".$filename."]</a>"; }
 			if (strlen($errorList) > 0) {
 				print "<h3>Folgende Fehler sind aufgetreten!</h3>";
 				print "<div class=resultBox>";

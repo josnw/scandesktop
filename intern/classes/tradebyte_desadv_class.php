@@ -1,7 +1,7 @@
 <?php 
 
 
-class tradebyteOrders {
+class tradebyteDesAdv {
 
 	private $pg_pdo;
 	private $TradebyteWebshopNumber;
@@ -22,7 +22,6 @@ class tradebyteOrders {
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
-		$this->Shipping = $Shipping;
 		$this->importHandle = new myfile($filename);
 		$this->importKeyList = $this->importHandle->readCSV();
 
@@ -32,27 +31,41 @@ class tradebyteOrders {
 		return true;
 	}
 	
-	public function readFullData() {
+	public function readDeliveryData() {
 	
 		$this->OrdersData = [];
 		$this->OrdersIdList = [];
 		//read line from Importfile
+		
+		$oldOrderId = 0;
 		while ( $line = $this->importHandle->readCSV() ) {
-			
+			if ($oldOrderId <> $row["Auftrag-ID"]) {
+				$cnt = 0;		
+				$oldOrderId = $row["Auftrag-ID"];
+			}
 			//combine line with head	
 			$row = array_combine($this->importKeyList, $line);
 			
 			//split head data and pos data
-			foreach($row as $key=>$value) {
-				if (substr($key,0,4) == 'POS_') {
-					$this->OrdersData[$row['TB_ORDER_ID']]['pos'][$row['POS_LFDNR']][$key] = $value;
-				} else {
-					$this->OrdersData[$row['TB_ORDER_ID']]['head'][$key] = $value;
-					if (!in_array($row['TB_ORDER_ID'], $this->OrdersIdList)) {
-						$this->OrdersIdList[] = $row['TB_ORDER_ID'];
-					}
-				}
+
+			$this->OrdersData[$row['Auftrag-ID']]['head']['TB_ORDER_ID'] = $row["Auftrag-ID"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['CHANNEL_ORDER_ID'] = $row["Auftrag-Nr"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['PARCEL_TYPE'] = $row["Pakettyp"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['SHIP_CODE'] = $row["Ship-Code"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_FIRSTNAME'] = $row["Vorname-Rechnung"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_SURNAME'] = $row["Nachname-Rechnung"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_EMAIL'] = $row["E-Mail-Rechnung"];
+			$this->OrdersData[$row['Auftrag-ID']]['head']['ORDER_DATE'] = $row["Bestelldatum"];
+			
+			
+			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_ANR'] = $row["Artikel-Nr"];
+			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] = $row["Produktname"];
+			if (strlen($row["Variante"]) > 0) {
+				$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] .= ' Variante: '.$row["Variante"];
 			}
+			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['SHIP_QUANTITY'] = $row["Liefermenge"];
+			
+			$cnt++;
 		}
 	}
 	
@@ -156,11 +169,6 @@ class tradebyteOrders {
 				$posApjs = $article->productData[0]['apjs'];
 				$posApkz = $article->productData[0]['apkz'];
 			}
-			if ($article->productData[0]['aart'] == 2) {
-				$fakt = 3153923;
-			} else {
-				$fakt = 8195;
-			}			
 			
 			$facPos[$cnt] = [
 				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
@@ -176,7 +184,7 @@ class tradebyteOrders {
 				'QSBZ' => $this->OrdersData[$orderId]['head']['CHANNEL_KEY'].' '.$this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],
 				'FDTM' => date("d.m.Y",strtotime($this->OrdersData[$orderId]['head']['ORDER_DATE'])),
 				'FLDT' => date("d.m.Y", time()+(60*60*18)),
-				'FPOS' => $cnt,
+				'FPOS' => $cnt++,
 				'FPNZ' => $posData['POS_LFDNR'],
 				'AAMR' => $posData['POS_ANR'],
 				'ARNR' => $posData['POS_ANR'],
@@ -204,7 +212,7 @@ class tradebyteOrders {
 				'FEPB' => $posPrice,
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
-				'FACT' => $fakt,
+				'FACT' => 9219,
 			];	
 
 			$facPos[$cnt]['FABL'] = [
@@ -215,69 +223,6 @@ class tradebyteOrders {
 				'TB_POS_BILLING_TEXT='.$posData['POS_BILLING_TEXT'],
 			];
 			
-			$cnt++;
-			
-			if ($article->productData[0]['aart'] == 2) {
-				$stckListData = $article->getStcklistData();
-				foreach( $stckListData as $slArticle ) {
-					$facPos[$cnt] = $this->getStckListPos($slArticle, $posFmge, $cnt++);
-				}
-			}
-		}
-		
-		if ($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'] > 0) {
-			
-			if (isset($this->Shipping['article'])) {
-				$article = new product($this->Shipping['article']);
-			} else {
-				$article = new product($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
-			}
-			$shippingArticle = $article->getProductId();
-			
-			$facPos[$cnt] = [
-				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'FXNS' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'FXNA' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'IFNR' => $this->facFiliale,
-				'FTYP' => 2,
-				'FPRJ' => '000000',
-				'CKSS' => '000000',
-				'OBNR' => '000000',
-				'FNUM' => $this->OrdersData[$orderId]['head']['TB_ORDER_ID'],
-				'FBLG' => $this->OrdersData[$orderId]['head']['TB_ORDER_ID'],
-				'QSBZ' => $this->OrdersData[$orderId]['head']['CHANNEL_KEY'].' '.$this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],
-				'FDTM' => date("d.m.Y",strtotime($this->OrdersData[$orderId]['head']['ORDER_DATE'])),
-				'FLDT' => date("d.m.Y", time()+(60*60*18)),
-				'FPOS' => $cnt,
-				'FPNZ' => '',
-				'AAMR' => $shippingArticle,
-				'ARNR' => $shippingArticle,
-				'QGRP' => $article->productData[0]['qgrp'],
-				'FART' => 1,
-				'XXAK' => '',
-				'XYAK' => '',
-				'QNVE' => $this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID'],
-				'ALGO' => 'HL',
-				'APKZ' => $article->productData[0]['apkz'],
-				'ASMN' => 1,
-				'QPRA' => 0,
-				'ASMZ' => 1,
-				'ABZ1' => $article->productData[0]['abz1'],
-				'ABZ2' => $article->productData[0]['abz2'],
-				'ABZ3' => $article->productData[0]['abz3'],
-				'ABZ4' => $article->productData[0]['abz4'],
-				'FMGB' => 1,
-				'FMGZ' => $article->productData[0]['amgz'],
-				'FMGN' => $article->productData[0]['amgn'],
-				'FMGE' => 1,
-				'APJS' => $article->productData[0]['apjs'],
-				'AMEH' => $article->productData[0]['ameh'],
-				'AGEH' => $article->productData[0]['ageh'],
-				'FEPB' => $this->OrdersData[$orderId]['head']['SHIPPING_COSTS'],
-				'QPAS' => '',
-				'ASCO' => '',
-				'FACT' => 8195,
-			];	
 		}
 		
 		return $facPos;
@@ -300,67 +245,5 @@ class tradebyteOrders {
 		return $this->OrdersData[$orderId]['head']['CHANNEL_KEY'];
 	}
 
-	public function  getStckListPos($slArticle, $quantity, $cnt) {
-
-			$article = new product($slArticle['astl']);
-			$posFmge = $quantity * $slArticle['asmg']; 
-			if ($article->productData[0]['amgn'] > 0) {
-				$posFmgb = $posFmge*$article->productData[0]['amgz']/$article->productData[0]['amgn'];
-			} else {
-				$posFmgb = $posFmge;
-			}
-			$posPrice = 0;
-			$posApjs = $article->productData[0]['apjs'];
-			$posApkz = $article->productData[0]['apkz'];
-			
-			$facPos = [
-				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'FXNS' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'FXNA' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
-				'IFNR' => $this->facFiliale,
-				'FTYP' => 2,
-				'FPRJ' => '000000',
-				'CKSS' => '000000',
-				'OBNR' => '000000',
-				'FNUM' => $this->OrdersData[$orderId]['head']['TB_ORDER_ID'],
-				'FBLG' => $this->OrdersData[$orderId]['head']['TB_ORDER_ID'],
-				'QSBZ' => $this->OrdersData[$orderId]['head']['CHANNEL_KEY'].' '.$this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],
-				'FDTM' => date("d.m.Y",strtotime($this->OrdersData[$orderId]['head']['ORDER_DATE'])),
-				'FLDT' => date("d.m.Y", time()+(60*60*18)),
-				'FPOS' => $cnt,
-				'FPNZ' => '',
-				'AAMR' => $slArticle['astl'],
-				'ARNR' => $slArticle['astl'],
-				'QGRP' => $article->productData[0]['qgrp'],
-				'FART' => 6,
-				'XXAK' => '',
-				'XYAK' => '',
-				'QNVE' => $this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID'],
-				'ALGO' => 'HL',
-				'APKZ' => $article->productData[0]['apkz'],
-				'ASMN' => 1,
-				'QPRA' => 0,
-				'ASMZ' => 1,
-				'ABZ1' => $article->productData[0]['abz1'],
-				'ABZ2' => $article->productData[0]['abz2'],
-				'ABZ3' => $article->productData[0]['abz3'],
-				'ABZ4' => $article->productData[0]['abz4'],
-				'FMGB' => $fposFmgb,
-				'FMGZ' => $article->productData[0]['amgz'],
-				'FMGN' => $article->productData[0]['amgn'],
-				'ASMZ' => $slArticle['asmz'],
-				'ASMN' => $slArticle['asmn'],
-				'FMGE' => $posFmge,
-				'APJS' => $article->productData[0]['apjs'],
-				'AMEH' => $article->productData[0]['ameh'],
-				'AGEH' => $article->productData[0]['ageh'],
-				'FEPB' => $posPrice,
-				'QPAS' => '',
-				'ASCO' => $posData['POS_EAN'],
-				'FACT' => 33562627,
-			];	
-		
-		return $facPos;
-	}
 }	
 ?>
