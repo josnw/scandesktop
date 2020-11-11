@@ -29,6 +29,7 @@ $channelFacData['otdm']['formId'] = '0091';
 $ShopwareWebshopNumber = 2;
 $ShopwarePriceGroup = 'EK';
 $ShopwarePriceBase = 'Bruttopreis 1';
+$ShopwareIdWebshop = 1;
 $ShopwareStockList = [0,36];
 	
 $shopware_url = 'https://host/api';
@@ -48,6 +49,9 @@ $wwspass='';
 $wwsAdminUsers = [ 999, 998 ];
 $wwsChiefGroups = [ 1,2 ];
 
+//$Shipping['article'] = '01';
+$Shipping['fromArticle'] = '01';
+$Shipping['toArticle'] = '05';
 
 // Scandesktop intern 
 

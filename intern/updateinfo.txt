@@ -1,3 +1,5 @@
+2020-11-10;Tradebyte Orders;korrekter Import der Frachtkosten. Optional Einzelnnummer oder Suchfunktion anhand des Standardpreises in einem definierten Nummernkreis.
+2020-11-10;Tradebyte Orders;Unterstützt jetzt Stücklistenartikel beim Import 
 2020-09-29;Shopware API;Upload der Bestände mehrerer Läger asl Summe und einen VK-Preis an eine Shopwareinstallation
 2020-08-06;Import Allianz EK; Importiert die Bezugspreise von Allianzpartnern als Lieferantenangebot
 2020-08-02;Order Konverter; TB.Orders (CSV) werden konvertiert, angereichert und als Auftrag zum Import auf eine Channel-individuelle Kundennummer bereitgestellt. 
