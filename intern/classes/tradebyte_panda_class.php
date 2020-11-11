@@ -116,10 +116,10 @@ class tradebytePanda {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+			$fqry  = "select distinct arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
-			$fqry  = "select arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > :wsdt";	
+			$fqry  = "select distinct arnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > :wsdt";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 			$this->articleList_qry->bindValue(':wsdt',$checkDate);
 		}
@@ -206,11 +206,11 @@ class tradebytePanda {
 			}
 		} elseif ($type == 'price') {
 			foreach($this->priceTypeList as $price) {
-				$exportarray["a_vk[".$price[0]."]"] = "";
+				$exportarray["a_vk[".$price[0]."]"] = 0;
 			}
 		} elseif ($type == 'stock') {
 			foreach($this->stockList as $stock) {
-				$exportarray["a_stock[".$stock[0]."]"] = "";
+				$exportarray["a_stock[".$stock[0]."]"] = 0;
 			}
 		} elseif ($type == 'media') {
 			foreach($this->priceTypeList as $media) {
@@ -269,6 +269,9 @@ class tradebytePanda {
 				$temp_array[$key] = trim($value);
 				if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z²³°]{1,5}/",$value))) {
 					$temp_array[$key] = str_replace(".",",",$value);
+				} 
+				if ($value = null) {
+				  $value = '';	
 				}
 			}
 			$panda->writeCSV($temp_array);
