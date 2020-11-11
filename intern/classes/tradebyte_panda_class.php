@@ -102,10 +102,10 @@ class tradebytePanda {
 		// sql check stock list for export array
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > w.wsdt";	
+			$stockqry  = "select distinct ifnr from art_best b order by ifnr";	
 			$stock_qry = $this->pg_pdo->prepare($stockqry);
 		} else {
-			$stockqry  = "select distinct ifnr from art_best b inner join web_art w using (arnr) where  w.wsnr = :wsnr and b.qedt > :wsdt";	
+			$stockqry  = "select distinct ifnr from art_best b order by ifnr";	
 			$stock_qry = $this->pg_pdo->prepare($stockqry);
 			$stock_qry->bindValue(':wsdt',$checkDate);
 		}
@@ -239,9 +239,7 @@ class tradebytePanda {
 				$article = new product($frow["arnr"]);
 				$index = $article->getTradebyteFormat("basedata");
 				$stock = $article->getTradebyteFormat("a_stock");
-
 				$temp_array = array_merge($index,$exportarray, $stock);
-
 			} elseif ($type == 'price') {
 				$article = new product($frow["arnr"]);
 				$index = $article->getTradebyteFormat("basedata");
