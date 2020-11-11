@@ -61,7 +61,7 @@
 			$facfile->facData($facpos);
 		}
 		
-		$facOrderData->setOrderState($order['id'], 1);
+		$ordersApi->setOrderState($order['id'], 1);
 	}
 	$facfile->facfoot();
 	$exportfile = $docpath.$facfile->getCheckedName();
