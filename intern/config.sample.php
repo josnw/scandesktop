@@ -36,6 +36,11 @@ $shopware_url = 'https://host/api';
 $shopware_user = 'apiuser';
 $shopware_key = 'apikey';
 
+$channelFacData['shopware']['CustomerNumber'] = 100000;
+$channelFacData['shopware']['GroupCustomer'] = false;
+$channelFacData['shopware']['Filiale'] = 918;
+$channelFacData['shopware']['formId'] = '0001';
+
 // WWS Config
 $facImportFile = './docs/ScanDesktopImport.FAC'
 $scanDeskFacFiliale = 916;

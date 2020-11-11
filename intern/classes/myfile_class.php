@@ -111,7 +111,7 @@ class myfile {
 	
 	public function writeUTF8BOM() {
 		if ($this->mode == "append") {
-			fwrite($this->fileHandle, chr(239) . chr(187) . chr(191);
+			fwrite($this->fileHandle, chr(239) . chr(187) . chr(191));
 		} else {
 			return false;
 		}
