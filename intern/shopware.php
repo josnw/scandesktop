@@ -48,7 +48,7 @@
 
 		$rowCount = 0;
 		foreach ($orders['data'] as $order) {
-			print "Downlaod Order #: ".$order['id']."<br/>";
+			print "Download Order #: ".$order['id']."<br/>";
 			$facOrderData = $ordersApi->getOrderFacData($order['id']);
 			if (isset($facOrderData["Customer"])) {
 				$facfile->facHead("KUN_0", $channelFacData['shopware']['Filiale']);
