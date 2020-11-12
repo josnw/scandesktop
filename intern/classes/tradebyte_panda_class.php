@@ -107,7 +107,7 @@ class tradebytePanda {
 		} else {
 			$stockqry  = "select distinct ifnr from art_best b order by ifnr";	
 			$stock_qry = $this->pg_pdo->prepare($stockqry);
-			$stock_qry->bindValue(':wsdt',$checkDate);
+			//$stock_qry->bindValue(':wsdt',$checkDate);
 		}
 		//$stock_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber);
 		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));
