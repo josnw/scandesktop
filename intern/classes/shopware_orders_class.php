@@ -105,7 +105,10 @@ class ShopwareOrders {
 					'orderStatusId' => $state
 				)
 			);  
+		} else {
+			throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);			
 		}
+		
 	}
 	
 	private function getFacCustomerData($data) {
