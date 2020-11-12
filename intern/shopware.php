@@ -72,7 +72,7 @@
 		if (php_sapi_name() != 'cli') {
 			include("./intern/views/shopware_result_view.php");
 		} else {
-			print_r($result);
+			print_r($filename);
 		}
 	} else {
 		print "No Orders found!";
