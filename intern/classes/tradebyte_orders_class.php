@@ -95,9 +95,9 @@ class tradebyteOrders {
 		];
 
 		//split channel order number 
-		$facHead['FFBG'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],0,20);
-		if (strlen($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID']) > 20 ) {
-			$facHead['FFBZ'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],19,20);
+		$facHead['FFBG'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_NR'],0,20);
+		if (strlen($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_NR']) > 20 ) {
+			$facHead['FFBZ'] = substr($this->OrdersData[$orderId]['head']['CHANNEL_ORDER_NR'],19,20);
 		}
 		
 		// automatic flag if payed

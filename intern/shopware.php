@@ -48,7 +48,7 @@
 
 		$rowCount = 0;
 		foreach ($orders['data'] as $order) {
-			print "Download Order #: ".$order['id']."<br/>";
+			print "Download Order #: ".$order['id']."<br/>\n";
 			$facOrderData = $ordersApi->getOrderFacData($order['id']);
 			if (isset($facOrderData["Customer"])) {
 				$facfile->facHead("KUN_0", $channelFacData['shopware']['Filiale']);
@@ -72,10 +72,10 @@
 		if (php_sapi_name() != 'cli') {
 			include("./intern/views/shopware_result_view.php");
 		} else {
-			print_r($filename);
+			print($filename."\n");
 		}
 	} else {
-		print "No Orders found!";
+		print "No Orders found!\n";
 	}
 
 }
