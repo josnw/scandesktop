@@ -20,9 +20,9 @@ class factoOrders {
 		include ("./intern/config.php");
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
-		$this->ifnr = $OrderIfnr;
+		$this->ifnr = $orderIfnr;
 		$this->orderId = $orderId;
-
+		$this->Shipping = $Shipping;
 		$fqry = "select distinct(mdnr) from mand_0";
 		$f_qry = $this->pg_pdo->prepare($fqry);
 		$mdnr = $f_qry->fetch( PDO::FETCH_ASSOC );
@@ -35,19 +35,19 @@ class factoOrders {
 		$fqry = "select a.* from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':ifnr',ifnr);
-		$f_qry->bindValue(':fblg',$orderId);
+		$f_qry->bindValue(':ifnr',$this->ifnr);
+		$f_qry->bindValue(':fblg',$this->orderId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
 		$this->head = $f_qry->fetch( PDO::FETCH_ASSOC );
 	}
 	
 	private function readDBPos() {
-		$fqry = "select a.* from beleg_id i inner join auftr_pos a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
+		$fqry = "select a.* from beleg_id i inner join auftr_pos a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr order by fpos";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':ifnr',ifnr);
-		$f_qry->bindValue(':fblg',$orderId);
+		$f_qry->bindValue(':ifnr',$this->ifnr);
+		$f_qry->bindValue(':fblg',$this->orderId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
 		$this->positions = $f_qry->fetchAll( PDO::FETCH_ASSOC );
@@ -81,66 +81,96 @@ class factoOrders {
 		}
 	}
 	
-	public function duplicateOrder( $newOrderTyp, $overrides = NULL, $artilceList) {
-		if(! isset($this->head) or ! is_array($this->head)) {
+	public function duplicateOrder( $newOrderTyp,  $articleList, $overrides = NULL) {
+		if( (!isset($this->head)) or (!is_array($this->head)) ) {
 			$this->readDBHead();
+			$this->readDBPos();
 		}
 		$saveNewOrderTyp = preg_replace("[0-9]","",$newOrderTyp);
+		
+		// Duplicate Head
 		$sql = "insert into auftr_kopf (";
 		$cnt = 0;
 		foreach (array_keys($this->head) as $key ) {
 			if ($cnt++ > 0) { $sql .= ","; }	
 			$sql .= $key;
 		}
-		$sql .= ") select ";
+		$sql .= ")\n select ";
+		$cnt = 0;
 		foreach (array_keys($this->head) as $key ) {
 			if ($cnt++ > 0) { $sql .= ","; }	
-			if ( key == 'fnum') {
+			if ( $key == 'fnum') {
 			    $sql .= "nextval('gen_numk_".sprintf("%06d",$this->mdnr).'_'.sprintf("%03d",$saveNewOrderTyp)."_00')";
-			} elseif ( key == 'fblg') {
+			} elseif ( $key == 'fblg') {
 			    $sql .= "nextval('gen_belegnummer')";
-			} elseif ( key == 'ftyp') {
+			} elseif ( $key == 'ftyp') {
 			    $sql .= $saveNewOrderTyp;
 			} else {
 				$sql .= $key;	
 			}
 		}
-		$sql .= ' from auftr_kopf where fblg = :fblg';
+		$sql .= "\n from auftr_kopf where fblg = :fblg";
+		$sql .= "\n returning fnum, fblg";
 		print $sql;
 
 		$f_qry = $this->pg_pdo->prepare($sql);
 		$f_qry->bindValue(':fblg',$this->head['fblg']);
-		//$f_qry->execute() or die (print_r($f_qry->errorInfo()));
-		$this->newFnum = $f_qry->lastInsertId('fnum');
-		$this->newFblg = $f_qry->lastInsertId('fblg');
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		$result = $f_qry->fetch(PDO::FETCH_ASSOC); 
+
+		$this->newFnum = $result['fnum'];
+		$this->newFblg = $result['fblg'];
+		
+		// Duplicate Position
+
+		if( (!isset($this->positions)) or (!is_array($this->positions)) ) {
+			$this->readDBPos();
+		}
+		//add SetSubArticle and transport costs
+		$switch = 0;
+		for($i = 0; $i < count($this->positions); $i++) {
+			if (   ( isset($this->Shipping['article']) and  ( $this->positions[$i]["arnr"] == $this->Shipping['article'] ) )
+				or ( isset($this->Shipping['fromArticle']) 
+					  and  ( ($this->positions[$i]["arnr"] >= $this->Shipping['fromArticle']) and ($this->positions[$i]["arnr"] <= $this->Shipping['toArticle']) ) ) 
+				)	{
+				$articleList[] = $this->positions[$i]["arnr"];
+			} elseif ( ($switch == 1) and ( $this->positions[$i]["fart"] == 6 ) ) {
+				$articleList[] = $this->positions[$i]["arnr"];
+			} elseif (in_array($articleList, $this->positions[$i]["arnr"])) {
+				$switch = 1;
+			} else {
+				$switch = 0;
+			}				
+		}
 		
 		$in = '';
 		for($i = 0; $i < count($articleList); $i++) {
 			if ($i>0)  { $in .= ','; }
 			$in .= ":arnr".$i;
 		}
-		
+
 		$sql = "insert into auftr_pos (";
 		$cnt = 0;
-		foreach (array_keys($this->head) as $key ) {
+		foreach (array_keys($this->positions[0]) as $key ) {
 			if ($cnt++ > 0) { $sql .= ",";}	
 			$sql .= $key;	
 		}
-		$sql .= ") select ";
-		foreach (array_keys($this->head) as $key ) {
+		$sql .= ")\n select ";
+		$cnt = 0;
+		foreach (array_keys($this->positions[0]) as $key ) {
 			if ($cnt++ > 0) { $sql .= ","; }	
-			if ( key == 'fnum') {
+			if ( $key == 'fnum') {
 			    $sql .= $this->newFnum;
-			} elseif ( key == 'fblg') {
+			} elseif ( $key == 'fblg') {
 			    $sql .= $this->newFblg;
-			} elseif ( key == 'ftyp') {
+			} elseif ( $key == 'ftyp') {
 			    $sql .= $saveNewOrderTyp;
 			} else {
 				$sql .= $key;
 			}
 		}
-		$sql .= ' from auftr_pos where fblg = :fblg';
-		$sql .= " and arnr in ( $in )";
+		$sql .= "\n from auftr_pos where fblg = :fblg";
+		$sql .= "\n and arnr in ( $in ) order by fpos";
 		
 		print $sql;
 
@@ -151,7 +181,7 @@ class factoOrders {
 			$f_qry->bindValue(':arnr'.$i,$articleList[$i]);
 		}
 
-		//$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		
 		if( $overrides ) {
 			$this->overideData($overrides);
@@ -193,7 +223,7 @@ class factoOrders {
 				if (!$cnt++) { $sql .= ",";}
 				$sql .= $saveKey. " = :".$saveKey;
 			}		
-			$sql .= " where fblg = :fblg";
+			$sql .= " where fblg = :fblg and arnr = :arnr";
 			
 			$f_qry = $this->pg_pdo->prepare($sql);
 			$f_qry->bindValue(':fblg', $this->newFblg );

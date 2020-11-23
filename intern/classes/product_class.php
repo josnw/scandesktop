@@ -22,10 +22,11 @@ class product {
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		if ($level == 'basic') {
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn, 
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
+						left join mand_mwst m on a.apkz = m.mmid
 						where i.aamr = :aamr ";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
@@ -34,7 +35,7 @@ class product {
 			//		   coalesce( ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 and qbez ~ 'prim..r' order by qvon desc limit 1 ),  
  			//		             ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 order by qvon desc limit 1 ) ) as qurl
 			
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg, 
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
 						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt
@@ -42,6 +43,7 @@ class product {
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
 						left join lif_0 l on a.linr = l.linr
+						left join mand_mwst m on a.apkz = m.mmid
 						where a.arnr = :aamr ";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
@@ -51,12 +53,13 @@ class product {
 								  cprs, abs(cprs - :price) as diff
 								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 									left join art_ean e on a.arnr = e.arnr and e.qskz = 1
-									where v.arnr between :fromarnr and :toarnr and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
+									where v.arnr between :fromarnr and :toarnr and strlen(arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
 									order by diff limit 1";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':price',$indexvalue);
 			$f_qry->bindValue(':fromarnr',$searchoptions['fromArticle']);
 			$f_qry->bindValue(':toarnr',$searchoptions['toArticle']);
+			$f_qry->bindValue(':len',strlen($searchoptions['fromArticle']));
 		
 		}
 

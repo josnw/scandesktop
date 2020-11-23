@@ -85,8 +85,13 @@
 		} else {
 			$amgm = 1;
 		}
+		if ((isset($article->productData[0]['amms'])) and ($article->productData[0]['amms'] <> 0)) {
+			$tax = $article->productData[0]['amms'];
+		} else {
+			$tax = 0;
+		}
 
-		$baseprice = $priceData['price']/$amgm * $apjs;
+		$baseprice = $priceData['price']/ $amgm / (1 + $tax / 100) * $apjs ;
 
 
 
