@@ -84,6 +84,11 @@
 	} else {
 		print $exportfile."\n";
 	}
+} elseif (isset($_POST["desadv"]) or (isset($argv) and in_array("/desadv", $argv))) {
+	print "<pre>";
+	$desadv = new factoOrders(918, 501);
+	print_r($desadv->duplicateOrder(4,['9011891000','9109240000']));
+
 }
 
 if (php_sapi_name() == 'cli') {
