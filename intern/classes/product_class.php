@@ -240,8 +240,8 @@ class product {
 	private function getStocksFromDB() {
 		
 		if ($this->productData[0]["aart"] == 2) {
-			$fqry  = "select ifnr, min( (case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end) * s.amgn/s.amgz) as amgb 
-						from art_stl s left join art_0 a on s.astl = a.arnr left join art_best b on s.astl = b.arnr
+			$fqry  = "select ifnr, min( (case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end) * s.asmn/s.asmz) as amgb 
+						from art_stl s left join art_0 a on s.astl = a.arnr inner join art_best b on s.astl = b.arnr
 						where s.arnr = :aamr
 						group by ifnr
 						order by ifnr
