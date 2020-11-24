@@ -22,7 +22,7 @@ class product {
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		if ($level == 'basic') {
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss, 
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
@@ -36,7 +36,7 @@ class product {
  			//		             ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 order by qvon desc limit 1 ) ) as qurl
 			
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
-						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf,
+						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf, a.aart,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt
 					from art_0 a  inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
@@ -53,7 +53,7 @@ class product {
 								  cprs, abs(cprs - :price) as diff
 								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 									left join art_ean e on a.arnr = e.arnr and e.qskz = 1
-									where v.arnr between :fromarnr and :toarnr and strlen(arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
+									where v.arnr between :fromarnr and :toarnr and length(a.arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
 									order by diff limit 1";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':price',$indexvalue);
@@ -239,8 +239,17 @@ class product {
 	
 	private function getStocksFromDB() {
 		
-		$fqry  = "select ifnr, case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end as amgb 
-					from art_0 a inner join art_best b using (arnr) where arnr = :aamr order by ifnr";
+		if ($this->productData[0]["aart"] == 2) {
+			$fqry  = "select ifnr, min( (case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end) * s.amgn/s.amgz) as amgb 
+						from art_stl s left join art_0 a on s.astl = a.arnr left join art_best b on a.astl = b.arnr
+						where s.arnr = :aamr
+						group by ifnr
+						order by ifnr
+					";
+		} else {
+			$fqry  = "select ifnr, case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end as amgb 
+						from art_0 a inner join art_best b using (arnr) where arnr = :aamr order by ifnr";
+		}
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 		$f_qry->bindValue(':aamr',$this->productId);
