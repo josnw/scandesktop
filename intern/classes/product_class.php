@@ -53,7 +53,7 @@ class product {
 								  cprs, abs(cprs - :price) as diff
 								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 									left join art_ean e on a.arnr = e.arnr and e.qskz = 1
-									where v.arnr between :fromarnr and :toarnr and length(a.arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog = 'F000'
+									where v.arnr between :fromarnr and :toarnr and length(v.arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog like 'F%'
 									order by diff limit 1";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':price',$indexvalue);
