@@ -82,7 +82,7 @@ class ShopwareArticles {
 			}
 			$prices = $article->getPrices( true );
 
-			if (isset($_SESSION['debug']) and ($SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "<br/>PriceBase: ".$this->ShopwarePriceBase."<br/>";
 				print_r($prices);
 			}
@@ -101,7 +101,12 @@ class ShopwareArticles {
 				]
 			];
 			if ( ! $noupload ) {
-				$result = $api->put('articles/'.$frow['aenr'].'?useNumberAsId=true',  $restdata);
+				try {
+					$result = $api->put('articles/'.$frow['aenr'].'?useNumberAsId=true',  $restdata);
+				} catch (Exception $e) {
+					print "Error on ".$frow['aenr']."<br>\n";
+				}
+			
 			} else {
 				$result = [ "success" => 0, "put" => 'articles/'.$frow['aenr'].'?useNumberAsId=true', "restdata" => $restdata, "json" => json_encode($restdata)];
 
