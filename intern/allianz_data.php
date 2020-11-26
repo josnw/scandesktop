@@ -17,6 +17,7 @@
 
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single stock
+	$filrow['ifnr'] = 36; $filrow['date'] = '2020-11-26';
 	$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
 	
 	foreach ($stocklist["data"] as $stockData) {
@@ -27,9 +28,9 @@
 		}
 		
 		$aviableStock = round(($stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
-		
+
 		// calculate aviable base stock
-		if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] > 0) {
+		if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] > 0)) {
 			$baseStock = $aviableStock*$article->productData[0]['amgm'];
 		} else {
 			$baseStock = $aviableStock;
@@ -38,6 +39,12 @@
 		if ($baseStock < 0) {
 			$baseStock = 0;
 		}
+		
+		if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			print "<br/>Stock: ".sprintf("%08d",$stockData['ordernumber'])." ".$stockData['shopid'].": ".$baseStock."<br/>";
+			print_r($stocks);
+		}
+
 		// write to wws import file
 		$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
 		$facimp->facData([
