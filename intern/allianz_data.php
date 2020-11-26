@@ -17,6 +17,11 @@
 
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single stock
+	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+		$filrow['date'] = null;
+	}
+	
+	print "Update ".$filrow['ifnr']." from ".$filrow['date']."<br/>\n";
 	$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
 	
 	foreach ($stocklist["data"] as $stockData) {
