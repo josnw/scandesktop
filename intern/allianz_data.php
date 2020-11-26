@@ -17,7 +17,6 @@
 
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single stock
-	$filrow['ifnr'] = 36; $filrow['date'] = '2020-11-26';
 	$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
 	
 	foreach ($stocklist["data"] as $stockData) {
@@ -42,7 +41,6 @@
 		
 		if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 			print "<br/>Stock: ".sprintf("%08d",$stockData['ordernumber'])." ".$stockData['shopid'].": ".$baseStock."<br/>";
-			print_r($stocks);
 		}
 
 		// write to wws import file
