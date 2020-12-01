@@ -68,7 +68,7 @@ class ShopwareArticles {
 			$stocks = $article->getStocks();
 			
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
-				print "<br/>StockList: ".print_r($this->ShopwareStockList,1)."<br/>";
+				print "<br/>\nStockList: ".print_r($this->ShopwareStockList,1)."<br/>";
 				print_r($stocks);
 			}
 
@@ -83,7 +83,7 @@ class ShopwareArticles {
 			$prices = $article->getPrices( true );
 
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
-				print "<br/>PriceBase: ".$this->ShopwarePriceBase."<br/>";
+				print "<br/>\nPriceBase: ".$this->ShopwarePriceBase."<br/>";
 				print_r($prices);
 			}
 
@@ -103,6 +103,12 @@ class ShopwareArticles {
 			if ( ! $noupload ) {
 				try {
 					$result = $api->put('articles/'.$frow['aenr'].'?useNumberAsId=true',  $restdata);
+					if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+						print "<br/>\nUploadArray for #".$frow['aenr'].":<br/>";
+						print_r($restdata);
+						print "<br/>\Result for #".$frow['aenr'].":<br/>";
+						print_r($result);
+					}
 				} catch (Exception $e) {
 					print "Error on ".$frow['aenr']."<br>\n";
 				}
