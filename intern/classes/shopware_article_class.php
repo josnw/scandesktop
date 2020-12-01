@@ -39,7 +39,7 @@ class ShopwareArticles {
 					";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
-			$fqry  = "select dsitinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
 						left join cond_vk c on c.arnr = w.arnr and w.wsnr = :wsnr and c.qvon > :wsdt and c.qvon <= current_date and c.qbis > current_date and mprb = 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null ))
