@@ -27,6 +27,9 @@
 	
 	do {
 		$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
+		if (! isset($stocklist["data"])) {
+			var_dump($stocklist);
+		}
 		
 		foreach ($stocklist["data"] as $stockData) {
 			 // read article base data
