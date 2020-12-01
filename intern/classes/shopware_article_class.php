@@ -60,7 +60,7 @@ class ShopwareArticles {
 		}
 
 		$cnt = 0;
-		$errorList = '';
+		$errorlist = '';
 		// fill array and write to file
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 			$cnt++;
@@ -110,7 +110,7 @@ class ShopwareArticles {
 						print_r($result);
 					}
 				} catch (Exception $e) {
-					print "Error on ".$frow['aenr']."<br>\n";
+					 $errorlist .= $frow['arnr']."\t".$result["message"]."\n"; 
 				}
 			
 			} else {
@@ -121,7 +121,7 @@ class ShopwareArticles {
 			if ($result["success"] == 1) {
 			  $this->setUpdateTime($frow['arnr'], $frow['wson']);
 			} else {
-			  $errorlist .= $frow['arnr']."\t".print_r($result,1); 
+			  $errorlist .= $frow['arnr']."\t".$result["message"]."\n"; 
 			}
 
 		}

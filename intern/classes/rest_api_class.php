@@ -86,14 +86,14 @@ class RestApiClient {
 
         if (!isset($decodedResult['success'])) {
             //echo 'Invalid Response';
-			throw new Exception("Invalid Response: ".var_dump($decodedResult));
+			throw new Exception("Invalid Response: ".print_r($decodedResult,1));
             return $decodedResult;
 
         }
 
         if (!$decodedResult['success']) {
             //echo '<h2>No Success</h2>';
-			throw new Exception("API No success: ".var_dump($decodedResult));
+			throw new Exception("API No success: ".print_r($decodedResult,1));
             return $decodedResult ;
 
         }
