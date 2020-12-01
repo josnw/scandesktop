@@ -1,6 +1,5 @@
 <h2>Download Allianz Daten</h2>
 <p>Bestände und Preise der Allianz Mitglieder</p>
-
 <pre>
 <?php
  include './intern/autoload.php';
@@ -21,7 +20,7 @@
 		$filrow['date'] = null;
 	}
 	
-	print "Update ".$filrow['ifnr']." from ".$filrow['date'];
+	print "\nUpdate ".$filrow['ifnr']." from ".$filrow['date'];
 	
 	$cnt = 0;
 	
@@ -30,7 +29,7 @@
 		if (! isset($stocklist["data"])) {
 			var_dump($stocklist);
 		}
-		
+		print "... next ".$stocklist["count"]."...";
 		foreach ($stocklist["data"] as $stockData) {
 			 // read article base data
 			$article = new product(sprintf("%08d",$stockData['ordernumber']));
