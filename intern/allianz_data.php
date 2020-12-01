@@ -10,7 +10,7 @@
  $allianzdata = new allianz_stock_api();					
 
  // select last update date for every allianz stock
- $sql_fil = "select ifnr, qbnr, max(b.qedt) as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 group by ifnr";
+ $sql_fil = "select ifnr, qbnr, max(b.qedt) as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 group by ifnr, qbnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die(print $fil_qry->errorInfo()[2]);
  $facimp = new myfile($docpath.$facImportFile,'new');
@@ -21,47 +21,57 @@
 		$filrow['date'] = null;
 	}
 	
-	print "Update ".$filrow['ifnr']." from ".$filrow['date']."<br/>\n";
-	$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
+	print "Update ".$filrow['ifnr']." from ".$filrow['date'];
 	
-	foreach ($stocklist["data"] as $stockData) {
-		 // read article base data
-		$article = new product(sprintf("%08d",$stockData['ordernumber']));
-		if (!isset($article->productData[0])) {
-			continue;			
-		}
+	$cnt = 0;
+	
+	do {
+		$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
 		
-		$aviableStock = round(($stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
+		foreach ($stocklist["data"] as $stockData) {
+			 // read article base data
+			$article = new product(sprintf("%08d",$stockData['ordernumber']));
+			if (!isset($article->productData[0])) {
+				if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+					print "<br/>Article: ".sprintf("%08d",$stockData['ordernumber'])." not found!<br/>\n";
+				}
+				continue;			
+			}
+			
+			$aviableStock = round(($stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
 
-		// calculate aviable base stock
-		if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] > 0)) {
-			$baseStock = $aviableStock*$article->productData[0]['amgm'];
-		} else {
-			$baseStock = $aviableStock;
-		}
-		
-		if ($baseStock < 0) {
-			$baseStock = 0;
-		}
-		
-		if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
-			print "<br/>Stock: ".sprintf("%08d",$stockData['ordernumber'])." ".$stockData['shopid'].": ".$baseStock."<br/>";
-		}
+			// calculate aviable base stock
+			if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] > 0)) {
+				$baseStock = $aviableStock*$article->productData[0]['amgm'];
+			} else {
+				$baseStock = $aviableStock;
+			}
+			
+			if ($baseStock < 0) {
+				$baseStock = 0;
+			}
+			
+			if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "<br/>Stock: ".sprintf("%08d",$stockData['ordernumber'])." ".$stockData['shopid'].": ".$baseStock."<br/>\n";
+			}
 
-		// write to wws import file
-		$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
-		$facimp->facData([
-			'ARNR' => sprintf("%08d",$stockData['ordernumber']),
-			'XXAK' => '',
-			'XYAK' => '',
-			'ACHB' => '',
-			'IFNR' => $stockData['shopid'],
-			'AMGE' => $baseStock,
-		]);
-		
-		$facimp->facFoot();
-	}
-
+			// write to wws import file
+			$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
+			$facimp->facData([
+				'ARNR' => sprintf("%08d",$stockData['ordernumber']),
+				'XXAK' => '',
+				'XYAK' => '',
+				'ACHB' => '',
+				'IFNR' => $stockData['shopid'],
+				'AMGE' => $baseStock,
+			]);
+			
+			$facimp->facFoot();
+			$cnt++;
+		}
+	} while ( count($stocklist["data"]) > 0 );
+	
+	print " ... ".$cnt."Datensätze<br/>\n";
 
   } 
 
