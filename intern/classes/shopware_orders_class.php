@@ -16,6 +16,7 @@ class ShopwareOrders {
 	private $orderList;
 	private	$fpos;
 	private $isPaidPaymentTypes;
+	private $facFiliale
 	
 	
 	public function __construct($api) {
@@ -29,6 +30,7 @@ class ShopwareOrders {
 		$this->Shipping = $Shipping;
 		$this->channelFacData = $channelFacData;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
+		$this->facFiliale = $FacFiliale;
 		
 		$this->ShopwareApiClient = $api;
 		
@@ -149,7 +151,7 @@ class ShopwareOrders {
 			'FXNR' => $customerNumber ,
 			'FXNS' => $customerNumber ,
 			'FXNA' => $customerNumber ,
-			'IFNR' => $this->channelFacData['shopware']['Filiale'],
+			'IFNR' => $this->facFiliale,
 			'FTYP' => 2,
 			'FPRJ' => '000000',
             'CKSS' => '000000',
@@ -245,7 +247,7 @@ class ShopwareOrders {
 			'FXNR' => $customerNumber ,
 			'FXNS' => $customerNumber ,
 			'FXNA' => $customerNumber ,		
-			'IFNR' => $this->channelFacData['shopware']['Filiale'],
+			'IFNR' => $this->facFiliale,
 			'FTYP' => 2,
 			'FPRJ' => '000000',
 			'CKSS' => '000000',
