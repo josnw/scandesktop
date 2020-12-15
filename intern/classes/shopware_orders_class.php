@@ -16,7 +16,7 @@ class ShopwareOrders {
 	private $orderList;
 	private	$fpos;
 	private $isPaidPaymentTypes;
-	private $facFiliale
+	private $facFiliale;
 	
 	
 	public function __construct($api) {
