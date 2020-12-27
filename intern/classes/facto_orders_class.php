@@ -126,8 +126,8 @@ class factoOrders {
 		if( (!isset($this->positions)) or (!is_array($this->positions)) ) {
 			$this->readDBPos();
 		}
-		//add SetSubArticle and transport costs
-		$switch = 0;
+		//add SetSubArticle booking amount and transport costs
+		$switch = 0; $factor = 0;
 		for($i = 0; $i < count($this->positions); $i++) {
 			if (   ( isset($this->Shipping['article']) and  ( $this->positions[$i]["arnr"] == $this->Shipping['article'] ) )
 				or ( isset($this->Shipping['fromArticle']) 
@@ -136,8 +136,22 @@ class factoOrders {
 				$articleList[] = $this->positions[$i]["arnr"];
 			} elseif ( ($switch == 1) and ( $this->positions[$i]["fart"] == 6 ) ) {
 				$articleList[] = $this->positions[$i]["arnr"];
-			} elseif (in_array($articleList, $this->positions[$i]["arnr"])) {
+				if ($factor != null) {
+					$overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] = $this->positions[$i]["fmge"] * $factor;
+					$overrides["positions"][$this->positions[$i]["arnr"]]["fmgb"] = $this->positions[$i]["fmgb"] * $factor;
+				}
+			} elseif (in_array($this->positions[$i]["arnr"],$articleList )) {
 				$switch = 1;
+				if ((array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
+					$factor = $overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] / $this->positions[$i]["fmge"];
+					print "\nFaktor: ".$factor."\n";
+				} else {
+					$factor = null;
+				}
+				if (array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $data) and 
+				    !array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmge'], $data) ) {
+					$overrides["positions"][$this->positions[$i]["arnr"]]['fmge'] = $overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'] * $this->positions[$i]["amgn"] / $this->positions[$i]["amgz"];
+				}
 			} else {
 				$switch = 0;
 			}				
@@ -186,57 +200,70 @@ class factoOrders {
 		if( $overrides ) {
 			$this->overideData($overrides);
 		}
-		
+		$this->setDeliveredAmount();
 		return [ "fnum" => $this->newFnum, "fblg" => $this->newFblg ];
 		
 	}
 	
 	private function overideData($overrides) {
 		
-		// Modify new order head data 
-		$sql = "update auftr_kopf set ";
-		$cnt = 0;
-		foreach(array_keys($overrides["head"]) as $key) {
-			$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
-			if (!$cnt++) { $sql .= ",";}
-			$sql .= $saveKey. " = :".$saveKey;
-		}		
-		$sql .= " where fblg = :fblg";
-		
-		$f_qry = $this->pg_pdo->prepare($sql);
-		$f_qry->bindValue(':fblg',$this->newFblg );
-
-		foreach($overrides["head"] as $key => $value) {
-			$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
-			$f_qry->bindValue(':'.$saveKey, $value );
-		}				
-		print $sql;
-		//$f_qry->execute() or die (print_r($f_qry->errorInfo()));
-
-		// Modify new order pos data 
-		foreach($overrides["positions"] as $article => $data) {
-
-			$sql = "update auftr_pos set ";
+		if (count($overrides["head"]) > 0) {
+			// Modify new order head data 
+			$sql = "update auftr_kopf set ";
 			$cnt = 0;
-			foreach(array_keys($data) as $key) {
+			foreach(array_keys($overrides["head"]) as $key) {
 				$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
-				if (!$cnt++) { $sql .= ",";}
+				if ($cnt++ > 0) { $sql .= ",";}
 				$sql .= $saveKey. " = :".$saveKey;
 			}		
-			$sql .= " where fblg = :fblg and arnr = :arnr";
+			$sql .= " where fblg = :fblg";
 			
 			$f_qry = $this->pg_pdo->prepare($sql);
-			$f_qry->bindValue(':fblg', $this->newFblg );
-			$f_qry->bindValue(':arnr', $article );
+			$f_qry->bindValue(':fblg',$this->newFblg );
 
-			foreach($data as $key => $value) {
+			foreach($overrides["head"] as $key => $value) {
 				$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
 				$f_qry->bindValue(':'.$saveKey, $value );
 			}				
-			print $sql;
-			//$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+			print "\n".$sql;
+			$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		}
 		
+		if (count($overrides["positions"]) > 0) {
+			// Modify new order pos data 
+			foreach($overrides["positions"] as $article => $data) {
+				$sql = "update auftr_pos set ";
+				$cnt = 0;
+				foreach(array_keys($data) as $key) {
+					$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
+					if ($cnt++ > 0) { $sql .= ",";}
+					$sql .= $saveKey. " = :".$saveKey;
+				}		
+				$sql .= " where fblg = :fblg and arnr = :arnr";
+				
+				$f_qry = $this->pg_pdo->prepare($sql);
+				$f_qry->bindValue(':fblg', $this->newFblg );
+				$f_qry->bindValue(':arnr', $article );
+
+				foreach($data as $key => $value) {
+					$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
+					$f_qry->bindValue(':'.$saveKey, $value );
+				}				
+				print "\n".$sql;
+				$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+			}
+		}
+	}
+
+	private function setDeliveredAmount() {
+		$sql = "update auftr_pos af set fmgl = ( select sum(fmge) from auftr_pos ls where ftyp = 4 and ls.fpid = af.fpid )
+					where fblg = :affblg ";
+		
+		$f_qry = $this->pg_pdo->prepare($sql);
+		$f_qry->bindValue(':fblg', $this->orderId );
+
+		print "\n".$sql;
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 	}
 	
 }	

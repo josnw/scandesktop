@@ -42,6 +42,7 @@ class tradebyteDesAdv {
 			if ($oldOrderId <> $row["Auftrag-ID"]) {
 				$cnt = 0;		
 				$oldOrderId = $row["Auftrag-ID"];
+				$this->OrdersIdList[] = $row["Auftrag-ID"];
 			}
 			//combine line with head	
 			$row = array_combine($this->importKeyList, $line);
@@ -243,6 +244,10 @@ class tradebyteDesAdv {
 
 	public function getChannel($orderId) {
 		return $this->OrdersData[$orderId]['head']['CHANNEL_KEY'];
+	}
+
+	public function getOrderData($orderId) {
+		return $this->OrdersData[$orderId];
 	}
 
 }	
