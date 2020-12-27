@@ -85,10 +85,34 @@
 		print $exportfile."\n";
 	}
 } elseif (isset($_POST["desadv"]) or (isset($argv) and in_array("/desadv", $argv))) {
-	print "<pre>";
-	$desadv = new factoOrders(918, 501);
-	print_r($desadv->duplicateOrder(4,['9011891000','9109240000']));
-
+	
+	if (php_sapi_name() != 'cli') {
+		$fname = $docpath."/DESADV_".uniqid().".csv";
+		move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
+	} else {
+		$fname = $argv[ array_search("/convertOrders",$argv) + 1 ];
+	}
+	
+	//$facfile = new myfile($docpath."/DESADV_".time().".FAC","new");
+	$tbdata = new tradebyteDesAdv($fname);		
+	
+	$tbdata->readDeliveryData();
+	
+	foreach ($tbdata->getOrderIds as $orderid) {
+		$override = [];
+		$articleList = [];
+		$desadv = new factoOrders(918, $orderid);
+		$order = $tbdata->getOrderData($orderid);
+		$override['head'] = [];
+		foreach($tbdata->$order['pos'] as $pos) {
+			$articleList[] = $pos['POS_ANR'];
+			$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
+		}
+		
+		$result = $desadv->duplicateOrder(4,$articleList, $override);
+		print $orderid." -> ".$result["fnum"]."</br>\n";
+	}
+	
 }
 
 if (php_sapi_name() == 'cli') {

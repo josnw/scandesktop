@@ -158,8 +158,10 @@ class tradebyteOrders {
 			}
 			if ($article->productData[0]['aart'] == 2) {
 				$fakt = 3153923;
+				$fpid = '';
 			} else {
 				$fakt = 8195;
+				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
 			}			
 			
 			$facPos[$cnt] = [
@@ -178,6 +180,7 @@ class tradebyteOrders {
 				'FLDT' => date("d.m.Y", time()+(60*60*18)),
 				'FPOS' => $cnt,
 				'FPNZ' => $posData['POS_LFDNR'],
+				'FPID' => $fpid,
 				'AAMR' => $posData['POS_ANR'],
 				'ARNR' => $posData['POS_ANR'],
 				'QGRP' => $article->productData[0]['qgrp'],
@@ -345,7 +348,7 @@ class tradebyteOrders {
 				'ABZ2' => $article->productData[0]['abz2'],
 				'ABZ3' => $article->productData[0]['abz3'],
 				'ABZ4' => $article->productData[0]['abz4'],
-				'FMGB' => $fposFmgb,
+				'FMGB' => $posFmgb,
 				'FMGZ' => $article->productData[0]['amgz'],
 				'FMGN' => $article->productData[0]['amgn'],
 				'ASMZ' => $slArticle['asmz'],
