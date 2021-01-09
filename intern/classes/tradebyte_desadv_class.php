@@ -38,14 +38,18 @@ class tradebyteDesAdv {
 		//read line from Importfile
 		
 		$oldOrderId = 0;
+		
 		while ( $line = $this->importHandle->readCSV() ) {
+			
+
+			//combine line with head	
+			$row = array_combine($this->importKeyList, $line);
+
 			if ($oldOrderId <> $row["Auftrag-ID"]) {
 				$cnt = 0;		
 				$oldOrderId = $row["Auftrag-ID"];
 				$this->OrdersIdList[] = $row["Auftrag-ID"];
 			}
-			//combine line with head	
-			$row = array_combine($this->importKeyList, $line);
 			
 			//split head data and pos data
 
