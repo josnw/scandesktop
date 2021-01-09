@@ -28,6 +28,16 @@ class factoOrders {
 		$mdnr = $f_qry->fetch( PDO::FETCH_ASSOC );
 		$this->mdnr = $mdnr['mdnr'];
 
+		$fqry = "select count(*) as cnt from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->bindValue(':ifnr',$this->ifnr);
+		$f_qry->bindValue(':fblg',$this->orderId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		$cntdata = $f_qry->fetch( PDO::FETCH_ASSOC);
+		if ($cntdata["cnt"] == 0) {
+			$this->ifnr = null;
+			$this->orderId = null;
+		} 
 
 	}
 	
@@ -40,6 +50,7 @@ class factoOrders {
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
 		$this->head = $f_qry->fetch( PDO::FETCH_ASSOC );
+
 	}
 	
 	private function readDBPos() {
@@ -56,6 +67,10 @@ class factoOrders {
 		$this->posPointer = 0;
 	}
 	
+	public function getOrderId() {
+		return $this->orderId;
+	}
+
 	public function getHead() {
 		if(! isset($this->head) or ! is_array($this->head)) {
 			$this->readDBHead();
@@ -85,7 +100,8 @@ class factoOrders {
 		if( (!isset($this->head)) or (!is_array($this->head)) ) {
 			$this->readDBHead();
 			$this->readDBPos();
-		}
+		} 
+		
 		$saveNewOrderTyp = preg_replace("[0-9]","",$newOrderTyp);
 		
 		// Duplicate Head
@@ -105,13 +121,19 @@ class factoOrders {
 			    $sql .= "nextval('gen_belegnummer')";
 			} elseif ( $key == 'ftyp') {
 			    $sql .= $saveNewOrderTyp;
+			} elseif ( $key == 'fafn') {
+			    $sql .= 'fnum';
+			} elseif ( $key == 'fldt') {
+			    $sql .= 'current_date';
+			} elseif ( $key == 'fdtm') {
+			    $sql .= 'current_date';
 			} else {
 				$sql .= $key;	
 			}
 		}
 		$sql .= "\n from auftr_kopf where fblg = :fblg";
 		$sql .= "\n returning fnum, fblg";
-		print $sql;
+		//print $sql;
 
 		$f_qry = $this->pg_pdo->prepare($sql);
 		$f_qry->bindValue(':fblg',$this->head['fblg']);
@@ -148,8 +170,8 @@ class factoOrders {
 				} else {
 					$factor = null;
 				}
-				if (array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $data) and 
-				    !array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmge'], $data) ) {
+				if (array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $overrides["positions"]) and 
+				    !array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmge'], $overrides["positions"]) ) {
 					$overrides["positions"][$this->positions[$i]["arnr"]]['fmge'] = $overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'] * $this->positions[$i]["amgn"] / $this->positions[$i]["amgz"];
 				}
 			} else {
@@ -179,6 +201,12 @@ class factoOrders {
 			    $sql .= $this->newFblg;
 			} elseif ( $key == 'ftyp') {
 			    $sql .= $saveNewOrderTyp;
+			} elseif ( $key == 'fafn') {
+			    $sql .= 'fnum';
+			} elseif ( $key == 'fldt') {
+			    $sql .= 'current_date';
+			} elseif ( $key == 'fdtm') {
+			    $sql .= 'current_date';
 			} else {
 				$sql .= $key;
 			}
@@ -186,7 +214,7 @@ class factoOrders {
 		$sql .= "\n from auftr_pos where fblg = :fblg";
 		$sql .= "\n and arnr in ( $in ) order by fpos";
 		
-		print $sql;
+		//print $sql;
 
 		$f_qry = $this->pg_pdo->prepare($sql);
 		$f_qry->bindValue(':fblg',$this->head['fblg']);
@@ -225,7 +253,7 @@ class factoOrders {
 				$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
 				$f_qry->bindValue(':'.$saveKey, $value );
 			}				
-			print "\n".$sql;
+			//print "\n".$sql;
 			$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		}
 		
@@ -249,22 +277,25 @@ class factoOrders {
 					$saveKey = preg_replace("[A-Za-z0-9_ ]","",$key);
 					$f_qry->bindValue(':'.$saveKey, $value );
 				}				
-				print "\n".$sql;
+				//print "\n".$sql;
 				$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 			}
 		}
 	}
 
 	private function setDeliveredAmount() {
-		$sql = "update auftr_pos af set fmgl = ( select sum(fmge) from auftr_pos ls where ftyp = 4 and ls.fpid = af.fpid )
-					where fblg = :affblg ";
-		
-		$f_qry = $this->pg_pdo->prepare($sql);
-		$f_qry->bindValue(':fblg', $this->orderId );
 
-		print "\n".$sql;
+		$sql = "update auftr_pos af set fmgl = ( select sum(fmge) from auftr_pos ls where ftyp = 4 and (ls.fpid = af.fpid) or (ls.fpid is null and ls.arnr = af.arnr and ls.fblg = :lsfblg))
+					where fblg = :affblg ";
+		$f_qry = $this->pg_pdo->prepare($sql);
+		$f_qry->bindValue(':affblg', $this->head['fblg'] );
+		$f_qry->bindValue(':lsfblg', $this->newFblg );
+		//print "\n".$sql;
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+
 	}
+	
+	
 	
 }	
 	

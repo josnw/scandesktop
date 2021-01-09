@@ -88,27 +88,33 @@
 	
 	if (php_sapi_name() != 'cli') {
 		$fname = $docpath."/DESADV_".uniqid().".csv";
-		move_uploaded_file( $_FILES["csvorders"]["tmp_name"], $fname );
+		move_uploaded_file( $_FILES["csvdesadv"]["tmp_name"], $fname );
 	} else {
 		$fname = $argv[ array_search("/convertOrders",$argv) + 1 ];
 	}
-	
+	print $fname;
 	//$facfile = new myfile($docpath."/DESADV_".time().".FAC","new");
 	$tbdata = new tradebyteDesAdv($fname);		
 	
 	$tbdata->readDeliveryData();
 	
-	foreach ($tbdata->getOrderIds as $orderid) {
+	foreach ($tbdata->getOrderIds() as $orderid) {
+		print $orderid."<br>";
 		$override = [];
 		$articleList = [];
 		$desadv = new factoOrders(918, $orderid);
+		if  ($desadv->getOrderId() == null) {
+			print "Order $orderid not found!<br>\n";
+			continue;
+		}
+
 		$order = $tbdata->getOrderData($orderid);
+
 		$override['head'] = [];
-		foreach($tbdata->$order['pos'] as $pos) {
+		foreach($order['pos'] as $pos) {
 			$articleList[] = $pos['POS_ANR'];
 			$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
 		}
-		
 		$result = $desadv->duplicateOrder(4,$articleList, $override);
 		print $orderid." -> ".$result["fnum"]."</br>\n";
 	}
