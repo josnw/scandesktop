@@ -212,9 +212,10 @@ class factoOrders {
 			}
 		}
 		$sql .= "\n from auftr_pos where fblg = :fblg";
-		$sql .= "\n and arnr in ( $in ) order by fpos";
+		$sql .= "\n and ( arnr in ( $in ) or (fabl ~ :idlist) )";
+		$sql .= "\n order by fpos";
 		
-		//print $sql;
+		// print $sql;
 
 		$f_qry = $this->pg_pdo->prepare($sql);
 		$f_qry->bindValue(':fblg',$this->head['fblg']);
@@ -222,6 +223,10 @@ class factoOrders {
 		for( $i = 0; $i < count($articleList); $i++) {
 			$f_qry->bindValue(':arnr'.$i,$articleList[$i]);
 		}
+		//$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
+		$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
+		// print "<br>".$idlist."</br>";
+		$f_qry->bindValue(':idlist', $idlist);
 
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		
@@ -267,7 +272,7 @@ class factoOrders {
 					if ($cnt++ > 0) { $sql .= ",";}
 					$sql .= $saveKey. " = :".$saveKey;
 				}		
-				$sql .= " where fblg = :fblg and arnr = :arnr";
+				$sql .= " where fblg = :fblg and ((arnr = :arnr) or (fabl ~ ('TB_POS_CHANNEL_ID=' || :arnr) ))";
 				
 				$f_qry = $this->pg_pdo->prepare($sql);
 				$f_qry->bindValue(':fblg', $this->newFblg );
@@ -285,11 +290,11 @@ class factoOrders {
 
 	private function setDeliveredAmount() {
 
-		$sql = "update auftr_pos af set fmgl = ( select sum(fmge) from auftr_pos ls where ftyp = 4 and (ls.fpid = af.fpid) or (ls.fpid is null and ls.arnr = af.arnr and ls.fblg = :lsfblg))
+		$sql = "update auftr_pos af set fmgl = ( select sum(fmge) from auftr_pos ls where ftyp = 4 and (ls.fpid = af.fpid) and (ls.arnr = af.arnr))
 					where fblg = :affblg ";
 		$f_qry = $this->pg_pdo->prepare($sql);
 		$f_qry->bindValue(':affblg', $this->head['fblg'] );
-		$f_qry->bindValue(':lsfblg', $this->newFblg );
+		//$f_qry->bindValue(':lsfblg', $this->newFblg );
 		//print "\n".$sql;
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 

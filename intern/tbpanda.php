@@ -90,7 +90,7 @@
 		$fname = $docpath."/DESADV_".uniqid().".csv";
 		move_uploaded_file( $_FILES["csvdesadv"]["tmp_name"], $fname );
 	} else {
-		$fname = $argv[ array_search("/convertOrders",$argv) + 1 ];
+		$fname = $argv[ array_search("/desadv",$argv) + 1 ];
 	}
 	print $fname;
 	//$facfile = new myfile($docpath."/DESADV_".time().".FAC","new");
@@ -112,8 +112,13 @@
 
 		$override['head'] = [];
 		foreach($order['pos'] as $pos) {
-			$articleList[] = $pos['POS_ANR'];
-			$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
+			if (isset($pos['POS_CHANNEL_ID']) and strlen($pos['POS_CHANNEL_ID']) > 3) {
+				$articleList[] = $pos['POS_CHANNEL_ID'];
+				$override['positions'][$pos['POS_CHANNEL_ID']]['fmgb'] = $pos['SHIP_QUANTITY'];
+			} else {
+				$articleList[] = $pos['POS_ANR'];
+				$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
+			}
 		}
 		$result = $desadv->duplicateOrder(4,$articleList, $override);
 		print $orderid." -> ".$result["fnum"]."</br>\n";

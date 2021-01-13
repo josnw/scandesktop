@@ -28,6 +28,10 @@ class tradebyteDesAdv {
 		$this->channel = $channelFacData;
 		$this->facFiliale = $FacFiliale;
 		
+		$fqry = "update auftr_pos p set fpid = nextval('gen_positionsid') where fpid is null and fart = 1";
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		
 		return true;
 	}
 	
@@ -69,6 +73,7 @@ class tradebyteDesAdv {
 				$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] .= ' Variante: '.$row["Variante"];
 			}
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['SHIP_QUANTITY'] = $row["Liefermenge"];
+			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_CHANNEL_ID'] = $row["Kanal Positionsreferenz"];
 			
 			$cnt++;
 		}
