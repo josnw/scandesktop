@@ -362,6 +362,14 @@ class tradebyteOrders {
 				'ASCO' => $posData['POS_EAN'],
 				'FACT' => 33562627,
 			];	
+			
+			$facPos['FABL'] = [
+				'TB_PAYMENT_TRANSACTION_ID='.$this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID'],
+				'TB_POS_TB_ID='.$posData['POS_TB_ID'],
+				'TB_POS_A_ID='.$posData['POS_A_ID'],
+				'TB_POS_CHANNEL_ID='.$posData['POS_CHANNEL_ID'],
+				'TB_POS_BILLING_TEXT='.$posData['POS_BILLING_TEXT'],
+			];
 		
 		return $facPos;
 	}
