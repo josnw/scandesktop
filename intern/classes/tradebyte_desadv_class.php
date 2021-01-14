@@ -64,7 +64,11 @@ class tradebyteDesAdv {
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_FIRSTNAME'] = $row["Vorname-Rechnung"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_SURNAME'] = $row["Nachname-Rechnung"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_EMAIL'] = $row["E-Mail-Rechnung"];
-			$this->OrdersData[$row['Auftrag-ID']]['head']['ORDER_DATE'] = $row["Bestelldatum"];
+			if (isset($row["Bestelldatum"])) {
+				$this->OrdersData[$row['Auftrag-ID']]['head']['ORDER_DATE'] = $row["Bestelldatum"];
+			} else {
+				$this->OrdersData[$row['Auftrag-ID']]['head']['ORDER_DATE'] = $row["Erstelldatum"];
+			}
 			
 			
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_ANR'] = $row["Artikel-Nr"];

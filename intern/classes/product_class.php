@@ -237,7 +237,20 @@ class product {
 			return $this->productPictures;
 	}	
 	
-	private function getStocksFromDB() {
+	private function getStocksFromDB($checkOrders = true) {
+
+		if ($checkOrders ) {
+			$aqry  = "select ifnr,cast(sum((fmge-COALESCE(fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge from auftr_pos b inner join art_0 a using (arnr)
+						where ftyp = 2 and arnr = :aamr
+						group by ifnr";
+			$a_qry = $this->pg_pdo->prepare($aqry);
+			$a_qry->bindValue(':aamr',$this->productId);
+			$a_qry->execute() or die (print_r($a_qry->errorInfo()));
+			$affmge = [];
+			while ( $row = $a_qry->fetch( PDO::FETCH_ASSOC )) {
+				$affmge[$row['ifnr']] = $row['fmge'];
+			}
+		}
 		
 		if ($this->productData[0]["aart"] == 2) {
 			$fqry  = "select ifnr, min( (case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end) * s.asmn/s.asmz) as amgb 
@@ -261,7 +274,11 @@ class product {
 			if ($row["amgb"] == null) {
 				$row["amgb"] = 0;
 			}
-			$this->productStocks[$row["ifnr"]] = $row["amgb"];
+			if ($checkOrders and (isset($affmge[$row['ifnr']])) and ($affmge[$row['ifnr']] > 0)) {
+				$this->productStocks[$row["ifnr"]] = $row["amgb"] - $affmge[$row['ifnr']];
+			} else {
+				$this->productStocks[$row["ifnr"]] = $row["amgb"];
+			}	
 			
 		}
 	}
