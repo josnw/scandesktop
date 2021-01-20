@@ -20,16 +20,21 @@ class tradebytePanda {
 		return true;
 	}
 	
-	public function selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp, $setAutoUpdate = false) {
+	public function selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp, $setAutoUpdate = false, $onlyNew = false, $akz = '') {
 
 		// sql check parameter list for export array
-		$paraqry  = "select distinct qpky from art_param p where arnr in (select arnr from art_0 a where  p.arnr = a.arnr and linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )";	
+		$paraqry  = "select distinct qpky from art_param p where arnr in (select arnr from art_0 a where  p.arnr = a.arnr and linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp) ";
+		if ($onlyNew) { $paraqry  .= " and arnr in (select arnr from web_art w where  p.arnr = w.arnr and wsnr = :wsnr and wson = 1 and (wsdt is null or qadt = current_timestamp - interval '1'  hour)) "; }
+		if ($akz <> '') { $paraqry  .= " and arnr in (select arnr from art_0 a2 where  p.arnr = a2.arnr and astf = :akz ) "; }
 		$para_qry = $this->pg_pdo->prepare($paraqry);
 		$para_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
 		$para_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
 		$para_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
 		$para_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
+		if ($onlyNew) {  $para_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber); }
+		if ($akz <> '') {  $para_qry->bindValue(':akz',$akz); }
 		$para_qry->execute() or die (print_r($para_qry->errorInfo()));
+		
 		$this->parameterTypeList = $para_qry->fetchall(PDO::FETCH_NUM );
 
 		// sql check pricekey list
@@ -39,50 +44,76 @@ class tradebytePanda {
 		$this->priceTypeList = $price_qry->fetchall(PDO::FETCH_NUM );
 		
 		// sql check base price units
-		$basepriceqry  = "select distinct ameg from art_0 where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp ";	
+		$basepriceqry  = "select distinct ameg from art_0 a where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp ";	
+		if ($onlyNew) { $basepriceqry  .= " and arnr in (select arnr from web_art w where  a.arnr = w.arnr and wsnr = :wsnr and wson = 1 and (wsdt is null or qadt = current_timestamp - interval '1'  hour)) "; }
+		if ($akz <> '') { $basepriceqry  .= " and arnr in (select arnr from art_0 a2 where  a.arnr = a2.arnr and astf = :akz ) ";}
+
 		$baseprice_qry = $this->pg_pdo->prepare($basepriceqry);
 		$baseprice_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
 		$baseprice_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
 		$baseprice_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
 		$baseprice_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
+		if ($onlyNew) {  $baseprice_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber); }
+		if ($akz <> '') {  $baseprice_qry->bindValue(':akz',$akz); }
+
 		$baseprice_qry->execute() or die (print_r($baseprice_qry->errorInfo()));
 		$this->basepriceTypeList = $baseprice_qry->fetchall(PDO::FETCH_NUM );
 
 		// sql check mdb types and counts per articles
 		$mdbTypesqry  = "select qbez, max(cnt) as cnt from ( select arnr, qbez, count(*) as CNT from art_liefdok  d 
 							inner join art_0 a using (arnr) where adtp = 91701 and
-							a.linr between :vonlinr and :bislinr and a.qgrp between :vongrp and :bisgrp 
-							group by arnr, qbez) X group by qbez";
+							a.linr between :vonlinr and :bislinr and a.qgrp between :vongrp and :bisgrp ";
+		if ($onlyNew) { $mdbTypesqry  .= " and a.arnr in (select arnr from web_art w where  d.arnr = w.arnr and wsnr = :wsnr and wson = 1 and (wsdt is null or qadt = current_timestamp - interval '1'  hour)) "; }
+		if ($akz <> '') { $mdbTypesqry  .= " and arnr in (select arnr from art_0 a2 where  d.arnr = a2.arnr and astf = :akz ) "; }
+		$mdbTypesqry  .= "	group by arnr, qbez) X group by qbez";
 
 		$mdbTypes_qry = $this->pg_pdo->prepare($mdbTypesqry);
 		$mdbTypes_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
 		$mdbTypes_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
 		$mdbTypes_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
 		$mdbTypes_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
+		if ($onlyNew) {  $mdbTypes_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber); }
+		if ($akz <> '') {  $mdbTypes_qry->bindValue(':akz',$akz); }
 		$mdbTypes_qry->execute() or die (print_r($mdbTypes_qry->errorInfo()));
 		$this->mdbTypesTypeList = $mdbTypes_qry->fetchall(PDO::FETCH_NUM );
 
 		// select article list for export, create handle only for scaling up big artile lists
-		$fqry  = "select arnr from art_0 a where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp order by linr, qgrp, arnr";	
+		$fqry  = "select arnr from art_0 a where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp ";	
+		if ($onlyNew) { $fqry  .= " and arnr in (select arnr from web_art w where a.arnr = w.arnr and wsnr = :wsnr and wson = 1 and (wsdt is null or qadt = current_timestamp - interval '1'  hour)) "; }
+		if ($akz <> '') { $fqry  .= " and arnr in (select arnr from art_0 a2 where  a.arnr = a2.arnr and astf = :akz ) "; }
+		$fqry  .= "order by linr, qgrp, arnr";
+		print $fqry;
+		print "<br>vl".preg_replace("/[^0-9]/","",$vonlinr);
+		print "<br>bl".preg_replace("/[^0-9]/","",$bislinr);
+		print "<br>vg".preg_replace("/[^0-9]/","",$vonqgrp);
+		print "<br>bg".preg_replace("/[^0-9]/","",$bisqgrp);
+		print "<br>ws".$this->TradebyteWebshopNumber;
+		print "<br>kz".$akz;
 		$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		$this->articleList_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
 		$this->articleList_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
 		$this->articleList_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
 		$this->articleList_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
-		
+		if ($onlyNew) {  $this->articleList_qry->bindValue(':wsnr',$this->TradebyteWebshopNumber); }
+		if ($akz <> '') {  $this->articleList_qry->bindValue(':akz',$akz); }
 		$this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
 		
-		if ($setAutoUpdate) {
+		if ($setAutoUpdate and !$onlyNew) {
 			// set flag for standard 
 			print "Set Flag Autoupdate ...";
-			$updateFlagqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson, wsdt) (select arnr, '','', :wsnr, 1 , '1999-12-31' as wsdt from art_0 where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp )
-								on conflict (arnr, xxak,xyak, wsnr) do update set wson=1 ";	
+			$updateFlagqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson, wsdt) 
+								(select arnr, '','', :wsnr, 1 , '1999-12-31' as wsdt from art_0 
+									where linr between :vonlinr and :bislinr and qgrp between :vongrp and :bisgrp ";
+			if ($akz <> '') { $updateFlagqry  .= " and astf = :akz "; }
+			$updateFlagqry  .= " )	on conflict (arnr, xxak,xyak, wsnr) do update set wson=1 ";	
 			$updateFlag_qry = $this->pg_pdo->prepare($updateFlagqry);
 			$updateFlag_qry->bindValue(':vonlinr',preg_replace("/[^0-9]/","",$vonlinr));
 			$updateFlag_qry->bindValue(':bislinr',preg_replace("/[^0-9]/","",$bislinr));
 			$updateFlag_qry->bindValue(':vongrp',preg_replace("/[^0-9]/","",$vonqgrp));
 			$updateFlag_qry->bindValue(':bisgrp',preg_replace("/[^0-9]/","",$bisqgrp));
 			$updateFlag_qry->bindValue(':wsnr',preg_replace("/[^0-9]/","",$this->TradebyteWebshopNumber));
+			if ($akz <> '') {  $updateFlag_qry->bindValue(':akz',$akz); }
+
 			$updateFlag_qry->execute() or print (print_r($updateFlag_qry->errorInfo()));
 
 

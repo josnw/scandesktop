@@ -22,6 +22,16 @@
 				<input type="checkbox" name="autoUpdate" value="1" checked> Artikel für Autoupdate markieren
 			</div>
 		</div>
+		<div class="DSFeld2 smallBorder">
+			<div class="DSFeld1">
+				<input type="checkbox" name="onlyNew" value="1" > nur markierte Artikel ohne Export
+			</div>
+		</div>
+		<div class="DSFeld2 smallBorder">
+			<div class="DSFeld1">
+				Auswertungs KZ <br/><input name="akz" value="<?php print $akz; ?>" length=5>
+			</div>
+		</div>
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="pandaDownload" value="Download" onclick="wartemal('on')"></div>
 	</div>
 </form>
