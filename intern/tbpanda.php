@@ -136,6 +136,9 @@ if (php_sapi_name() == 'cli') {
     if (isset($_POST['bislinr'])) { $bislinr = preg_replace('[^0-9]','', $_POST['bislinr']); } else { $bislinr = 9999999;}
     if (isset($_POST['vonqgrp'])) { $vonqgrp = preg_replace('[^0-9]','', $_POST['vonqgrp']); } else { $vonqgrp = 0;}
     if (isset($_POST['bisqgrp'])) { $bisqgrp = preg_replace('[^0-9]','', $_POST['bisqgrp']); } else { $bisqgrp = 899;}
+    if (isset($_POST['autoUpdate'])) { $autoUpdate = preg_replace('[^01]','', $_POST['autoUpdate']); } else { $autoUpdate = '1';}
+    if (isset($_POST['onlyNew'])) { $onlyNew = preg_replace('[^01]','', $_POST['onlyNew']); } else { $onlyNew = '';}
+    if (isset($_POST['akz'])) { $akz = preg_replace('[^0-9]','', $_POST['akz']); } else { $akz = '';}
   
   	include("./intern/views/tbpanda_select_view.php");
   
@@ -146,7 +149,7 @@ if (php_sapi_name() == 'cli') {
   // export
     if (isset($_POST["pandaDownload"])) {
 		$export = new tradebytePanda();					
-		if ($export->selectByQgrpLinr($_POST["vonlinr"],$_POST["bislinr"],$_POST["vonqgrp"],$_POST["bisqgrp"], $_POST["autoUpdate"])) {
+		if ($export->selectByQgrpLinr($vonlinr,$bislinr,$vonqgrp,$bisqgrp, $autoUpdate, $onlyNew, $akz)) {
 			$exportfile = $docpath."PANDA_".date("Ymd_His").".csv";
 			
 			$result = $export->exportToFile($exportfile);
