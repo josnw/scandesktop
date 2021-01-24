@@ -2,9 +2,11 @@
 
 class product {
 		
-	private $productId;
+	private $productId = null;
+	private $indexvalue = null;
 	private $my_pdo;
 	private $pg_pdo;
+
 	
 	public $productData;
 	private $resultCount;
@@ -21,7 +23,9 @@ class product {
 		include ("./intern/config.php");
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		
 		if ($level == 'basic') {
+			$this->indexvalue = $indexvalue;
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss, 
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
@@ -34,6 +38,7 @@ class product {
 			// ,
 			//		   coalesce( ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 and qbez ~ 'prim..r' order by qvon desc limit 1 ),  
  			//		             ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 order by qvon desc limit 1 ) ) as qurl
+			$this->indexvalue = $indexvalue;
 			
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
 						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf, a.aart,
@@ -341,6 +346,78 @@ class product {
 	
 		return $this->productStckListData;
 		
+	}
+
+	public function writeStockDb($stockId, $stockAmount) {
+		
+		if ($this->productId != null) {
+			$arnr = $this->productId;
+		} elseif ($this->indexvalue != null) { 
+			$arnr = $this->indexvalue;
+		} else {
+			return false; 
+		}
+		
+		$stockSQL  = "insert into art_best (arnr, xxak, xyak, achb, ifnr, algo, amge, aimg) values	(:arnr, '', '', '', :ifnr, '', :amge, :aimg) 
+						on conflict (arnr, xxak,xyak, achb, ifnr, algo) do update set amge = :amge ";	
+		$stock_qry = $this->pg_pdo->prepare($stockSQL);
+		$stock_qry->bindValue(':arnr',$arnr);
+		$stock_qry->bindValue(':ifnr',$stockId);
+		if ($this->productId != null) {
+			$stock_qry->bindValue(':amge',$stockAmount);
+			$stock_qry->bindValue(':aimg',null);
+		} else {
+			$stock_qry->bindValue(':amge',null);
+			$stock_qry->bindValue(':aimg',$stockAmount);
+		}
+		$stock_qry->execute() or die (print_r($stock_qry->errorInfo()));	
+		
+		return true;
+		
+	}
+
+	public function writePriceDb($condId, $supplierId, $price) {
+
+		if ($this->productId != null) {
+			$arnr = $this->productId;
+			$cpog = 'F000';
+			$apjs = $this->productData[0]['apjs'];
+			$ameh = $this->productData[0]['ameh'];
+		} elseif ($this->indexvalue != null) { 
+			$arnr = $this->indexvalue;
+			$cpog = 'X000';
+			$apjs = 1;
+			$ameh = 'Stck';
+		} else {
+			return false; 
+		}
+		
+		// set prouct - supplier relationship
+		$suplSQL  = "insert into art_lief (arnr, xxak, xyak, obnr, linr)  values  (:arnr, '', '', 0,:linr) 
+						on conflict (arnr, xxak, xyak, obnr, linr) do nothing ";	
+		$supl_qry = $this->pg_pdo->prepare($suplSQL);
+		$supl_qry->bindValue(':arnr',$arnr);
+		$supl_qry->bindValue(':linr',$supplierId);
+		$supl_qry->execute() or die (print_r($supl_qry->errorInfo()));			
+
+		// write pricelinr
+		$priceSQL  = "insert into cond_ek (conr, mprb,arnr, xxak, xyak, obnr, cpog, cbez, cprs, apjs, cpcr, ccru, qdtm, qvon, qbis, ameh, linr)
+								  values  (:conr, 1, :arnr, '', '', 0, :cpog, 'FPNE', :cprs, :apjs, 'EUR', 'C', current_date, date_trunc('month', current_date), '9999-12-31', :ameh, :linr) 
+						on conflict (conr,mprb) do update set cprs = :cprs, apjs = :apjs, ameh = :ameh, linr = :linr, arnr = :arnr ";	
+		$price_qry = $this->pg_pdo->prepare($priceSQL);
+		$price_qry->bindValue(':conr',$condId);
+		$price_qry->bindValue(':arnr',$arnr);
+		$price_qry->bindValue(':cpog',$cpog);
+		$price_qry->bindValue(':cprs',$price);
+		$price_qry->bindValue(':apjs',$apjs);
+		$price_qry->bindValue(':ameh',$ameh);
+		$price_qry->bindValue(':linr',$supplierId);
+		$price_qry->execute() or die (print_r($price_qry->errorInfo()));		
+		
+		return true;
+		
+		
+
 	}
 
 	
