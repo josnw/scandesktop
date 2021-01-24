@@ -7,43 +7,61 @@
 
  $my_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options); 
  $allianzdata = new allianz_stock_api();					
+ 
+ 
+ // check for new local product data and correct temporary stock 
+ $correctsql = "update art_best b set amge = aimg * (select case when amgn > 0 then amgz/amgn else 1 end from art_0 a where a.arnr = b.arnr),
+								   aimg = null 
+			 where aimg > 0 and arnr in (select arnr from art_0 a2 where a2.arnr = b.arnr )";
+ $correct_qry = $my_pdo->prepare($correctsql);
+ $correct_qry->execute() or die($correct_qry->errorInfo()[2]);
 
+ // check for new local product data and correct temporary prices
+ $correctsql = "update cond_ek b set cprs = cprs * (select case when amgz > 0 then amgn/amgz else 1 end from art_0 a where a.arnr = b.arnr),
+								ameh = (select ameh from art_0 a where a.arnr = b.arnr),
+								cpog = 'F000'  
+				where cpog = 'X000' and arnr in (select arnr from art_0 a2 where a2.arnr = b.arnr )";
+ $correct_qry = $my_pdo->prepare($correctsql);
+ $correct_qry->execute() or die($correct_qry->errorInfo()[2]);
+
+ 
  // select last update date for every allianz stock
- $sql_fil = "select ifnr, qbnr, max(b.qedt) as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 group by ifnr, qbnr";
+ $sql_fil = "select ifnr, qbnr, max(b.qedt) as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 and coalesce(f.quse,0) < 3 group by ifnr, qbnr order by ifnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
- $fil_qry->execute() or die(print $fil_qry->errorInfo()[2]);
+ $fil_qry->execute() or die($fil_qry->errorInfo()[2]);
+/* 
  $facimp = new myfile($docpath.$facImportFile,'new');
-
+*/
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single stock
-	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+	if (array_key_exists("fullLoad",$_POST) or (isset($argv) and in_array("/fullLoad", $argv))) {
 		$filrow['date'] = null;
 	}
 	
-	print "\nUpdate ".$filrow['ifnr']." from ".$filrow['date'];
+	print "<br\>\nUpdate ".$filrow['ifnr']." from ".$filrow['date'];
 	
 	$cnt = 0;
 	
 	do {
 		$stocklist = $allianzdata->getStock($filrow['ifnr'], $filrow['date']);
-		if (! isset($stocklist["data"])) {
+		if (! array_key_exists('data',$stocklist) and array_key_exists('debug',$_SESSION) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 			var_dump($stocklist);
 		}
 		print "... next ".$stocklist["count"]."...";
 		foreach ($stocklist["data"] as $stockData) {
 			 // read article base data
 			$article = new product(sprintf("%08d",$stockData['ordernumber']));
-			if (!isset($article->productData[0])) {
-				if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			if (!array_key_exists(0,$article->productData)) {
+				if ( array_key_exists('debug',$_SESSION) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 					print "<br/>Article: ".sprintf("%08d",$stockData['ordernumber'])." not found!<br/>\n";
 				}
-				continue;			
+				//continue;			
 			}
 			
 			$aviableStock = round(($stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
 
 			// calculate aviable base stock
-			if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] > 0)) {
+			if ((array_key_exists(0,$article->productData)) and (array_key_exists('amgm',$article->productData[0])) and ($article->productData[0]['amgm'] > 0)) {
 				$baseStock = $aviableStock*$article->productData[0]['amgm'];
 			} else {
 				$baseStock = $aviableStock;
@@ -53,10 +71,10 @@
 				$baseStock = 0;
 			}
 			
-			if ( isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			if ( array_key_exists('debug',$_SESSION) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "<br/>Stock: ".sprintf("%08d",$stockData['ordernumber'])." ".$stockData['shopid'].": ".$baseStock."<br/>\n";
 			}
-
+/* switch to direct database input for all products
 			// write to wws import file
 			$facimp->facHead('ART_BEST',$stockData['shopid'],'NB');
 			$facimp->facData([
@@ -69,6 +87,10 @@
 			]);
 			
 			$facimp->facFoot();
+*/		
+			//write in Facto DB
+			$article->writeStockDb($stockData['shopid'], $baseStock);
+			// print $stockData['shopid']."/".sprintf("%08d",$stockData['ordernumber'])." -> ".$baseStock."<br>\n";
 			$cnt++;
 		}
 	} while ( count($stocklist["data"]) > 0 );
@@ -80,9 +102,10 @@
  // select last update date for every allianz company
  $sql_fil = "select ifnr, qlnr, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qlnr::integer where ifnr > 1 and qlnr > 0 group by ifnr, qlnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
- $fil_qry->execute() or die(print $fil_qry->errorInfo()[2]);
+ $fil_qry->execute() or die($fil_qry->errorInfo()[2]);
+/*
  $facimp = new myfile($docpath.$facImportFile,'new');
-
+*/
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single price
 
@@ -93,21 +116,21 @@
 		// read article base data
 		$article = new product(sprintf("%08d",$priceData['ordernumber']));
 		
-		if (!isset($article->productData[0])) {
-			continue;
-		}
+		//if (!array_key_exists($article->productData[0])) {
+		//	continue;
+		//}
 		// calculate aviable base price
-		if ((isset($article->productData[0]['apjs'])) and ($article->productData[0]['apjs'] <> 0)) {
+		if ((array_key_exists(0,$article->productData)) and (array_key_exists('apjs',$article->productData[0])) and ($article->productData[0]['apjs'] <> 0)) {
 			$apjs = $article->productData[0]['apjs'];
 		} else {
 			$apjs =1;
 		}
-		if ((isset($article->productData[0]['amgm'])) and ($article->productData[0]['amgm'] <> 0)) {
+		if ((array_key_exists(0,$article->productData)) and (array_key_exists('amgm',$article->productData[0])) and ($article->productData[0]['amgm'] <> 0)) {
 			$amgm = $article->productData[0]['amgm'];
 		} else {
 			$amgm = 1;
 		}
-		if ((isset($article->productData[0]['amms'])) and ($article->productData[0]['amms'] <> 0)) {
+		if ((array_key_exists(0,$article->productData)) and (array_key_exists('amms',$article->productData[0])) and ($article->productData[0]['amms'] <> 0)) {
 			$tax = $article->productData[0]['amms'];
 		} else {
 			$tax = 0;
@@ -122,6 +145,7 @@
 			$aviableprice = 0;
 		}
 
+/*	switch to direct database input for all products
 		// write to wws import file
 		$facimp->facHead('ART_LIEF',0,'N ');
 		$facimp->facData([
@@ -157,13 +181,19 @@
 		]);
 		
 		$facimp->facFoot();
+*/		
+		$article->writePriceDb('9'.sprintf("%07d",$filrow['qlnr']).sprintf("%09d",$priceData['ordernumber']),$filrow['qlnr'], $priceData['price']);
+		
 	}
 
 	
   }
   
-  print '<a href="'.$docpath.$facimp->getCheckedName().'">[Download]</a>';
-  $facimp->close();
+/*
+ print '<a href="'.$docpath.$facimp->getCheckedName().'">[Download]</a>';
+ $facimp->close();
+*/
+ print "Done!";
 
 
  
