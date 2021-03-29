@@ -120,17 +120,17 @@
 		//	continue;
 		//}
 		// calculate aviable base price
-		if ((array_key_exists(0,$article->productData)) and (array_key_exists('apjs',$article->productData[0])) and ($article->productData[0]['apjs'] <> 0)) {
+		if (!empty($article->productData[0]['apjs'] <> 0)) {
 			$apjs = $article->productData[0]['apjs'];
 		} else {
 			$apjs =1;
 		}
-		if ((array_key_exists(0,$article->productData)) and (array_key_exists('amgm',$article->productData[0])) and ($article->productData[0]['amgm'] <> 0)) {
+		if (!empty($article->productData[0]['amgm'] <> 0)) {
 			$amgm = $article->productData[0]['amgm'];
 		} else {
 			$amgm = 1;
 		}
-		if ((array_key_exists(0,$article->productData)) and (array_key_exists('amms',$article->productData[0])) and ($article->productData[0]['amms'] <> 0)) {
+		if (!empty($article->productData[0]['amms'] <> 0)) {
 			$tax = $article->productData[0]['amms'];
 		} else {
 			$tax = 0;
