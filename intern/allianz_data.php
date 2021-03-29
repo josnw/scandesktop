@@ -120,7 +120,7 @@
 		//	continue;
 		//}
 		// calculate aviable base price
-		if (!empty($article->productData[0]['apjs']) and ((article->productData[0]['apjs'] <> 0)) {
+		if (!empty($article->productData[0]['apjs']) and ($article->productData[0]['apjs'] <> 0)) {
 			$apjs = $article->productData[0]['apjs'];
 		} else {
 			$apjs =1;
@@ -182,7 +182,7 @@
 		
 		$facimp->facFoot();
 */		
-		$article->writePriceDb('9'.sprintf("%07d",$filrow['qlnr']).sprintf("%09d",$priceData['ordernumber']),$filrow['qlnr'], $priceData['price']);
+		$article->writePriceDb('9'.sprintf("%07d",$filrow['qlnr']).sprintf("%09d",$priceData['ordernumber']),$filrow['qlnr'], $aviableprice);
 		
 	}
 
