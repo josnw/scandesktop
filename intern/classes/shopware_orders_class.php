@@ -114,9 +114,10 @@ class ShopwareOrders {
 	}
 	
 	private function getFacCustomerData($data) {
+		$customerNumber = $this->GetRealCustomerNumber($data["customer"]["number"]);
 		
 		$facCustomer = [
-			'KDNR' => $this->channelFacData['shopware']['CustomerNumber'] + $data["customer"]["number"],
+			'KDNR' => $customerNumber,
 			'QANR' => $data["customer"]["title"],
 			'QSBZ' => $data["customer"]["firstname"]." ".$data["customer"]["lastname"],
 			'QNA1' => $data["billing"]["firstName"]." ".$data["billing"]["lastName"],
@@ -141,11 +142,7 @@ class ShopwareOrders {
 	
 	private function getFacHeadData($data) {
 		
-		if ($this->channelFacData['shopware']['GroupCustomer'] ) {
-			$customerNumber = $this->channelFacData['shopware']['CustomerNumber'];
-		} else {
-			$customerNumber = $this->channelFacData['shopware']['CustomerNumber'] + $data["customer"]["number"];
-		}
+		$customerNumber = $this->GetRealCustomerNumber($data["customer"]["number"]);
 		
 		$facHead = [
 			'FXNR' => $customerNumber ,
@@ -235,13 +232,8 @@ class ShopwareOrders {
 			$posApjs = $article->productData[0]['apjs'];
 			$posApkz = $article->productData[0]['apkz'];
 		}
-		if ($this->channelFacData['shopware']['GroupCustomer'] ) {
-			$customerNumber = $this->channelFacData['shopware']['CustomerNumber'];
-		} else {
-			$customerNumber = $this->channelFacData['shopware']['CustomerNumber'] + $data["customernumber"];
-		}
 		
-		
+		$customerNumber = $this->GetRealCustomerNumber($data["customer"]["number"]);
 		
 		$facPos = [
 			'FXNR' => $customerNumber ,
@@ -303,5 +295,18 @@ class ShopwareOrders {
 		}
 		return $posarray;
 	}
-	
+
+	/*
+		Split customer number Handling if differnent ranges in shopware used
+	*/
+	private function GetRealCustomerNumber($customerNumber) {
+		if ($this->channelFacData['shopware']['GroupCustomer'] ) {
+			$realCustomerNumber = $this->channelFacData['shopware']['CustomerNumber'];
+		} elseif ((isset($this->channelFacData['shopware']['MappingNumber'])) and ($customerNumber < $this->channelFacData['shopware']['CustomerNumber'] )) {
+			$realCustomerNumber = $this->channelFacData['shopware']['MappingNumber'] + $customerNumber;
+		} else {
+			$realCustomerNumber = $customerNumber;
+		}			
+		return $realCustomerNumber;
+	}	
 }

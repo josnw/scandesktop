@@ -36,7 +36,11 @@ $shopware_url = 'https://host/api';
 $shopware_user = 'apiuser';
 $shopware_key = 'apikey';
 
-$channelFacData['shopware']['CustomerNumber'] = 100000;
+
+// If different customer number ranges in shopware is used, you can map numbers less then CustomerNumber 
+// to Mappingnumber + Shopwarenumber
+$channelFacData['shopware']['CustomerNumber'] = 10000;
+$channelFacData['shopware']['MappingNumber'] = 10000;
 $channelFacData['shopware']['GroupCustomer'] = false;
 $channelFacData['shopware']['Filiale'] = 918;
 $channelFacData['shopware']['formId'] = '0001';
