@@ -1,6 +1,5 @@
 <?php
 
-
 // Alianz API Config
 
 $allianz_stock_user = 'apiuser';
@@ -31,7 +30,7 @@ $ShopwarePriceGroup = 'EK';
 $ShopwarePriceBase = 'Bruttopreis 1';
 $ShopwareIdWebshop = 1;
 $ShopwareStockList = [0,36];
-	
+$ShopwareCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
 $shopware_url = 'https://host/api';
 $shopware_user = 'apiuser';
 $shopware_key = 'apikey';
@@ -81,7 +80,7 @@ $sender = "me and myself";
 $sender_email = "me@mydomain.xyz"; 
 $reply_email = "someone@mydomain.xyz"; 
 			
-######## Menüeinträge ##############
+######## Menï¿½eintrï¿½ge ##############
 $menu_name['root']['Startseite']  = './home.php';
 $menu_name['root']['Test']  = './test.php';
 $menu_name['root']['Shopware']  = './shopware.php';

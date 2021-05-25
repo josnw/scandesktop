@@ -252,7 +252,7 @@ class tradebytePanda {
 				$exportarray["a_stock[".$stock[0]."]"] = 0;
 			}
 		} elseif ($type == 'media') {
-			foreach($this->priceTypeList as $media) {
+		    foreach($this->mdbTypesTypeList as $media) {
 				$exportarray["a_media[".$media[0]."]"] = "";
 			}
 		}
@@ -304,7 +304,7 @@ class tradebytePanda {
 			// print data line
 			foreach($temp_array as $key=>$value) {
 				$temp_array[$key] = trim($value);
-				if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z²³°]{1,5}/",$value))) {
+				if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Zï¿½ï¿½ï¿½]{1,5}/",$value))) {
 					$temp_array[$key] = str_replace(".",",",$value);
 				} 
 				if ($value = null) {

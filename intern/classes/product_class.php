@@ -26,11 +26,12 @@ class product {
 		
 		if ($level == 'basic') {
 			$this->indexvalue = $indexvalue;
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss, 
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,   
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join mand_mwst m on a.apkz = m.mmid
+						left join art_grp ag on a.qgrp = ag.qgrp
 						where i.aamr = :aamr ";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
@@ -41,7 +42,8 @@ class product {
 			$this->indexvalue = $indexvalue;
 			
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
-						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf, a.aart,
+						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf, a.aart, ag.qsbz as gqsbz,
+                        case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt
 					from art_0 a  inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
@@ -49,6 +51,7 @@ class product {
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
 						left join lif_0 l on a.linr = l.linr
 						left join mand_mwst m on a.apkz = m.mmid
+                        left join art_grp ag on a.qgrp = ag.qgrp
 						where a.arnr = :aamr ";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
@@ -175,14 +178,16 @@ class product {
 		// select prices
 		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
 					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
-		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date order by csog, qdtm";
+		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date 
+                    and cprs <> 0
+                    order by csog, qdtm";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 
 		$f_qry->bindValue(':aamr',$this->productId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		
-		// calulate price for one 
+		// calulate price for one
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
 				if (isset($row["apjs"]) and ($row["apjs"] > 0)) { 
 					$this->productPrices[$row["mprn"]] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
