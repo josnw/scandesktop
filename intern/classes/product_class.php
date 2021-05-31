@@ -27,7 +27,8 @@ class product {
 		if ($level == 'basic') {
 			$this->indexvalue = $indexvalue;
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,   
-			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart
+			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
+                      i.askz
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join mand_mwst m on a.apkz = m.mmid
@@ -42,10 +43,11 @@ class product {
 			$this->indexvalue = $indexvalue;
 			
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
-						case when adgz > 0 then cast( (adgn/adgz) as decimal(8,2)) else null end as agpf, a.aart, ag.qsbz as gqsbz,
-                        case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh,
+						case when adgz > 0 then cast( (adgn/adgz) as decimal(18,8)) else null end as agpf, a.aart, ag.qsbz as gqsbz,
+                        case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
-					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt
+					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt,
+                        0 as askz
 					from art_0 a  inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
@@ -58,7 +60,7 @@ class product {
 		} elseif ($level == 'searchPrice') {
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, a.apjs, a.linr, asco, a.apkz, a.amgz, a.amgn, 
 								  case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
-								  cprs, abs(cprs - :price) as diff
+								  cprs, abs(cprs - :price) as diff, 99 as askz 
 								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 									left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 									where v.arnr between :fromarnr and :toarnr and length(v.arnr) = :len and qbis > current_date and qvon <= current_date and mprb = 6 and csog like 'F%'
@@ -78,7 +80,8 @@ class product {
 		$this->productData = $frow;
 		$this->resultCount = count($frow);
 
-		if ($this->resultCount == 1) {
+		// if one resulte or index is article number, matrix number or gtin 
+		if (($this->resultCount == 1) or ($frow[0]["askz"] <= 2)){
 			$this->productId = $frow[0]["arnr"];
 			$this->productGtin = $frow[0]["asco"];
 
