@@ -28,7 +28,7 @@ $channelFacData['otdm']['formId'] = '0091';
 $ShopwareWebshopNumber = 2;
 $ShopwarePriceGroup = 'EK';
 $ShopwarePriceBase = 'Bruttopreis 1';
-$ShopwareIdWebshop = 1;
+$ShopwareIdWebshop = 1;  // SW% = ShopID, SW6 = SalesChannelID
 $ShopwareStockList = [0,36];
 $ShopwareCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
 $shopware_url = 'https://host/api';
@@ -45,7 +45,7 @@ $channelFacData['shopware']['Filiale'] = 918;
 $channelFacData['shopware']['formId'] = '0001';
 
 // WWS Config
-$facImportFile = './docs/ScanDesktopImport.FAC'
+$facImportFile = './docs/ScanDesktopImport.FAC';
 $scanDeskFacFiliale = 916;
 $FacFiliale = 1;
 

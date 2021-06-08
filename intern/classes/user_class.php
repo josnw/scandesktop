@@ -2,8 +2,8 @@
 
 class user {
 
-	private $my_pdo;
 	private $pg_pdo;
+	private $pickBelegKz;
 	
 	public $pickUser;
 	
@@ -12,19 +12,27 @@ class user {
 		include './intern/config.php';
 
 		$this->pickUser = $userId;
-
-		$this->my_pdo = new PDO($ecserver, $ecuser, $ecpass, $options);
+		$this->pickBelegKz = $wwsPickBelegKz;
+		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		
+		$pickInit_sql = "update auftr_kopf set ktos = 0 where ktos is null  and fbkz = :fbkz";
+		
+		$pickInit_qry = $this->pg_pdo->prepare($pickInit_sql);
+		$pickInit_qry->bindValue(":fbkz",$this->pickBelegKz);
+		
+		$pickInit_qry->execute() or die (print_r($pickInit_qry->errorInfo()));
+		
 		
 	}
 	
 	public function getPickLists($status = '0') {
 		$this->checkPickStatus();
 		$liste = [];
-		//Artikel der älteste Bestellungen und TopArtikel einlesen
+		//Artikel der ï¿½lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
-		$pickList_sql = 'select * from pickliste where pickUser = :pickUser and pickStatus in ('.$pickStatus.') order by pickId';
+		$pickList_sql = 'select distinct fprn as pickId, ktou as pickName, ktos as pickStatus from auftr_kopf where fenr = :pickUser and ktos in ('.$pickStatus.') order by fprn';
 
-		$pickList_qry = $this->my_pdo->prepare($pickList_sql);
+		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
 		
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
@@ -38,11 +46,11 @@ class user {
 	public function getOrderCount($status = '0') {
 		$this->checkPickStatus();
 		$liste = [];
-		//Artikel der älteste Bestellungen und TopArtikel einlesen
+		//Artikel der ï¿½lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
-		$pickList_sql = 'select count(BelegID) as cnt from versand where ship_user = :pickUser and ship_status in ('.$pickStatus.') ';
+		$pickList_sql = 'select count(fblg) as cnt  from auftr_kopf where fenr = :pickUser and ktos in ('.$pickStatus.') ';
 
-		$pickList_qry = $this->my_pdo->prepare($pickList_sql);
+		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
 		
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
@@ -52,10 +60,9 @@ class user {
 	}
 
 	public function checkPickStatus() {
-
+        return true;
 		//Alle Picklisten ohne ungepackte Bestellungen auf Status 1
-		$pickList_sql = 'update pickliste set pickStatus = 1 where pickUser = :pickUser and pickStatus = 0 
-							and pickId not in (select ship_picklist from versand where ship_user = :pickUser and ship_status = 0)';
+		$pickList_sql = 'update auftr_kopf set ktos = 1 where fenr = :pickUser and ktos = 0 and fprn is not null';
 
 		$pickList_qry = $this->my_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
@@ -66,16 +73,16 @@ class user {
 		return $pickList_row["cnt"];
 	}
 
-
-
-	public function getAllOrderCount($status = '0') {
+	public function getAllOrderCount($status = 0) {
 		$this->checkPickStatus();
 		$liste = NULL;
-		//Artikel der älteste Bestellungen und TopArtikel einlesen
+		//Artikel der ï¿½lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
-		$pickList_sql = 'select count(BelegID) as cnt from versand where ship_status in ('.$pickStatus.') ';
 
-		$pickList_qry = $this->my_pdo->prepare($pickList_sql);
+		$pickList_sql = 'select count(fblg) as cnt from auftr_kopf where ktos in ('.$pickStatus.') and fbkz = :fbkz  ';
+		
+		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+		$pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 		
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 		

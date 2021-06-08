@@ -4,6 +4,7 @@ session_start();
  include './intern/config.php';
  include './intern/autoload.php';
  include './intern/functions.php';
+ 
 
  if ((isset($_GET["scanId"])) and ($_GET["scanId"] == $_SESSION['ItemScanKey'])) {
 	 

@@ -90,7 +90,7 @@ class ShopwareOrders {
 			}
 			 
 			$orderpos["articleNumber"] = $shipment->getProductId();
-			$orderpos["taxRate"] =  16;
+			//$orderpos["taxRate"] =  19;
 			$orderpos['articleName'] = $shipment->productData[0]['abz1'];
 			$orderpos["quantity"] = 1;
 			$orderpos["price"] = $order["data"]["invoiceShipping"];
@@ -221,12 +221,17 @@ class ShopwareOrders {
 		
 		$article = new product(sprintf("%08d",$data["articleNumber"]));
 		if ($article->getProductId() == NULL) {
+			$article = new product($data["articleNumber"]);
+		}
+		
+		if ($article->getProductId() == NULL) {
 			print "Article ".$data["articleNumber"]." ".$data['articleName']." not found!</br>";
 			$posFmge = $data["quantity"] ; 
 			$posPrice = $data["price"];				
 			$posApjs = 1;
 			$posApkz = 1;
 		} else {
+			$data["articleNumber"] = $article->getProductId();
 			$posFmge = $data["quantity"] / $article->productData[0]['amgm']; 
 			$posPrice = $data["price"] / $article->productData[0]['amgm'] * $article->productData[0]['apjs'];
 			$posApjs = $article->productData[0]['apjs'];
@@ -250,8 +255,8 @@ class ShopwareOrders {
 			'FDTM' => date("d.m.Y",time()),
 			'FLDT' => date("d.m.Y", time()+(60*60*18)),			
 			'FPOS' => $this->fpos,
-			'AAMR' => sprintf("%08d",$data["articleNumber"]),
-			'ARNR' => sprintf("%08d",$data["articleNumber"]),
+			'AAMR' => $data["articleNumber"],
+			'ARNR' => $data["articleNumber"],
 			'QGRP' => $article->productData[0]['qgrp'],
 			'FART' => 1,
 			'XXAK' => '',

@@ -11,9 +11,9 @@ session_set_cookie_params(36000);session_start();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="./css/master.css" media=screen>
 <link rel="stylesheet" type="text/css" href="./css/master5print.css" media=print>
-<script src="./js/jquery-1.4.2.js" type="text/javascript"></script>
-<script type="text/javascript" src="./js/ui17/ui/jquery-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="./js/ui17/themes/base/jquery-ui.css"/>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
 
 <script src="./js/scripts.js" type="text/javascript"></script>
 	

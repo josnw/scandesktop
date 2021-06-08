@@ -1,3 +1,4 @@
+<pre>
 <?php
  include './intern/autoload.php';
 
@@ -16,9 +17,9 @@
 	print "Pickliste wird generiert ...";
 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["pickListWeight"], $_POST["pickListName"]);
 	print " erstellt!<br>";
-			// Pickliste anzeigen
-			include("./intern/views/picklist_head_view.php");
-			include("./intern/views/picklist_pos_view.php");
+	// Pickliste anzeigen
+	include("./intern/views/picklist_head_view.php");
+	include("./intern/views/picklist_pos_view.php");
 	
  } elseif ((isset($_POST["finishingOrder"])) )  {
     // Bestellung abschließen
@@ -49,18 +50,16 @@
 
 
 	// Wenn noch eine Pickliste offen ist
-	if ((count($userPickData) == 1) or (isset($_POST["editPickList"])) or  (isset($_SESSION["pickId"])) ){
-
-		if ((isset($_POST["pickId"])) and is_numeric($_POST["pickId"])) {
-			$_SESSION["pickId"] = $_GET["pickId"];
-		} elseif (isset($userPickData[0]["pickId"])) {
-			$_SESSION["pickId"] = $userPickData[0]["pickId"];
+	if ((count($userPickData) == 1) or (!empty($_POST["editPickList"])) or  (!empty($_SESSION["pickid"])) ){
+		if ((isset($_POST["pickid"])) and is_numeric($_POST["pickid"])) {
+		    $_SESSION["pickid"] = $_POST["pickid"];
+		} elseif (isset($userPickData[0]["pickid"])) {
+			$_SESSION["pickid"] = $userPickData[0]["pickid"];
 		} else {
-			$_SESSION["pickId"] = 0;	
+			$_SESSION["pickid"] = 0;	
 		}
-		$pickListData = new picklist($_SESSION["pickId"]);
-
-
+		
+		$pickListData = new picklist($_SESSION["pickid"]);
 
 		if ( isset($_POST["showPickItems"]) ) {
 			// Pickliste anzeigen
@@ -75,7 +74,7 @@
 			// Einzelbestellung packen
 			$packOrder = $pickListData->getNextPackOrder();
 			 if (count($pickListData->getOrderList("0,1")) == 0) {
-				unset($_SESSION["pickId"]); 
+				unset($_SESSION["pickid"]); 
 				$pickListData->setPickStatus(2);
 				include("./intern/views/picklist_generate_view.php");
 			 } else {
@@ -88,7 +87,9 @@
 				
 				$currentPack = -1;
 				//while ( $item = $packOrder->getNextItembyPack() ) {
+
 				while ( $item = $packOrder->getNextItem() ) {
+
 					if (isset($item[0]["packNumber"])) {
 						if ($item[0]["packNumber"] <> $currentPack) { 
 							if ($currentPack >= 0) { print"</div>"; }
@@ -98,6 +99,7 @@
 					}	
 					include("./intern/views/order_pos_view.php");
 				}
+
 				if ($packOrder->orderHeader["HNummer"] == '') {
 					if (preg_match("( [0-9]*$)",$packOrder->orderHeader["Adresse1"],$match)) {
 						$packOrder->orderHeader["HNummer"] = trim($match[0]);
