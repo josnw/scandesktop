@@ -320,6 +320,7 @@ class Shopware6Orders {
 			'APJS' => $article->productData[0]['apjs'],
 			'AMEH' => $article->productData[0]['ameh'],
 			'AGEH' => $article->productData[0]['ageh'],
+			'AGEW' => $article->productData[0]['agew'],
 			'FEPB' => $posPrice,
 			'QPAS' => '',
 			'ASCO' => $data['product']["attributes"]["ean"],
