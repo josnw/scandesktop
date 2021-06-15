@@ -1,0 +1,133 @@
+{
+	"associations": {
+		"deliveries": {
+			"associations": {
+				"shippingOrderAddress": [
+				]
+			}
+		},
+		"transactions": {
+			"associations": {
+				"stateMachineState": [
+				]
+			}
+		},
+		"orderCustomer": {
+		},
+		"addresses": {
+			"associations": {
+				"country": [
+				]
+			}
+		},
+		"lineItems": {
+			"associations": {
+				"product": [
+				]
+			}
+		},
+		"salesChannel": {
+			"associations": {
+				"paymentMethods": [
+				]
+			}
+		},
+		"stateMachineState": {
+		}
+	},
+	"filter": [
+		{
+			"value": "XXXXXXXXXX",
+			"field": "order.id",
+			"type": "equals"
+		}
+	],
+	"includes": {
+		"order_transaction": [
+			"id",
+			"stateMachineState",
+			"paymentMethod"
+		],
+		"order_customer": [
+			"email",
+			"firstName",
+			"lastName",
+			"customerNumber"
+		],
+		"order": [
+			"id",
+			"orderNumber",
+			"createdAt",
+			"lineItems",
+			"billingAddressId",
+			"orderAddressId",
+			"salesChannelId",
+			"addresses",
+			"deliveries",
+			"salesChannelId",
+			"salesChannel",
+			"stateMachineState",
+			"transactions",
+			"orderCustomer",
+			"shippingTotal",
+			"price",
+			"amountTotal",
+			"shippingCosts",
+			"customerComment",
+			"customFields",
+			"stateMachineState"
+		],
+		"order_line_item": [
+			"id",
+			"position",
+			"quantity",
+			"unitPrice",
+			"productId",
+			"product"
+		],
+		"country": [
+			"name"
+		],
+		"product": [
+			"id",
+			"productNumber",
+			"name",
+			"ean"
+		],
+		"sales_channel": [
+			"id",
+			"name",
+			"paymentMethodId",
+			"paymentMethods"
+		],
+		"order_address": [
+			"id",
+			"title",
+			"firstName",
+			"lastName",
+			"street",
+			"zipcode",
+			"city",
+			"company",
+			"department",
+			"countryId",
+			"country",
+			"additionalAddressLine1",
+			"additionalAddressLine2"
+		],
+		"state_machine_state": [
+			"id",
+			"technicalName"
+		],
+		"payment_method": [
+			"id",
+			"name",
+			"formattedHandlerIdentifier"
+		],
+		"order_delivery": [
+			"id",
+			"shippingOrderAddressId"
+		]
+	},
+	"limit": 1
+}

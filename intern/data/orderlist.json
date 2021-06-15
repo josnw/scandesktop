@@ -1,0 +1,57 @@
+{
+	"associations": {
+		"orderCustomer": {
+		}
+	},
+	"filter": [
+		{
+			"value": "XXXXXXXXX",
+			"field": "salesChannelId",
+			"type": "equals"
+		},
+		{
+			"value": "open",
+			"field": "order.stateMachineState.technicalName",
+			"type": "equals"
+		},
+		{
+			"value": "paid",
+			"field": "transactions.stateMachineState.technicalName",
+			"type": "equals"
+		}
+	],
+	"includes": {
+		"order": [
+			"id",
+			"orderNumber",
+			"orderCustomer",
+			"createdAt",
+			"salesChannelId",
+			"salesChannelId",
+			"salesChannel",
+			"stateMachineState",
+			"customerComment",
+			"customFields"
+		],
+		"order_customer": [
+			"email",
+			"firstName",
+			"lastName"
+		],
+		"sales_channel": [
+			"id",
+			"name",
+			"paymentMethodId",
+			"paymentMethods"
+		],
+		"state_machine_state": [
+			"id",
+			"technicalName"
+		],
+		"payment_method": [
+			"id",
+			"name",
+			"formattedHandlerIdentifier"
+		]
+	}
+}
