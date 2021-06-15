@@ -7,7 +7,7 @@
 				Export an DHL  ...<br/>
 				 
 				<?php 
-				    print "<iframe id='labelprint' src='".$labelLink."' onshow='this.contentWindow.print();'></iframe>";
+				    //print "<iframe id='labelprint' src='".$labelLink."' onshow='this.contentWindow.print();'></iframe>";
 				    if (!empty($delivery["fnum"])) { 
 					   print "	Lieferschein erstellt ".$delivery["fnum"]."<br/>"; 
 					} elseif ( $orderPacked == true ) { 
