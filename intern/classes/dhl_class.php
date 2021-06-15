@@ -8,7 +8,7 @@ class dhl {
 	function __construct() {
 		include ("./intern/config.php");
 
-		$this->my_pdo = new PDO($ecserver, $ecuser, $ecpass, $options);
+		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		
 		return true;
 	}
@@ -63,7 +63,6 @@ class dhl {
 	}
 	
 	public function checkIdent($identCode) {
-		
 		if (strlen($identCode) == 20) {
 			if ($this->interleaved25(substr($identCode,0,-1)) == substr($identCode,-1)) {
 				return true;
@@ -76,12 +75,16 @@ class dhl {
 			} else {
 				return false;
 			}
-		} elseif ($identCode = '1' and $DEBUG=1) {
+		} elseif ($identCode == '1' and DEBUG == 1) {
 			return true;
 		}
+		return false;
+
 	}
 
 	public function checkOrderId($identCode, $orderId) {
+		
+		/*
 		// Der Import erfolgt erst beim Abschluss, von daher im Prozess nicht integrierbar.
 		$oqry  = 'select ship_trackingId from versand where BelegID = :BelegID';
 
@@ -94,10 +97,12 @@ class dhl {
 		} else {
 			return false;
 		} 
+		*/
+		return true;
 	}
 
 	public function setTrackingId($identCode, $orderId) {
-		
+		/*
 		$oqry  = 'insert into versand_tracking (BelegID, TrackingCode) values (:BelegID, :TrackingCode)';
 
 		$r_qry = $this->my_pdo->prepare($oqry);
@@ -109,6 +114,8 @@ class dhl {
 		} else {
 			return [ "status" => false, "info" =>  $r_qry->errorInfo() ];
 		} 
+		*/
+		return true;
 	}
 	
 	public function trackingIdImport() {

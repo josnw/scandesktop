@@ -7,13 +7,13 @@ session_start();
  
 
  if ((isset($_GET["scanId"])) and ($_GET["scanId"] == $_SESSION['ItemScanKey'])) {
-	 
+
+ 	$getItemID = preg_replace("[^0-9A-Z]","",$_GET["itemId"]);
+ 	$getOrderID = preg_replace("[^0-9]","",$_GET["orderId"]);
+ 	$getPackId = preg_replace("[^0-9]","",$_GET["packId"]);
+ 	
 	if ((isset($_GET["typ"])) and ($_GET["typ"] == 'productid')) {
-		
-		$getItemID = preg_replace("[^0-9A-Z]","",$_GET["itemId"]);
-		$getOrderID = preg_replace("[^0-9]","",$_GET["orderId"]);
-		$getPackId = preg_replace("[^0-9]","",$_GET["packId"]);
-		
+	
 		$scanedItem = new product($getItemID);
 		$packingOrder = new order($getOrderID);
 		$productID = $scanedItem->getProductId();
@@ -36,7 +36,7 @@ session_start();
 			if ( $trackIdResult["status"] == true ) {
 				print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  $getItemID]);	
 			} else {
-				if ($DEBUG == 1) {
+				if (DEBUG == 1) {
 					print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  $getPackId, "info" => "Der TrackingCode ist bereits in Verwendung!"]);	
 				} else {
 					print json_encode(["itemId" => "", "itemPacked" => "" ,"status" => false, "info" => "Der TrackingCode ist bereits in Verwendung!"]);	

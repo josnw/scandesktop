@@ -1,4 +1,3 @@
-<pre>
 <?php
  include './intern/autoload.php';
 
@@ -12,7 +11,6 @@
 
  if ((isset($_POST["generatePicklist"])) and ($_POST["generatePicklist"] == "Speichern")) {
 	// neue Pickliste erstellen 
-	
 
 	print "Pickliste wird generiert ...";
 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["pickListWeight"], $_POST["pickListName"]);
@@ -25,21 +23,45 @@
     // Bestellung abschließen
 	if ($_POST["scanId"] == $_SESSION['ItemScanKey']) {
 		$packOrder = new order($_POST["orderId"]);
-		$packOrder->setAdress($_POST["adressName1"], $_POST["adressName2"], $_POST["adressNumber"], $_POST["adressStreet"], $_POST["adressPostCode"], $_POST["adressCity"], $_POST["adressCountry"]);
-		if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
+		
+/*		if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
 			$parcelData = []; 
 			for($i = 0; $i < count($_POST["packWeight"]); $i++) {
 				$parcelData[] = [ 'packWeight' => $_POST["packWeight"][$i], 'parcelService' => $_POST["parcelService"][$i] ];	
 			}
 		}
-		$packOrder->exportDHLShipping($parcelData);
-		$orderPacked = $packOrder->orderHeader["ship_status"];
-		if ($orderPacked == 2) {
-			$invoice_sendStatus = $packOrder->sendInvoice();
+		
+*/
+		$_SESSION["shipBlueprint"]["receiverAddress"]["firstName"] = $_POST["qna1"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["lastName"] = $_POST["qna2"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["company"] = $_POST["qna3"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["department"] = $_POST["qna4"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["addressAddition"] = $_POST["qna5"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["street"] = $_POST["qstr"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["houseNumber"] = $_POST["qshnr"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["zipCode"] = $_POST["qplz"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["city"] = $_POST["qort"];
+		$_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"] = $_POST["qlnd"];
+		
+		
+		$response = $packOrder->exportShipping();
+		
+		if ($response["status"]) {
+		
+		    $delivery = $packOrder->genDeliver();
+		    $labelLink = $response["link"];
+		    include("./intern/views/order_finished_view.php");
+		    
 		} else {
-			$invoice_sendStatus = false;
+		    $orderPacked = $packOrder->orderHeader["ktos"];
+		    $errorList = $response["error"]; 
+		    include("./intern/views/order_labelcheck_view.php");
+		    
 		}
-		include("./intern/views/order_finished_view.php");
+		
+		
+
+		
 		
 		
 	} else {
@@ -50,15 +72,15 @@
 
 
 	// Wenn noch eine Pickliste offen ist
-	if ((count($userPickData) == 1) or (!empty($_POST["editPickList"])) or  (!empty($_SESSION["pickid"])) ){
+	if ((count($userPickData) == 1) or (!empty($_POST["editPickList"])) or  (!empty($_SESSION["pickid"])) ) {
 		if ((isset($_POST["pickid"])) and is_numeric($_POST["pickid"])) {
 		    $_SESSION["pickid"] = $_POST["pickid"];
-		} elseif (isset($userPickData[0]["pickid"])) {
-			$_SESSION["pickid"] = $userPickData[0]["pickid"];
+		} elseif (isset($userPickData[0]["fprn"])) {
+			$_SESSION["pickid"] = $userPickData[0]["fprn"];
 		} else {
 			$_SESSION["pickid"] = 0;	
 		}
-		
+
 		$pickListData = new picklist($_SESSION["pickid"]);
 
 		if ( isset($_POST["showPickItems"]) ) {
@@ -82,7 +104,8 @@
 				include("./intern/views/order_head_view.php");
 				
 				$packs = $packOrder->calcPacks(30);
-				$labeledPacks = count($packOrder->getTrackingCodes());
+
+				$labeledPacks = 0; // count($packOrder->getTrackingCodes());
 				if ($labeledPacks == NULL) { $labeledPacks = 0; }
 				
 				$currentPack = -1;
@@ -107,7 +130,9 @@
 					}
 				}
 				
-				$orderPacked = $packOrder->orderHeader["ship_status"];
+				$orderPacked = $packOrder->orderHeader["ktos"];
+				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
+				
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }

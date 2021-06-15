@@ -27,10 +27,14 @@ class factoOrders {
 		$f_qry = $this->pg_pdo->prepare($fqry);
 		$mdnr = $f_qry->fetch( PDO::FETCH_ASSOC );
 		$this->mdnr = $mdnr['mdnr'];
-
-		$fqry = "select count(*) as cnt from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
-		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':ifnr',$this->ifnr);
+		if ($this->ifnr == null) {
+			$fqry = "select count(*) as cnt from auftr_kopf a where fblg = :fblg ";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+		} else {
+			$fqry = "select count(*) as cnt from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':ifnr',$this->ifnr);
+		}
 		$f_qry->bindValue(':fblg',$this->orderId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		$cntdata = $f_qry->fetch( PDO::FETCH_ASSOC);
@@ -42,10 +46,15 @@ class factoOrders {
 	}
 	
 	private function readDBHead() {
-		$fqry = "select a.* from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
+	    if ($this->ifnr == null) {
+	        $fqry = "select * from auftr_kopf a where fblg = :fblg ";
+	        $f_qry = $this->pg_pdo->prepare($fqry);
+	    } else {
+	        $fqry = "select a.* from beleg_id i inner join auftr_kopf a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr";
+	        $f_qry = $this->pg_pdo->prepare($fqry);
+	        $f_qry->bindValue(':ifnr',$this->ifnr);
+	    }
 		
-		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':ifnr',$this->ifnr);
 		$f_qry->bindValue(':fblg',$this->orderId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
@@ -54,10 +63,15 @@ class factoOrders {
 	}
 	
 	private function readDBPos() {
-		$fqry = "select a.* from beleg_id i inner join auftr_pos a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr order by fpos";
+	    if ($this->ifnr == null) {
+	        $fqry = "select a.* from auftr_pos a where fblg = :fblg order by fpos";
+	        $f_qry = $this->pg_pdo->prepare($fqry);
+	    } else {
+	        $fqry = "select a.* from beleg_id i inner join auftr_pos a on a.fblg = i.fnum where i.fblg = :fblg and i.ifnr = :ifnr order by fpos";
+	        $f_qry = $this->pg_pdo->prepare($fqry);
+	        $f_qry->bindValue(':ifnr',$this->ifnr);
+	    }
 		
-		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':ifnr',$this->ifnr);
 		$f_qry->bindValue(':fblg',$this->orderId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
@@ -96,7 +110,7 @@ class factoOrders {
 		}
 	}
 	
-	public function duplicateOrder( $newOrderTyp,  $articleList, $overrides = NULL) {
+	public function duplicateOrder( $newOrderTyp,  $articleList, $overrides = NULL, $setInOrder = true) {
 		if( (!isset($this->head)) or (!is_array($this->head)) ) {
 			$this->readDBHead();
 			$this->readDBPos();
@@ -131,7 +145,7 @@ class factoOrders {
 				$sql .= $key;	
 			}
 		}
-		$sql .= "\n from auftr_kopf where fblg = :fblg";
+		$sql .= "\n from auftr_kopf where fblg = :fblg ";
 		$sql .= "\n returning fnum, fblg";
 		//print $sql;
 
@@ -233,7 +247,11 @@ class factoOrders {
 		if( $overrides ) {
 			$this->overideData($overrides);
 		}
-		$this->setDeliveredAmount();
+		
+		if ($setInOrder) {
+		    $this->setDeliveredAmount();
+		}
+		
 		return [ "fnum" => $this->newFnum, "fblg" => $this->newFblg ];
 		
 	}

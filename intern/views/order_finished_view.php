@@ -5,10 +5,13 @@
 			<div class="DSFeld1">
 				Label werden generiert ...<br/>
 				Export an DHL  ...<br/>
-				<?php if (($orderPacked == true ) and ($invoice_sendStatus == true)) { 
-						print "	Rechnungsversand ...<br/>"; 
+				 
+				<?php 
+				    print "<iframe id='labelprint' src='".$labelLink."' onshow='this.contentWindow.print();'></iframe>";
+				    if (!empty($delivery["fnum"])) { 
+					   print "	Lieferschein erstellt ".$delivery["fnum"]."<br/>"; 
 					} elseif ( $orderPacked == true ) { 
-						print "Rechnung konnte nicht versendet werden ...<br/>";
+						print "Lieferschein konnte nicht erstellt werden ...<br/>";
 					} 
 				?>
 			</div>

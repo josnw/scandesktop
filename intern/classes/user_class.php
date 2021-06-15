@@ -30,16 +30,18 @@ class user {
 		$liste = [];
 		//Artikel der �lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
-		$pickList_sql = 'select distinct fprn as pickId, ktou as pickName, ktos as pickStatus from auftr_kopf where fenr = :pickUser and ktos in ('.$pickStatus.') order by fprn';
+		$pickList_sql = 'select fprn , ktou, max(ktos) as ktos from auftr_kopf 
+                            where fenr = :pickUser and ktos in ('.$pickStatus.') and fprn is not null
+                            group by fprn, ktou
+                            order by fprn';
 
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
 		
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 		
-		while($pickList_row = $pickList_qry->fetch( PDO::FETCH_ASSOC )) {
-			$liste[] = $pickList_row;
-		}
+		$liste = $pickList_qry->fetchAll( PDO::FETCH_ASSOC);
+		
 		return $liste;
 	}
 	
@@ -48,11 +50,11 @@ class user {
 		$liste = [];
 		//Artikel der �lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
-		$pickList_sql = 'select count(fblg) as cnt  from auftr_kopf where fenr = :pickUser and ktos in ('.$pickStatus.') ';
+		$pickList_sql = 'select count(fblg) as cnt  from auftr_kopf where fenr = :pickUser and ktos in ('.$pickStatus.')  and fbkz = :fbkz and ftyp = 2 and fprn is not null';
 
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
-		
+		$pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 		
 		$pickList_row = $pickList_qry->fetch( PDO::FETCH_ASSOC );
@@ -62,7 +64,7 @@ class user {
 	public function checkPickStatus() {
         return true;
 		//Alle Picklisten ohne ungepackte Bestellungen auf Status 1
-		$pickList_sql = 'update auftr_kopf set ktos = 1 where fenr = :pickUser and ktos = 0 and fprn is not null';
+		$pickList_sql = 'update auftr_kopf set ktos = 1 where fenr = :pickUser and ktos = 0 and fprn is not null  and ftyp = 2';
 
 		$pickList_qry = $this->my_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickUser', $this->pickUser );
@@ -79,7 +81,7 @@ class user {
 		//Artikel der �lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
 
-		$pickList_sql = 'select count(fblg) as cnt from auftr_kopf where ktos in ('.$pickStatus.') and fbkz = :fbkz  ';
+		$pickList_sql = 'select count(fblg) as cnt from auftr_kopf where ktos in ('.$pickStatus.') and fbkz = :fbkz  and ftyp = 2 ';
 		
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(":fbkz",$this->pickBelegKz);

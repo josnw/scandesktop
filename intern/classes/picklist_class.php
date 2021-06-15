@@ -59,7 +59,6 @@ class picklist {
 						  group by k.fnum, k.fblg
 						  having max(a.agew) < :maxWeight
 						  order by minDate, ArtAnz desc limit :limit';
-
 		$picOrder_qry = $this->pg_pdo->prepare($picOrder_sql);
 		$picOrder_qry->bindValue(':limit', $count);
 		$picOrder_qry->bindValue(':maxWeight', $maxWeight);
@@ -76,28 +75,31 @@ class picklist {
 			// }
 		}
 
-		// Pickliste anlegen  = Produktionsauftragsnummer in Facto
-		if ($name == NULL) {
-			$this->pickName =  $_SESSION["uid"]."-".date("m-d h:i");
+		if ($this->OrderCount > 0) {
+    		// Pickliste anlegen  = Produktionsauftragsnummer in Facto
+    		if ($name == NULL) {
+    			$this->pickName =  $_SESSION["uid"]."-".date("m-d h:i");
+    		} else {
+    			$this->pickName = $name;
+    		}
+    		$this->pickCreateDate = time();
+    		$this->pickStatus = 0;
+    		$this->pickLastEdit = time();
+    		/*
+    		 * TODO Sequenz for fprn
+    		 */
+    		$this->pickListNumber = $_SESSION["uid"].date("mdhi");
+    		$pickList_sql = "update auftr_kopf set fprn = :pickId, fenr = :pickUser, ktou = :pickName, ktos = :pickStatus 
+    							where fblg in (".$OrderListStr.")";
+    		$pickList_qry2 = $this->pg_pdo->prepare($pickList_sql);
+    		$pickList_qry2->bindValue(':pickId', $this->pickListNumber);
+    		$pickList_qry2->bindValue(':pickUser', $_SESSION["uid"]);
+    		$pickList_qry2->bindValue(':pickName', $this->pickName );
+    		$pickList_qry2->bindValue(':pickStatus', $this->pickStatus );
+    		$pickList_qry2->execute() or die (print_r($pickList_qry2->errorInfo()));
 		} else {
-			$this->pickName = $name;
+		    print "Keine Aufträge mit diesen Kriterien offen!";
 		}
-		$this->pickCreateDate = time();
-		$this->pickStatus = 0;
-		$this->pickLastEdit = time();
-		/*
-		 * TODO Sequenz for fprn
-		 */
-		$this->pickListNumber = $_SESSION["uid"].date("mdhi");
-		$pickList_sql = "update auftr_kopf set fprn = :pickId, fenr = :pickUser, ktou = :pickName, ktos = :pickStatus 
-							where fblg in (".$OrderListStr.")";
-		$pickList_qry2 = $this->pg_pdo->prepare($pickList_sql);
-		$pickList_qry2->bindValue(':pickId', $this->pickListNumber);
-		$pickList_qry2->bindValue(':pickUser', $_SESSION["uid"]);
-		$pickList_qry2->bindValue(':pickName', $this->pickName );
-		$pickList_qry2->bindValue(':pickStatus', $this->pickStatus );
-		$pickList_qry2->execute() or die (print_r($pickList_qry2->errorInfo()));
-		
 	}
 	
 	// PickList Header aus DB lesen
@@ -124,13 +126,13 @@ class picklist {
 		/*
 		 * TODO ALAG Tabelle suchen
 		 */
-		$pickList_sql  = "select a.arnr, abz1, abz2, sum(coalesce(fmge,0)-coalesce(fmgl,0)) as fmge, a.ameh, '' as alag
+		$pickList_sql  = "select a.arnr, p.asco, abz1, abz2, sum(coalesce(fmge,0)-coalesce(fmgl,0)) as fmge, a.ameh, '' as alag
                           from auftr_kopf k
                              inner join auftr_pos p using (fblg) 
                              left join art_0 a using (arnr) 
                              left join art_ean e on a.arnr = e.arnr and e.qskz = 1  
                           where k.fprn = :pickId  and coalesce(aart,0) <> 2
-                          group by a.arnr, abz1, abz2, a.ameh
+                          group by a.arnr, abz1, abz2, a.ameh, p.asco
                           having  sum(coalesce(fmge,0)-coalesce(fmgl,0)) > 0 
                           order by alag, a.arnr";
 		  
@@ -168,7 +170,7 @@ class picklist {
 	// n�chste offene Einzelbestellungen der Pickliste ausgeben)
 	public function getNextPackOrder() {
  
-		$pickList_sql  = 'select fnum, fblg from auftr_kopf where fprn = :pickId order by fdtm, fnum limit 1';
+		$pickList_sql  = 'select fnum, fblg from auftr_kopf where fprn = :pickId and ktos < 2 order by fdtm, fnum limit 1';
 
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickId', $this->pickListNumber);
@@ -184,7 +186,7 @@ class picklist {
 	public function setPickStatus($status) {
 
 		if ((isset($this->orderList)) and (count($this->orderList) == 0)) {
-			$pickList_sql  = 'update auftr_kopf set ktos = :pickStatus where fprn = :pickId and ktos = 1';
+			$pickList_sql  = 'update auftr_kopf set ktos = :pickStatus where fprn = :pickId';
 			  
 			$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 			$pickList_qry->bindValue(':pickId', $this->pickListNumber);

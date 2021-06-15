@@ -3,8 +3,8 @@
 foreach($pickListData->getItemList() as $item => $itemdata) {
 
  print '<div class="DSEdit flexnowrap " id="OrderItem'.$item.'">';
- print '<div class="DSFeld1  mediFont">'.$item.'<br/>'.$itemdata["asco"].'</div>';
- print '<div class="DSFeld2  mediFont">'.$itemdata["abz1"].'</div>';
+ print '<div class="DSFeld1  mediFont">'.$itemdata["arnr"].'<br/>'.$itemdata["asco"].'</div>';
+ print '<div class="DSFeld2  mediFont">'.$itemdata["abz1"]." ".$itemdata["abz2"].'</div>';
  print '<div class="DSFeld1 centerText mediFont">'.number_format($itemdata["fmge"]).' '.$itemdata["ameh"].'</div>';
  print '</div>';
 

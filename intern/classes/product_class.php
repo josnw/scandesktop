@@ -171,7 +171,7 @@ class product {
 		$standardPrice = null;
 		
 		// sql check pricekey list
-		$priceqry  = "select qbez from mand_prsbas where mprb >= 6";	
+		$priceqry  = "select qbez from mand_prsbas where mprb >= 6 and qbez not like 'VK-Preis %'";	
 		$price_qry = $this->pg_pdo->prepare($priceqry);
 		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
 		while ($row = $price_qry->fetch( PDO::FETCH_ASSOC ) ) {
@@ -182,6 +182,7 @@ class product {
 		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
 					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
 		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date 
+					and pb.qbez not like 'VK-Preis %'
                     and cprs <> 0
                     order by csog, qdtm";
 		
