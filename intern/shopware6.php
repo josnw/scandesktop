@@ -16,7 +16,6 @@
      } else {
          $noUpload = NULL;
      }
-     print "<pre>";
      $shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
      
      $articles = new Shopware6Articles();
@@ -32,7 +31,6 @@
      } else {
          print_r($result);
      }
-     print "</pre>";
  }
  
  if (isset($_POST["priceStockUpdate"]) or (isset($argv) and in_array("/priceStockUpdate", $argv))) {

@@ -227,7 +227,6 @@ class Shopware6Articles {
 	        	$result = [ "success" => 0, "put" => 'articles/'.$restdata["id"], "restdata" => $restdata, "json" => json_encode($restdata)];
 	        	return ['count' => $cnt , 'errors' => print_r($result,1)];
 	        }
-	        return ['count' => $cnt , 'errors' => $errorlist];
 	    }
 	    
 	    return ['count' => $cnt , 'errors' => $errorlist];
