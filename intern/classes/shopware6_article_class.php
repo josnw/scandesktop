@@ -170,7 +170,7 @@ class Shopware6Articles {
 	            
 	            // 
 	            if (!empty($this->dynamic_stock_upload["divisor"]) ) {
-	            	$stockSum = floor($stocksum / $this->dynamic_stock_upload["divisor"]);
+	            	$stockSum = floor($stockSum / $this->dynamic_stock_upload["divisor"]);
 	            }
 
 	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > $this->dynamic_stock_upload["max"])) {
@@ -185,6 +185,7 @@ class Shopware6Articles {
 	        
 	        $restdata = [ 
 	        		"id" => md5($frow["arnr"]),
+	        		"productNumber" => $frow["arnr"],
 	        		"stock" => $stockSum,
 			        "price" => [
 			        		[
