@@ -24,14 +24,15 @@
 	if ($_POST["scanId"] == $_SESSION['ItemScanKey']) {
 		$packOrder = new order($_POST["orderId"]);
 		
-/*		if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
+		if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
 			$parcelData = []; 
 			for($i = 0; $i < count($_POST["packWeight"]); $i++) {
-				$parcelData[] = [ 'packWeight' => $_POST["packWeight"][$i], 'parcelService' => $_POST["parcelService"][$i] ];	
+				$_SESSION["shipBlueprint"]["parcels"][$i]["weightOverwrite"]["value"] = $_POST["packWeight"][$i];
+				$_SESSION["shipBlueprint"]["parcels"][$i]["weightOverwrite"]["unit"] = "kg";
 			}
 		}
 		
-*/
+
 		$_SESSION["shipBlueprint"]["receiverAddress"]["firstName"] = $_POST["qna1"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["lastName"] = $_POST["qna2"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["company"] = $_POST["qna3"];
@@ -42,6 +43,8 @@
 		$_SESSION["shipBlueprint"]["receiverAddress"]["zipCode"] = $_POST["qplz"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["city"] = $_POST["qort"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"] = $_POST["qlnd"];
+		$_SESSION["shipBlueprint"]["carrierTechnicalName"]["countryIso"] = $_POST["parcelService"];
+		$_SESSION["shipBlueprint"]["shipmentConfig"]["product"] = $_POST["parcelProduct"];
 		
 		
 		$response = $packOrder->exportShipping();
@@ -50,6 +53,7 @@
 		
 		    $delivery = $packOrder->genDeliver();
 		    $labelLink = $response["link"];
+		    $shippingId = $response["shippingId"];
 		    include("./intern/views/order_finished_view.php");
 		    
 		} else {
@@ -123,16 +127,22 @@
 					include("./intern/views/order_pos_view.php");
 				}
 
-				if ($packOrder->orderHeader["HNummer"] == '') {
+/*				if ($packOrder->orderHeader["HNummer"] == '') {
 					if (preg_match("( [0-9]*$)",$packOrder->orderHeader["Adresse1"],$match)) {
 						$packOrder->orderHeader["HNummer"] = trim($match[0]);
 						$packOrder->orderHeader["Adresse1"] = substr($packOrder->orderHeader["Adresse1"],0,strlen($match[0])*(-1));
 					}
 				}
-				
+*/
 				$orderPacked = $packOrder->orderHeader["ktos"];
 				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
 				
+/*				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
+
+					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
+					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
+				}
+*/
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }

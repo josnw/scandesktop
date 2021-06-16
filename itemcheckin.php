@@ -11,6 +11,7 @@ session_start();
  	$getItemID = preg_replace("[^0-9A-Z]","",$_GET["itemId"]);
  	$getOrderID = preg_replace("[^0-9]","",$_GET["orderId"]);
  	$getPackId = preg_replace("[^0-9]","",$_GET["packId"]);
+ 	$getPickId = preg_replace("[^0-9]","",$_GET["pickId"]);
  	
 	if ((isset($_GET["typ"])) and ($_GET["typ"] == 'productid')) {
 	
@@ -29,8 +30,23 @@ session_start();
 			print json_encode($checkResult);
 		}
 	} elseif ((isset($_GET["typ"])) and ($_GET["typ"] == 'parcelId')) {
-		$dhl = new dhl();
-		//$dhl->trackingIdImport();
+		$packOrder = new order($getOrderID);
+		$trackingIDs = $packOrder->getTrackingCodes($getPickId);
+		$dhl = new dhl($getItemID);
+		if (in_array($getItemID, $trackingIDs)) {
+			print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  '' ]);
+
+		} else {
+			if (DEBUG == 1) {
+				print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  $getPackId, "info" => "Der TrackingCode passt nicht zum Auftrag!"]);
+			} else {
+				print json_encode(["itemId" => "", "itemPacked" => "" ,"status" => false, "info" => "Der TrackingCode passt nicht zum Auftrag!"]);
+				proto(print_r($trackIdResult["info"],1));
+			}
+			
+		}
+	
+/*		
 		if ($dhl->checkIdent($getItemID)) {
 			$trackIdResult = $dhl->setTrackingId($getItemID,$getOrderID);
 			if ( $trackIdResult["status"] == true ) {
@@ -47,6 +63,7 @@ session_start();
 		} else {
 			print json_encode(["itemId" => "", "itemPacked" => "" ,"status" => false, "info" => "Fehlerhafter IdentCode!"]);
 		}
+*/		
 	}	
 		
 	} else {

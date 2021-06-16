@@ -19,7 +19,7 @@
 		  <h3>Paket versandfertig verpacken und Paketlabel scannen:</h3>
 		</div>
 		<div class="DSSuche" style="width: 60%; float: left;" id="OrderItemOrder-">
-			<input id="scanid" name="scanid" onkeyup="checkIn(this, event, 'parcelId', '<?php print $packOrder->getOrderId()."','".$_SESSION["pickId"]."','".$_SESSION['ItemScanKey']."',''"; ?> )" autocomplete="off" style="width: 90%;" >
+			<input id="scanid" name="scanid" onkeyup="checkIn(this, event, 'parcelId', '<?php print $packOrder->getOrderId()."','".$shippingId."','".$_SESSION['ItemScanKey']."',''"; ?> )" autocomplete="off" style="width: 90%;" >
 			<script type="text/javascript">FocusOnInput("scanid");</script>
 		</div>
 

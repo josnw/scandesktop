@@ -5,7 +5,6 @@
 	<form action="#" method="POST" enctype="multipart/form-data" >
 		<input type = hidden name="orderId" value="<?php  print($packOrder->orderHeader["fblg"]); ?>"  required>
 		<input type = hidden name="scanId" value="<?php  print($_SESSION['ItemScanKey']); ?>"  required>
-	    <h3>Adresse prüfen:</h3>
 		<div class="DSEdi smallBordert">
 			<div class="DSEdit smallBorder"> 
 				<div class="DSFeld1">Name<br> 
@@ -30,16 +29,23 @@
 				<div class="DSFeld3">Ort<br> <input name="qort" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["city"]); ?>" pattern="[A-Za-zäöüß0-9\- /\.()]+"  required></div>
 				<div class="DSFeld1">Land<br> <input name="qlnd" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"]); ?>" pattern="[A-Za-zäöüß0-9\- /]+"  required></div>
 			</div>	
+			<div class="DSEdit smallBorder"> 
+				<div class="DSFeld1">Spedition<br> <input name="parcelService" value="<?php  print($_SESSION["shipBlueprint"]["carrierTechnicalName"]); ?>" pattern="(dhl)" required ></div>
+				<div class="DSFeld1">Versandart<br>
+					<select name="parcelProduct">
+					 <option value="V01PAK"<?php  if ($_SESSION["shipBlueprint"]["shipmentConfig"]["product"] == "V01PAK") { print "selected"; } ?>">DHL Paket</option>
+					 <option value="V62WP" <?php  if ($_SESSION["shipBlueprint"]["shipmentConfig"]["product"] == "V62WP") { print "selected"; } ?>">DHL Warenpost</option>
+					</select>
+				</div>
+			</div>	
 		</div>
 	    <h3>Paketscheine:</h3>
 		<div id="packLabels">
 		<?php
 		 for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
 			print '<div class="DSEdit smallBorder" name="packLabel">
-				<div class="DSFeld1">Paketgewicht<br> <input type=numeric name="packWeight[]" value="'.$packs[$cnt]["weight"].'" pattern="^([1-9]|0\.[2-9])[0-9\.]*" required placeholder="Zahl größer 0, Punkt als Dezimalzeichen"></div>
-				<div class="DSFeld1">Spedition<br> <input name="parcelService[]" value="DHL" pattern="(DHL|DPD|DAX)" required ></div>
-				<div class="DSFeld1" name="addremoveLabel"><input type=button value="+" onclick="newPack(this)"> 
-					<input type=button value="-" onclick="delPack(this)"></div>
+				<div class="DSFeld1">Paketgewicht<br> <input type=numeric name="packWeight[]" value="'.$packs[$cnt]["agew"].'" pattern="^([1-9]|0\.[2-9])[0-9\.]*" required placeholder="Zahl größer 0, Punkt als Dezimalzeichen"></div>
+				<div class="DSFeld1" name="addremoveLabel"><input type=button value="+" onclick="newPack(this)"> <input type=button value="-" onclick="delPack(this)"></div>
 			</div>';
 		 }
 	    ?>
