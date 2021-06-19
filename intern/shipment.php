@@ -8,6 +8,7 @@
  $allPackOrder["offen"] = $userData->getAllOrderCount('0');
  $allPackOrder["gepackt"] = $userData->getAllOrderCount('1');
  include("./intern/views/picklist_menu_view.php");
+ 
 
  if ((isset($_POST["generatePicklist"])) and ($_POST["generatePicklist"] == "Speichern")) {
 	// neue Pickliste erstellen 
@@ -86,6 +87,12 @@
 		}
 
 		$pickListData = new picklist($_SESSION["pickid"]);
+		
+		if ((isset($_POST["removeOrder"])) and ($_POST["removeOrder"] == "Zurückstellen")) {
+		    $pickListData->removeFromPickList($POST['BelegId']);
+		    $_POST["showPackOrder"] = "next";
+		}
+		
 
 		if ( isset($_POST["showPickItems"]) ) {
 			// Pickliste anzeigen
@@ -98,7 +105,15 @@
 			$_SESSION['ItemScanKey'] = bin2hex(random_bytes(10));
 
 			// Einzelbestellung packen
-			$packOrder = $pickListData->getNextPackOrder();
+			if ($_POST['sortorder'] == 'weight') {
+			    $sort1 = 'sgew'; $sort2 = 'fdtm desc';
+			} elseif ($_POST['sortorder'] == 'rank') {
+			    $sort1 = 'arnr'; $sort2 = 'fnum';
+			} else {
+			    $sort1 = 'fdtm'; $sort2 = 'fnum';
+			} 
+			
+			$packOrder = $pickListData->getNextPackOrder($sort1, $sort2);
 			 if (count($pickListData->getOrderList("0,1")) == 0) {
 				unset($_SESSION["pickid"]); 
 				$pickListData->setPickStatus(2);

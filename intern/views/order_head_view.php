@@ -11,4 +11,11 @@
 <div class=oderinfoitem><?php print($packOrder->orderHeader["fdtm"]);?></div>
 <div class=orderinfoname>Status</div>
 <div class=oderinfoitem><?php print($packOrder->orderHeader["ktos"]);?></div>
+<form action="#" method="POST" enctype="multipart/form-data" >
+	<div class="DSEdit noprint">
+		<input type = hidden name="orderId" value="<?php  print($packOrder->orderHeader["fblg"]); ?>"  required>
+		<div class="DSFeld2" style="background: #AA5555;"><input type="submit" name="removeOrder" value="Zurückstellen"></div>
+	</div>
+</form>
+
 </div>

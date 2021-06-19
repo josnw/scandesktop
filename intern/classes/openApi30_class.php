@@ -74,7 +74,6 @@ class OpenApi3Client {
 	
 
 	private function refreshToken() {
-	    
 		$body = [
 				"client_id" => "administration",
 				"grant_type" => "refresh_token",
@@ -86,10 +85,13 @@ class OpenApi3Client {
                 $body
             );
 		
+
+		
 		//$this->tokenType = $response['token_type'];
 		//$this->apiToken = $response['access_token'];
 		$this->apiRefresh = $response['refresh_token'];
 		$this->tokenExpires = time() + $this->tokenExpiresTimer;
+		
 
 	}
 
@@ -110,7 +112,8 @@ class OpenApi3Client {
 
         $url = $this->apiUrl . $url . $queryString;
         
-		if ((time() + 30) > $this->tokenExpires) {
+         
+		if ((time() + 60) > $this->tokenExpires) {
 			$this->refreshToken();
 		}
 

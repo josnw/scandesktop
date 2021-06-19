@@ -138,7 +138,7 @@ class Shopware6Orders {
 	
 	public function setOrderState($orderId, $state) {
 		if (!empty($orderId) ) {
-			print '_action/order/'.$orderId.'/state/'. $state."\n";
+			//print '_action/order/'.$orderId.'/state/'. $state."\n";
 			$response = $this->ShopwareApiClient->post('_action/order/'.$orderId.'/state/'. $state	);
 			print_r($response); 
 		} else {

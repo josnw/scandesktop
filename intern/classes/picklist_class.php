@@ -168,18 +168,37 @@ class picklist {
 	}	
 
 	// n�chste offene Einzelbestellungen der Pickliste ausgeben)
-	public function getNextPackOrder() {
- 
-		$pickList_sql  = 'select fnum, fblg from auftr_kopf where fprn = :pickId and ktos < 2 order by fdtm, fnum limit 1';
+	public function getNextPackOrder($sort1 = "fdtm", $sort2 = "fnum") {
+	    
+		$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
+                           from auftr_kopf k
+                           inner join auftr_pos p using (fblg, fnum)  
+                          where k.fprn = :pickId and k.ktos < 2 
+                          group by fnum, fblg
+                          order by :sort1, :sort2 limit 1';
 
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickId', $this->pickListNumber);
+		$pickList_qry->bindValue(':sort1', $sort1);
+		$pickList_qry->bindValue(':sort2', $sort2);
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 		
 		$pickList_row = $pickList_qry->fetch( PDO::FETCH_ASSOC );
 		
 		$order = new order($pickList_row["fblg"]);
 		return $order;
+	}	
+	
+	public function removeFromPickList($BelegId) {
+	    
+	    $pickList_sql  = 'update auftr_kopf set fprn = null where fblg = :BelegId';
+	    
+	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+	    $pickList_qry->bindValue(':sort2', $BelegId);
+	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	    
+	    return true;
+	    
 	}	
 
 	// Pickliste Status setzen
