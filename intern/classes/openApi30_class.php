@@ -80,6 +80,7 @@ class OpenApi3Client {
 				"refresh_token"=> $this->apiRefresh
             ];
     
+		$this->tokenExpires = time()+60;
 		$response = $this->post(
                 'oauth/token',
                 $body
@@ -88,7 +89,7 @@ class OpenApi3Client {
 
 		
 		//$this->tokenType = $response['token_type'];
-		//$this->apiToken = $response['access_token'];
+		$this->apiToken = $response['access_token'];
 		$this->apiRefresh = $response['refresh_token'];
 		$this->tokenExpires = time() + $this->tokenExpiresTimer;
 		
