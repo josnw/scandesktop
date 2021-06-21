@@ -89,8 +89,9 @@
 		$pickListData = new picklist($_SESSION["pickid"]);
 		
 		if ((isset($_POST["removeOrder"])) and ($_POST["removeOrder"] == "Zurückstellen")) {
-		    $pickListData->removeFromPickList($POST['BelegId']);
-		    $_POST["showPackOrder"] = "next";
+		    $pickListData->removeFromPickList($_POST['orderId']);
+		    $_POST["showPackOrder"] = "Bestellung bearbeiten";
+		    unset($_POST["showPickItems"]);
 		}
 		
 
@@ -106,13 +107,13 @@
 
 			// Einzelbestellung packen
 			if ($_POST['sortorder'] == 'weight') {
-			    $sort1 = 'sgew'; $sort2 = 'fdtm desc';
+			    $sort1 = 'sgew'; $sort2 = 'k.fdtm desc';
 			} elseif ($_POST['sortorder'] == 'rank') {
-			    $sort1 = 'arnr'; $sort2 = 'fnum';
+			    $sort1 = 'count(arnr)'; $sort2 = 'k.fnum';
 			} else {
-			    $sort1 = 'fdtm'; $sort2 = 'fnum';
+			    $sort1 = 'k.fdtm'; $sort2 = 'k.fnum';
 			} 
-			
+
 			$packOrder = $pickListData->getNextPackOrder($sort1, $sort2);
 			 if (count($pickListData->getOrderList("0,1")) == 0) {
 				unset($_SESSION["pickid"]); 

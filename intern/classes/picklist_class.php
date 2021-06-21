@@ -126,13 +126,14 @@ class picklist {
 		/*
 		 * TODO ALAG Tabelle suchen
 		 */
-		$pickList_sql  = "select a.arnr, p.asco, abz1, abz2, sum(coalesce(fmge,0)-coalesce(fmgl,0)) as fmge, a.ameh, '' as alag
+		$pickList_sql  = "select a.arnr, p.asco, abz1, abz2, sum(coalesce(fmge,0)-coalesce(fmgl,0)) as fmge, a.ameh, alag
                           from auftr_kopf k
                              inner join auftr_pos p using (fblg) 
                              left join art_0 a using (arnr) 
+                             left join art_0fil af  on af.arnr = a.arnr and af.ifnr = p.ifnr 
                              left join art_ean e on a.arnr = e.arnr and e.qskz = 1  
                           where k.fprn = :pickId  and coalesce(aart,0) <> 2
-                          group by a.arnr, abz1, abz2, a.ameh, p.asco
+                          group by a.arnr, abz1, abz2, a.ameh, p.asco, af.alag
                           having  sum(coalesce(fmge,0)-coalesce(fmgl,0)) > 0 
                           order by alag, a.arnr";
 		  
@@ -169,8 +170,8 @@ class picklist {
 
 	// n�chste offene Einzelbestellungen der Pickliste ausgeben)
 	public function getNextPackOrder($sort1 = "fdtm", $sort2 = "fnum") {
-	    
-		$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
+
+		$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew, count(distinct(arnr))
                            from auftr_kopf k
                            inner join auftr_pos p using (fblg, fnum)  
                           where k.fprn = :pickId and k.ktos < 2 
@@ -191,10 +192,10 @@ class picklist {
 	
 	public function removeFromPickList($BelegId) {
 	    
-	    $pickList_sql  = 'update auftr_kopf set fprn = null where fblg = :BelegId';
-	    
+	    $pickList_sql  = 'update auftr_kopf set fprn = null, ktou = null, ktos = null where fblg = :BelegId';
+
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(':sort2', $BelegId);
+	    $pickList_qry->bindValue(':BelegId', $BelegId);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    
 	    return true;
