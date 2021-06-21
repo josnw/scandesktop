@@ -6,5 +6,5 @@
 	const ORDER_STATE_CANCEL = 'cancel';
     const LR = "<br/>\n";
 	 
-	const DEBUG = 1;
+	const DEBUG = 0;
 ?>
