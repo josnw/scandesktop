@@ -201,6 +201,7 @@ class Shopware6Articles {
         	foreach($prices as $priceTyp => $price) {
        			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
        				$restdata["prices"][] = [
+       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
        						"rule" => [
        								"id" => md5("WWS ".$priceTyp),
        								"name" => "WWS ".$priceTyp,
@@ -210,7 +211,7 @@ class Shopware6Articles {
   //     						"ruleId" => md5("WWS ".$priceTyp),
        						"quantityStart" => 1,
        						"price" => [[
-       								"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+//       								"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
        								"currencyId" => $this->ShopwareCurrencyId,
        								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
        								"gross" => $price,
@@ -346,7 +347,8 @@ class Shopware6Articles {
         foreach($prices as $priceTyp => $price) {
             if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
                 $restdata["prices"][] = [ 
-//                    "ruleId" => '4f86824b17504e638c8000ae5d573e0c',
+                    "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+                    //                    "ruleId" => '4f86824b17504e638c8000ae5d573e0c',
                     "rule" => [
                         "id" => md5("WWS ".$priceTyp),
                         "name" => "WWS ".$priceTyp,
@@ -354,7 +356,7 @@ class Shopware6Articles {
                     ],
                     "quantityStart" => 1,
                     "price" => [[
-                    	"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+//                        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
                         "currencyId" => $this->ShopwareCurrencyId,
                         "net"	=> $price/(1+$artData["mmss"]/100),
                         "gross" => $price,

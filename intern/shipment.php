@@ -8,7 +8,7 @@
  $allPackOrder["offen"] = $userData->getAllOrderCount('0');
  $allPackOrder["gepackt"] = $userData->getAllOrderCount('1');
  include("./intern/views/picklist_menu_view.php");
- 
+
 
  if ((isset($_POST["generatePicklist"])) and ($_POST["generatePicklist"] == "Speichern")) {
 	// neue Pickliste erstellen 
@@ -94,6 +94,20 @@
 		    unset($_POST["showPickItems"]);
 		}
 		
+		
+		if ((isset($_POST["pickListSrvPrint"])) and ($_POST["pickListSrvPrint"] == "Pickliste Serverprint")) {
+			$fp = fopen("./docs/".$picList.$_SESSION["pickid"]."html",w);
+			fwrite ($fp, '<html><head>	<meta charset="utf-8"><link rel="stylesheet" type="text/css" href="./css/masterprint.css"></head><body>');
+			foreach($pickListData->getItemList() as $item => $itemdata) {
+				fwrite ($fp, '<div class="DSEdit flexnowrap " id="OrderItem'.$item.'">');
+				fwrite ($fp,  '<div class="DSFeld1  mediFont">'.$itemdata["arnr"].' (L'.$itemdata["alag"].')<br/>'.$itemdata["asco"].'</div>');
+				fwrite ($fp,  '<div class="DSFeld2  mediFont">'.$itemdata["abz1"]." ".$itemdata["abz2"].'</div>');
+				fwrite ($fp,  '<div class="DSFeld1 centerText mediFont">'.number_format($itemdata["fmge"]).' '.$itemdata["ameh"].'</div>');
+				fwrite ($fp,  '</div>');
+			}
+			fwrite ($fp, '</body></html>');
+			exec('lp -d pack_prn02 "'."./docs/".$picList.$_SESSION["pickid"]."html".'"');
+		}
 
 		if ( isset($_POST["showPickItems"]) ) {
 			// Pickliste anzeigen
