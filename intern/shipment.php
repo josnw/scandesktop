@@ -96,17 +96,14 @@
 		
 		
 		if ((isset($_POST["pickListSrvPrint"])) and ($_POST["pickListSrvPrint"] == "Pickliste Serverprint")) {
-			$fp = fopen("./docs/".$picList.$_SESSION["pickid"]."html",w);
-			fwrite ($fp, '<html><head>	<meta charset="utf-8"><link rel="stylesheet" type="text/css" href="./css/masterprint.css"></head><body>');
+			$fp = fopen("./docs/".$picList.$_SESSION["pickid"].".txt",w);
+			fwrite ($fp, str_pad("Artikel",15," ", STR_PAD_LEFT)."  ". str_pad("Bezeichnung",60," ", STR_PAD_RIGHT).str_pad("Menge",15," ", STR_PAD_LEFT)."\n");
 			foreach($pickListData->getItemList() as $item => $itemdata) {
-				fwrite ($fp, '<div class="DSEdit flexnowrap " id="OrderItem'.$item.'">');
-				fwrite ($fp,  '<div class="DSFeld1  mediFont">'.$itemdata["arnr"].' (L'.$itemdata["alag"].')<br/>'.$itemdata["asco"].'</div>');
-				fwrite ($fp,  '<div class="DSFeld2  mediFont">'.$itemdata["abz1"]." ".$itemdata["abz2"].'</div>');
-				fwrite ($fp,  '<div class="DSFeld1 centerText mediFont">'.number_format($itemdata["fmge"]).' '.$itemdata["ameh"].'</div>');
-				fwrite ($fp,  '</div>');
+				fwrite ($fp, str_pad($itemdata["arnr"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz1"],60," ", STR_PAD_RIGHT).str_pad($itemdata["amge"],9," ", STR_PAD_LEFT).str_pad($itemdata["ameh"],6," ", STR_PAD_LEFT)."\n");
+				fwrite ($fp, str_pad($itemdata["asco"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz2"],60," ", STR_PAD_RIGHT)."\n");
+				fwrite ($fp, str_pad("Lager ".$itemdata["alag"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz3"],60," ", STR_PAD_RIGHT)."\n\n");
 			}
-			fwrite ($fp, '</body></html>');
-			exec('lp -d pack_prn02 "'."./docs/".$picList.$_SESSION["pickid"]."html".'"');
+			exec('lp -d pack_prn02 "'."./docs/".$picList.$_SESSION["pickid"].".txt".'"');
 		}
 
 		if ( isset($_POST["showPickItems"]) ) {
@@ -120,15 +117,9 @@
 			$_SESSION['ItemScanKey'] = bin2hex(random_bytes(10));
 
 			// Einzelbestellung packen
-			if ($_POST['sortorder'] == 'weight') {
-			    $sort1 = 'sgew'; $sort2 = 'k.fdtm desc';
-			} elseif ($_POST['sortorder'] == 'rank') {
-			    $sort1 = 'count(arnr)'; $sort2 = 'k.fnum';
-			} else {
-			    $sort1 = 'k.fdtm'; $sort2 = 'k.fnum';
-			} 
+			$sort1 = $_POST['sortorder'];
 
-			$packOrder = $pickListData->getNextPackOrder($sort1, $sort2);
+			$packOrder = $pickListData->getNextPackOrder($sort1);
 			 if (count($pickListData->getOrderList("0,1")) == 0) {
 				unset($_SESSION["pickid"]); 
 				$pickListData->setPickStatus(2);

@@ -283,6 +283,14 @@ class Shopware6Orders {
 		
 		$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
 		
+		if ($article->productData[0]['aart'] == 2) {
+			$fakt = 3153923;
+			$fpid = '';
+		} else {
+			$fakt = 8195;
+			$fpid = $this->facFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
+		}	
+		
 		$facPos = [
 			'FXNR' => $customerNumber ,
 			'FXNS' => $customerNumber ,
@@ -324,7 +332,7 @@ class Shopware6Orders {
 			'FEPB' => $posPrice,
 			'QPAS' => '',
 			'ASCO' => $data['product']["attributes"]["ean"],
-			'FACT' => 9219,
+			'FACT' => $fakt,
 		];	
 
 		$facPos['FABL'] = [

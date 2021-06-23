@@ -169,19 +169,45 @@ class picklist {
 	}	
 
 	// n�chste offene Einzelbestellungen der Pickliste ausgeben)
-	public function getNextPackOrder($sort1 = "fdtm", $sort2 = "fnum") {
+	public function getNextPackOrder($sort1 = "age") {
 
-		$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew, count(distinct(arnr))
+		switch($sort1) {
+			case("weight"):
+				$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
                            from auftr_kopf k
-                           inner join auftr_pos p using (fblg, fnum)  
+                           inner join auftr_pos p using (fblg, fnum)
+                          where k.fprn = :pickId and k.ktos < 2
+                          group by fnum, fblg
+                          order by sgew desc limit 1';
+				break;
+			
+			case("rank"):
+				$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew, max(cnt) as cnt
+                           from auftr_kopf k
+                           inner join auftr_pos p using (fblg, fnum)
+						   left join (select arnr, count(fmgb) as cnt from auftr_kopf k1
+			                           inner join auftr_pos p1 using (fblg, fnum)
+										where k1.fprn = :pickId and k1.ktos < 2 
+			                           group by arnr) a using (arnr) 
                           where k.fprn = :pickId and k.ktos < 2 
                           group by fnum, fblg
-                          order by :sort1, :sort2 limit 1';
+                          order by cnt desc,k.fdtm desc limit 1';
+				break;
+			default:
+				$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
+                           from auftr_kopf k
+                           inner join auftr_pos p using (fblg, fnum)
+                          where k.fprn = :pickId and k.ktos < 2
+                          group by fnum, fblg
+                          order by k.fdtm desc limit 1';
+				break;
+				
+		}
+
 
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickId', $this->pickListNumber);
-		$pickList_qry->bindValue(':sort1', $sort1);
-		$pickList_qry->bindValue(':sort2', $sort2);
+
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 		
 		$pickList_row = $pickList_qry->fetch( PDO::FETCH_ASSOC );
