@@ -140,9 +140,34 @@ class Shopware6Orders {
 		if (!empty($orderId) ) {
 			//print '_action/order/'.$orderId.'/state/'. $state."\n";
 			$response = $this->ShopwareApiClient->post('_action/order/'.$orderId.'/state/'. $state	);
-			print_r($response); 
+
 		} else {
 			// throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);			
+		}
+		
+	}
+	
+	public function setOrderDeliveryState($orderId, $trackinCode, $state) {
+		if (!empty($orderId) ) {
+			$params = [
+					'filter' => [
+							[
+									'type' => 'equals',
+									'field' => 'trackingCodes',
+									'value' => $trackinCode
+							],
+							[
+									'type' => 'equals',
+									'field' => 'orderId',
+									'value' => $orderId
+							]
+					]
+			];
+			$deliveryData = $client->get('v3/order-delivery/',$params);
+			$response = $this->ShopwareApiClient->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
+			
+		} else {
+			// throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);
 		}
 		
 	}

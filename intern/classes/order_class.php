@@ -48,7 +48,7 @@ class order {
 
 		// Belegpositionen einlesen
 		$iqry  = 'select p.*, a.aart, a.agew as gewicht from auftr_pos p left join art_0 a using (arnr) 
-                  where fblg = :BelegID
+                  where fblg = :BelegID and coalesce(avsd,0) = 0
                   order by fpos';
 
 		$r_qry = $this->pg_pdo->prepare($iqry);
@@ -145,7 +145,9 @@ class order {
                     and fpos > (select max(fpos) from auftr_pos where fblg = :BelegID and fart <> 6 and fpos < :fpos)
                     and fpos < coalesce((select min(fpos) from auftr_pos where fblg = :BelegID and fart <> 6 and fpos > :fpos),999)
                   ';
-		$coqry  = 'select count(*) as cnt from auftr_pos where coalesce(fmgl,0) < fmge and fblg = :BelegID ';
+		$coqry  = "select count(*) as cnt from auftr_pos p inner join art_0 a using (arnr)
+					inner join const.positionflagx c on qnum = 'FAKX_VersandArt' and (p.fakx & c.fakx) = 0 
+                    where coalesce(fmgl,0) < fmge and fblg = :BelegID ";
 
 		
 		$p_qry = $this->pg_pdo->prepare($pqry);
@@ -586,6 +588,33 @@ class order {
 	    }
 	}
 
+	public function setOrderDeliveryState($trackinCode, $state) {
+		
+		$orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+		
+		if (!empty($orderId) ) {
+			$params = [
+					'filter' => [
+							[
+									'type' => 'equals',
+									'field' => 'trackingCodes',
+									'value' => $trackinCode
+							],
+							[
+									'type' => 'equals',
+									'field' => 'orderId',
+									'value' => $orderId
+							]
+					]
+			];
+			$deliveryData = $client->get('v3/order-delivery/',$params);
+			$response = $this->ShopwareApiClient->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
+			
+		} else {
+			// throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);
+		}
+		
+	}
 
 }
 ?>

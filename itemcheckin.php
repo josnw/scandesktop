@@ -34,6 +34,8 @@ session_start();
 		$trackingIDs = $packOrder->getTrackingCodes($getPickId);
 		$dhl = new dhl($getItemID);
 		if (in_array($getItemID, $trackingIDs)) {
+			
+			$packOrder->setOrderDeliveryState($getItemID, ORDER_DELIVERY_SHIP);
 			print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  '' ]);
 
 		} else {
