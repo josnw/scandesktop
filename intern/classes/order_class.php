@@ -335,7 +335,7 @@ class order {
 	    
 	    $orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 	    
-	    $response = $api->post('v2/_action/order/'.$orderId.'/create-shipment-blueprint');
+	    $response = $api->post('_action/order/'.$orderId.'/create-shipment-blueprint');
 	    $response["senderAddress"]["firstName"] = $_SESSION["senderAddress"]["firstName"];
 	    $response["senderAddress"]["lastName"] = $_SESSION["senderAddress"]["lastName"];
 	    $response["senderAddress"]["street"] = $_SESSION["senderAddress"]["street"];
@@ -365,7 +365,7 @@ class order {
 	            	$filename ="./docs/label_test.pdf";
 	            	print "<a href=$filename >$filename</a>".LR;
 	            } else {
-		            $response = $api->post('v2/_action/order/'.$orderId.'/create-shipment', $send);
+		            $response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
 		            print "Create Shipment...";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
@@ -376,13 +376,13 @@ class order {
 		            }
 		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipments"][0]["id"];
 		            
-		            $response = $api->get('v2/pickware-dhl-shipment/'.$shippingId.'/documents');
+		            $response = $api->get('pickware-dhl-shipment/'.$shippingId.'/documents');
 	
 		            foreach ($response["data"] as $document) {
 		            	$documentId = $document["id"];
 		            	$deepLinkId = $document["attributes"]["deepLinkCode"];
 		
-	            		$response = $api->get('v2/pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
+	            		$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
 		            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
 		            	file_put_contents($filename , $response["result"]);
 	            		exec('lp -d pak-prn01 "'.$filename.'"'); 
@@ -537,7 +537,7 @@ class order {
 		$tracklist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-		$response = $api->get('v2/pickware-dhl-shipment/'.$shippingId.'/tracking-codes');
+		$response = $api->get('pickware-dhl-shipment/'.$shippingId.'/tracking-codes');
 
 		foreach($response["data"] as $tracking) {
 			$tracklist[] = $tracking["attributes"]["trackingCode"];
@@ -620,7 +620,7 @@ class order {
 							]
 					]
 			];
-			$deliveryData = $client->get('v3/order-delivery/',$params);
+			$deliveryData = $client->get('order-delivery/',$params);
 			$response = $this->ShopwareApiClient->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
 			
 		} else {

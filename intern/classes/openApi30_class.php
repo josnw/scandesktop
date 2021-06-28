@@ -197,7 +197,7 @@ class OpenApi3Client {
 
     public function getSwagger() {
         
-        return $this->call("v3/_info/openapi3.json", self::METHOD_GET, [], [], true);
+        return $this->call("_info/openapi3.json", self::METHOD_GET, [], [], true);
         
     }
 

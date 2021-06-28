@@ -163,7 +163,7 @@ class Shopware6Orders {
 							]
 					]
 			];
-			$deliveryData = $client->get('v3/order-delivery/',$params);
+			$deliveryData = $client->get('order-delivery/',$params);
 			$response = $this->ShopwareApiClient->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
 			
 		} else {
