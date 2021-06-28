@@ -370,15 +370,15 @@ class order {
 			if ($pack["parcelService"] == "DHL") {
 				$dhl["Gewicht"] = $pack["packWeight"];
 */
-	            $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] ] ;
+	           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
 	            if (DEBUG) { 
 	            	print "<pre>".print_r($send,1)."</pre>";
 	            	$filename ="./docs/label_test.pdf";
 	            	print "<a href=$filename >$filename</a>".LR;
 	            } else {
 		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
-		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', 
-		            		['orderId' => $orderId, 'shipmentBlueprint' => $send]);
+		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
+		            print "<br>".json_encode($send)."<br>";
 		            print "Create Shipment...";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
