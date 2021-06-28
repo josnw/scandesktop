@@ -388,9 +388,9 @@ class order {
 	                    return ["status" => false, "error" => $errorList ]; 
 		            }
 		            print "<pre>".print_r($response,1)."</pre>";
-		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipments"][0]["id"];
+		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipmentIds"][0];
 		            
-		            $response = $api->get('pickware-dhl-shipment/'.$shippingId.'/documents');
+		            $response = $api->get('pickware-shipping-shipment/'.$shippingId.'/documents');
 	
 		            foreach ($response["data"] as $document) {
 		            	$documentId = $document["id"];
