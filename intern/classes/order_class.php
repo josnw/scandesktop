@@ -367,6 +367,8 @@ class order {
 	            	print "<a href=$filename >$filename</a>".LR;
 	            } else {
 		            $response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
+		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', 
+		            		['orderId' => $orderId, 'shipmentBlueprint' => $send]);
 		            print "Create Shipment...";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
