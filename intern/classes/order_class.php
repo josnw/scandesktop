@@ -551,7 +551,7 @@ class order {
 		$tracklist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-		$response = $api->get('pickware-dhl-shipment/'.$shippingId.'/tracking-codes');
+		$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
 
 		foreach($response["data"] as $tracking) {
 			$tracklist[] = $tracking["attributes"]["trackingCodes"];
