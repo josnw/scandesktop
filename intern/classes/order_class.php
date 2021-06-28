@@ -554,7 +554,7 @@ class order {
 		$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
 
 		foreach($response["data"] as $tracking) {
-			$tracklist[] = $tracking["attributes"]["trackingCodes"];
+			$tracklist[] = $tracking["attributes"]["trackingCode"];
 			
 		}
 	
