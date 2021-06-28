@@ -345,6 +345,16 @@ class order {
 	    $response["senderAddress"]["zipCode"] = $_SESSION["senderAddress"]["zipCode"];
 	    $response["senderAddress"]["countryIso"] = $_SESSION["senderAddress"]["countryIso"];
 	    
+	    unset($response["codAmount"]);
+	    unset($response["identCheckGivenName"]);
+	    unset($response["identCheckSurname"]);
+	    unset($response["identCheckDateOfBirth"]);
+	    unset($response["identCheckMinimumAge"]);
+	    unset($response["endorsement"]);
+	    unset($response["frankatur"]);
+	    unset($response["incoterm"]);
+	    
+	    
 	    return $response;
 	}
 	
@@ -366,7 +376,7 @@ class order {
 	            	$filename ="./docs/label_test.pdf";
 	            	print "<a href=$filename >$filename</a>".LR;
 	            } else {
-		            $response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
+		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
 		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', 
 		            		['orderId' => $orderId, 'shipmentBlueprint' => $send]);
 		            print "Create Shipment...";
