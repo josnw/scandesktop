@@ -378,7 +378,7 @@ class order {
 	            } else {
 		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
 		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
-		            print "<br>".json_encode($send)."<br>";
+		            //print "<br>".json_encode($send)."<br>";
 		            print "Create Shipment...";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
@@ -387,6 +387,7 @@ class order {
 		                }
 	                    return ["status" => false, "error" => $errorList ]; 
 		            }
+		            print "<pre>".print_r($response,1)."</pre>";
 		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipments"][0]["id"];
 		            
 		            $response = $api->get('pickware-dhl-shipment/'.$shippingId.'/documents');
@@ -553,7 +554,7 @@ class order {
 		$response = $api->get('pickware-dhl-shipment/'.$shippingId.'/tracking-codes');
 
 		foreach($response["data"] as $tracking) {
-			$tracklist[] = $tracking["attributes"]["trackingCode"];
+			$tracklist[] = $tracking["attributes"]["trackingCodes"];
 			
 		}
 	
