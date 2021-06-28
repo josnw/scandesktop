@@ -218,7 +218,7 @@ class Shopware6Orders {
 				'SIGS' => $data["amountTotal"],
 				'SGES' => $data["amountTotal"],
 				'QANR' => $data["billingAddress"]["attributes"]["title"],
-				'QNA1' => $data["billingAddress"]["attributes"]["firstName"]." ".$data["attributes"]["lastName"],
+				'QNA1' => $data["billingAddress"]["attributes"]["firstName"]." ".$data["billingAddress"]["attributes"]["lastName"],
 				'QNA2' => $data["billingAddress"]["attributes"]["company"],
 				'QNA3' => $data["billingAddress"]["attributes"]["additionalAddressLine1"],
 				'QNA4' => $data["billingAddress"]["attributes"]["additionalAddressLine2"],

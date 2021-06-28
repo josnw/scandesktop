@@ -335,7 +335,8 @@ class order {
 	    
 	    $orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 	    
-	    $response = $api->post('_action/order/'.$orderId.'/create-shipment-blueprint');
+	    //$response = $api->post('_action/order/'.$orderId.'/create-shipment-blueprint');
+	    $response = $api->post('_action/pickware-shipping/shipment/create-shipment-blueprint-for-order',['orderId' => $orderId]);
 	    $response["senderAddress"]["firstName"] = $_SESSION["senderAddress"]["firstName"];
 	    $response["senderAddress"]["lastName"] = $_SESSION["senderAddress"]["lastName"];
 	    $response["senderAddress"]["street"] = $_SESSION["senderAddress"]["street"];
