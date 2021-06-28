@@ -10,6 +10,5 @@
 	const ORDER_DELIVERY_CANCLE = 'cancel';
 	
     const LR = "<br/>\n";
-	 
-	const DEBUG = 0;
+
 ?>

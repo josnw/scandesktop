@@ -155,7 +155,7 @@
 					}
 				}
 */
-				$orderPacked = $packOrder->orderHeader["ktos"];
+				$orderPacked = $packOrder->getPackedState();
 				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
 				
 /*				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {

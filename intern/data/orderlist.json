@@ -18,6 +18,13 @@
 			"value": "paid",
 			"field": "transactions.stateMachineState.technicalName",
 			"type": "equals"
+		},
+		{
+			"type": "range",
+			"field": "orderDate",
+			"parameters": {
+				"gte": "2021-06-20"
+			}
 		}
 	],
 	"includes": {

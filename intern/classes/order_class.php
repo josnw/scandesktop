@@ -145,9 +145,7 @@ class order {
                     and fpos > (select max(fpos) from auftr_pos where fblg = :BelegID and fart <> 6 and fpos < :fpos)
                     and fpos < coalesce((select min(fpos) from auftr_pos where fblg = :BelegID and fart <> 6 and fpos > :fpos),999)
                   ';
-		$coqry  = "select count(*) as cnt from auftr_pos p inner join art_0 a using (arnr)
-					inner join const.positionflagx c on qnum = 'FAKX_VersandArt' and (p.fakx & c.fakx) = 0 
-                    where coalesce(fmgl,0) < fmge and fblg = :BelegID ";
+
 
 		
 		$p_qry = $this->pg_pdo->prepare($pqry);
@@ -155,7 +153,7 @@ class order {
 		$pk_qry = $this->pg_pdo->prepare($pkqry);
 		$po_qry = $this->pg_pdo->prepare($poqry);
 		$cs_qry = $this->pg_pdo->prepare($csqry);
-		$co_qry = $this->pg_pdo->prepare($coqry);
+
 
 		if ($this->checkItemQuantity($Artikel)["Restmenge"] > 0) {
 			
@@ -203,13 +201,9 @@ class order {
 
 			}
 
-			// Prüfen ob Beleg vollständig gepackt
-			$co_qry->bindValue(':BelegID', $this->belegId);
-			$co_qry->execute() or die (print_r($co_qry->errorInfo()));
-			$corow = $co_qry->fetch( PDO::FETCH_ASSOC );
-			
+			$packedState = $this->getPackedState(); 
 			// Beleg als gepackt kennzeichnen
-			if ($corow["cnt"] == 0) {
+			if ($packedState == 1) {
 				$po_qry->bindValue(':BelegID', $this->belegId);
 				$po_qry->execute() or die (print_r($po_qry->errorInfo()));
 				$orderpack = 'packed';
@@ -232,19 +226,44 @@ class order {
 					];
 			
 		} else {
-			$co_qry->bindValue(':BelegID', $this->belegId);
-			$co_qry->execute() or die (print_r($co_qry->errorInfo()));
-			$corow = $co_qry->fetch( PDO::FETCH_ASSOC );
-			
-			if ($corow["cnt"] == 0) {
+			$packedState = $this->getPackedState();
+			// Beleg als gepackt kennzeichnen
+			if ($packedState == 1) {
 				$po_qry->bindValue(':BelegID', $this->belegId);
 				$po_qry->execute() or die (print_r($po_qry->errorInfo()));
+				$orderpack = 'packed';
+			} else {
+				$orderpack = '';
 			}
 			
 			return [ "status" => false, "info" => "falscher Artikel für diese Bestellung!\nBitte prüfen Sie Menge und Art!"];
 		}
 	}
 
+	public function getPackedState() {
+		$coqry  = "select coalesce(ktos,0), count(*) as cnt from auftr_kopf k inner join auftr_pos p using (fblg)
+					inner join art_0 a using (arnr)
+					inner join const.positionflagx c on qnum = 'FAKX_VersandArt' and (coalesce(p.fakx,0) & c.fakx) = 0
+                    where coalesce(fmgl,0) < fmge and fblg = :BelegID group by ktos";
+		$co_qry = $this->pg_pdo->prepare($coqry);
+		
+		// Prüfen ob Beleg vollständig gepackt
+		$co_qry->bindValue(':BelegID', $this->belegId);
+		$co_qry->execute() or die (print_r($co_qry->errorInfo()));
+		$corow = $co_qry->fetch( PDO::FETCH_ASSOC );
+		
+		if ( ($corow["cnt"] == 0) and ($corow["ktos"] < 1)) {
+			$poqry  = 'update auftr_kopf set ktos = 1 where fblg = :BelegID ';
+			$po_qry = $this->pg_pdo->prepare($poqry);
+			$po_qry->bindValue(':BelegID', $this->belegId);
+			$po_qry->execute() or die (print_r($po_qry->errorInfo()));
+			
+			return 1;
+		}
+		return $corow["ktos"];
+
+		
+	}
 	// nächste Position incl. Stückliste, fortlaufend
 	public function getNextItem() {
 		$liste = [];
@@ -341,32 +360,32 @@ class order {
 				$dhl["Gewicht"] = $pack["packWeight"];
 */
 	            $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] ] ;
-	            if (DEBUG) { print "<pre>".print_r($send,1)."</pre>"; }
-	            $response = $api->post('v2/_action/order/'.$orderId.'/create-shipment', $send);
-	            print_r($response);
-	            print "Create Shipment...";
-	            if ( isset($response["errors"]) ) {
-	                $errorList = '';
-	                foreach ($response["errors"] as $error) {
-	                    $errorList .= $error["detail"]."\n";
-	                }
-                    return ["status" => false, "error" => $errorList ]; 
-	            }
-	            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipments"][0]["id"];
-	            
-	            $response = $api->get('v2/pickware-dhl-shipment/'.$shippingId.'/documents');
-
-	            foreach ($response["data"] as $document) {
-	            	$documentId = $document["id"];
-	            	$deepLinkId = $document["attributes"]["deepLinkCode"];
+	            if (DEBUG) { 
+	            	print "<pre>".print_r($send,1)."</pre>";
+	            	$filename ="./docs/label_test.pdf";
+	            	print "<a href=$filename >$filename</a>".LR;
+	            } else {
+		            $response = $api->post('v2/_action/order/'.$orderId.'/create-shipment', $send);
+		            print "Create Shipment...";
+		            if ( isset($response["errors"]) ) {
+		                $errorList = '';
+		                foreach ($response["errors"] as $error) {
+		                    $errorList .= $error["detail"]."\n";
+		                }
+	                    return ["status" => false, "error" => $errorList ]; 
+		            }
+		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipments"][0]["id"];
+		            
+		            $response = $api->get('v2/pickware-dhl-shipment/'.$shippingId.'/documents');
 	
-		            $response = $api->get('v2/pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
-		            $filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
-		            file_put_contents($filename , $response["result"]);
-		            if (! DEBUG) { 
-		            	exec('lp -d pak-prn01 "'.$filename.'"'); 
-		            } else {
-		            	print "<a href=$filename >$filename</a>".LR;
+		            foreach ($response["data"] as $document) {
+		            	$documentId = $document["id"];
+		            	$deepLinkId = $document["attributes"]["deepLinkCode"];
+		
+	            		$response = $api->get('v2/pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
+		            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
+		            	file_put_contents($filename , $response["result"]);
+	            		exec('lp -d pak-prn01 "'.$filename.'"'); 
 		            }
 	            }
 	
@@ -514,9 +533,7 @@ class order {
 	}
 
 	public function getTrackingCodes($shippingId) {
-/*
- *  TODO ask shopware API
- */		
+	
 		$tracklist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
@@ -526,11 +543,7 @@ class order {
 			$tracklist[] = $tracking["attributes"]["trackingCode"];
 			
 		}
-
-	/*	while ($track_row = $track_qry->fetch( PDO::FETCH_ASSOC )) {
-			$tracklist[] = $track_row["TrackingCode"];
-		}
-*/		
+	
 		return $tracklist;
 
 	}
