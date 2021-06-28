@@ -615,32 +615,27 @@ class order {
 	    }
 	}
 
-	public function setOrderDeliveryState($trackinCode, $state) {
+	public function setOrderDeliveryState($trackingCode, $state) {
 		
-		$orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+//		$orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 		
-		if (!empty($orderId) ) {
+//		if (!empty($orderId) ) {
 			$params = [
 					'filter' => [
 							[
 									'type' => 'equals',
 									'field' => 'trackingCodes',
-									'value' => $trackinCode
-							],
-							[
-									'type' => 'equals',
-									'field' => 'orderId',
-									'value' => $orderId
+									'value' => $trackingCode
 							]
 					]
 			];
 			$deliveryData = $client->get('order-delivery/',$params);
 			$response = $this->ShopwareApiClient->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
-			
-		} else {
+			print_r($response);
+/*		} else {
 			// throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);
 		}
-		
+*/
 	}
 
 }
