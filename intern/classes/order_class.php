@@ -631,6 +631,12 @@ class order {
 		];
 		$deliveryData = $api->get('order-delivery/',$params);
 		$response = $api->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
+		
+		if ($state == ORDER_DELIVERY_SHIP) {
+			$orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+			$response = $api->post('_action/order/'.$orderId.'/state/'. ORDER_STATE_COMPLETE );
+		}
+		
 		return true;		
 	
 	}
