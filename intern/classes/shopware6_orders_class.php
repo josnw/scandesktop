@@ -113,24 +113,25 @@ class Shopware6Orders {
 			$item["orderId"] = $orderData["orderId"];
 			$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
 			
-			$FacArray["Pos"][$this->fpos] =  $this->getFacPosData($item);
+			$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
+			
 		}
 		//print_r($orderData);
 		//if ($orderData["shippingTotal"] > 0) {
 			
-			if (isset($this->Shipping['article'])) {
-				$shipment = new product( $this->Shipping["article"]);
-			} else {
-				$shipment = new product($orderData["shippingTotal"],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
-			}
+		if (isset($this->Shipping['article'])) {
+			$shipment = new product( $this->Shipping["article"]);
+		} else {
+			$shipment = new product($orderData["shippingTotal"],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
+		}
 
-			$item["orderNumber"] = $shipment->getProductId();
-			//$item["taxRate"] =  $shipment->productData[0]['mmss'];
-			$item['product']["attributes"]["name"] = $shipment->productData[0]['abz1'];
-			$item["attributes"]["quantity"] = 1;
-			$item["attributes"]["unitPrice"] = $orderData["shippingTotal"];
-			 
-			$FacArray["Pos"][$this->fpos] =  $this->getFacPosData($item);
+		$item["orderNumber"] = $shipment->getProductId();
+		//$item["taxRate"] =  $shipment->productData[0]['mmss'];
+		$item['product']["attributes"]["name"] = $shipment->productData[0]['abz1'];
+		$item["attributes"]["quantity"] = 1;
+		$item["attributes"]["unitPrice"] = $orderData["shippingTotal"];
+		 
+		$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
 		
 		//} 
 		return $FacArray;
@@ -316,7 +317,7 @@ class Shopware6Orders {
 			$fpid = $this->facFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
 		}	
 		
-		$facPos = [
+		$facPos[$this->fpos] = [
 			'FXNR' => $customerNumber ,
 			'FXNS' => $customerNumber ,
 			'FXNA' => $customerNumber ,		
@@ -360,14 +361,92 @@ class Shopware6Orders {
 			'FACT' => $fakt,
 		];	
 
-		$facPos['FABL'] = [
+		$facPos[$this->fpos]['FABL'] = [
 				'SW_PAYMENT_TRANSACTION_ID='. $data["transactionId"],
 				'SW_ORDER_ID='. $data["orderId"],
 				'SW_ORDER_ITEM_ID='. $data["id"],
 				'SW_EXTERNAL_ORDER_ID='. $data["externalOrderId"],
 		];
-		
 		$this->fpos++;
+		
+		if ($article->productData[0]['aart'] == 2) {
+			$stckListData = $article->getStcklistData();
+			foreach( $stckListData as $slArticle ) {
+				$facPos[$this->fpos++] = $this->getStckListPos($slArticle, $posFmge, $data);
+			}
+		}
+		
+		return $facPos;
+	}
+	
+	private function  getStckListPos($slArticle, $quantity, $mainArticle) {
+		
+		$article = new product($slArticle['astl']);
+		$posFmge = $quantity * $slArticle['asmg'];
+		if ($article->productData[0]['amgn'] > 0) {
+			$posFmgb = $posFmge*$article->productData[0]['amgz']/$article->productData[0]['amgn'];
+		} else {
+			$posFmgb = $posFmge;
+		}
+		$posPrice = 0;
+		$posApjs = $article->productData[0]['apjs'];
+		$posApkz = $article->productData[0]['apkz'];
+		
+		$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
+
+		$facPos = [
+				'FXNR' => $customerNumber ,
+				'FXNS' => $customerNumber ,
+				'FXNA' => $customerNumber ,
+				'IFNR' => $this->facFiliale,
+				'FTYP' => 2,
+				'FPRJ' => '000000',
+				'CKSS' => '000000',
+				'OBNR' => '000000',
+				'FNUM' => $mainArticle["orderNumber"],
+				'FBLG' => $mainArticle["orderNumber"],
+				'FDTM' => date("d.m.Y",time()),
+				'FLDT' => date("d.m.Y", time()+(60*60*18)),			
+				'FPOS' => $this->fpos,
+				'FPNZ' => '',
+				'AAMR' => $slArticle['astl'],
+				'ARNR' => $slArticle['astl'],
+				'QGRP' => $article->productData[0]['qgrp'],
+				'FART' => 6,
+				'XXAK' => '',
+				'XYAK' => '',
+				'QNVE' => $data["transactionId"],
+				'ALGO' => 'HL',
+				'APKZ' => $article->productData[0]['apkz'],
+				'ASMN' => 1,
+				'QPRA' => 0,
+				'ASMZ' => 1,
+				'ABZ1' => $article->productData[0]['abz1'],
+				'ABZ2' => $article->productData[0]['abz2'],
+				'ABZ3' => $article->productData[0]['abz3'],
+				'ABZ4' => $article->productData[0]['abz4'],
+				'FMGB' => $posFmgb,
+				'FMGZ' => $article->productData[0]['amgz'],
+				'FMGN' => $article->productData[0]['amgn'],
+				'ASMZ' => $slArticle['asmz'],
+				'ASMN' => $slArticle['asmn'],
+				'FMGE' => $posFmge,
+				'APJS' => $article->productData[0]['apjs'],
+				'AMEH' => $article->productData[0]['ameh'],
+				'AGEH' => $article->productData[0]['ageh'],
+				'FEPB' => $posPrice,
+				'QPAS' => '',
+				'ASCO' => $mainArticle['product']["attributes"]["ean"],
+				'FACT' => 33562627,
+		];
+		
+		$facPos[$this->fpos]['FABL'] = [
+				'SW_PAYMENT_TRANSACTION_ID='. $mainArticle["transactionId"],
+				'SW_ORDER_ID='. $mainArticle["orderId"],
+				'SW_ORDER_ITEM_ID='. $mainArticle["id"],
+				'SW_EXTERNAL_ORDER_ID='. $mainArticle["externalOrderId"],
+		];
+
 		return $facPos;
 	}
 
