@@ -17,6 +17,7 @@ class Shopware6Orders {
 	private	$fpos;
 	private $isPaidPaymentTypes;
 	private $facFiliale;
+	private $scanDeskFacFiliale;
 	
 	
 	public function __construct($api, $salesChannelId = null) {
@@ -36,6 +37,7 @@ class Shopware6Orders {
 		$this->channelFacData = $channelFacData;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->facFiliale = $FacFiliale;
+		$this->scanDeskFacFiliale = $scanDeskFacFiliale;
 		
 		$this->ShopwareApiClient = $api;
 
@@ -317,7 +319,7 @@ class Shopware6Orders {
 			$fpid = '';
 		} else {
 			$fakt = 8195;
-			$fpid = $this->facFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
+			$fpid = $this->scanDeskFacFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
 		}	
 		
 		$facPos[$this->fpos] = [
@@ -354,6 +356,7 @@ class Shopware6Orders {
 			'FMGZ' => $article->productData[0]['amgz'],
 			'FMGN' => $article->productData[0]['amgn'],
 			'FMGE' => $posFmge,
+			'FPID' => $fpid,
 			'APJS' => $article->productData[0]['apjs'],
 			'AMEH' => $article->productData[0]['ameh'],
 			'AGEH' => $article->productData[0]['ageh'],
@@ -435,6 +438,7 @@ class Shopware6Orders {
 				'ASMZ' => $slArticle['asmz'],
 				'ASMN' => $slArticle['asmn'],
 				'FMGE' => $posFmge,
+				'FPID' => $fpid = $this->scanDeskFacFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos,
 				'APJS' => $article->productData[0]['apjs'],
 				'AMEH' => $article->productData[0]['ameh'],
 				'AGEH' => $article->productData[0]['ageh'],
