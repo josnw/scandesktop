@@ -28,7 +28,7 @@ class product {
 			$this->indexvalue = $indexvalue;
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,   
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
-                      i.askz, a.agew
+                      i.askz, a.agew, a.avsd
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join mand_mwst m on a.apkz = m.mmid
@@ -47,7 +47,7 @@ class product {
                         case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt,
-                        0 as askz, a.agew
+                        0 as askz, a.agew, a.avsd
 					from art_0 a  inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
