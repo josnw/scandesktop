@@ -125,7 +125,7 @@ class Shopware6Orders {
 			$shipment = new product($orderData["shippingTotal"],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
 		}
 
-		$item["orderNumber"] = $shipment->getProductId();
+		$item['product']["attributes"]["productNumber"] = $shipment->getProductId();
 		//$item["taxRate"] =  $shipment->productData[0]['mmss'];
 		$item['product']["attributes"]["name"] = $shipment->productData[0]['abz1'];
 		$item["attributes"]["quantity"] = 1;
@@ -443,7 +443,7 @@ class Shopware6Orders {
 				'FACT' => 33562627,
 		];
 		
-		$facPos[$this->fpos]['FABL'] = [
+		$facPos['FABL'] = [
 				'SW_PAYMENT_TRANSACTION_ID='. $mainArticle["transactionId"],
 				'SW_ORDER_ID='. $mainArticle["orderId"],
 				'SW_ORDER_ITEM_ID='. $mainArticle["id"],
