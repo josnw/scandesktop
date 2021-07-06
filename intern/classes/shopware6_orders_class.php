@@ -336,8 +336,8 @@ class Shopware6Orders {
 			'FDTM' => date("d.m.Y",time()),
 			'FLDT' => date("d.m.Y", time()+(60*60*18)),			
 			'FPOS' => $this->fpos,
-			'AAMR' => sprintf("%08d",$data['product']["attributes"]["productNumber"]),
-			'ARNR' => sprintf("%08d",$data['product']["attributes"]["productNumber"]),
+			'AAMR' => $article->productData[0]['arnr'],
+			'ARNR' => $article->productData[0]['arnr'],
 			'QGRP' => $article->productData[0]['qgrp'],
 			'FART' => 1,
 			'XXAK' => '',
@@ -364,7 +364,7 @@ class Shopware6Orders {
 			'FEPB' => $posPrice,
 			'QPAS' => '',
 			'ASCO' => $data['product']["attributes"]["ean"],
-			'FACT' => $fakt,
+			'FAKT' => $fakt,
 		];	
 
 		$facPos[$this->fpos]['FABL'] = [
