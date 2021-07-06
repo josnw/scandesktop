@@ -102,7 +102,7 @@ class Shopware6Orders {
 		$FacArray["Head"] = $this->getFacHeadData($orderData);
 
 		$this->fpos = 0;
-		
+		$FacArray["Pos"] = [];
 		$orderItems = $orderData["order_line_item"];
 		$orderItems = $orderData["order_line_item"];
 		foreach ($orderItems as $item) {
@@ -293,9 +293,12 @@ class Shopware6Orders {
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
 		
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
+		if (empty($article->productData[0]['arnr'])) {
+			$article = new product($data['product']["attributes"]["productNumber"]);
+		}
 		
 		if ($article->getProductId() == NULL) {
-			print "Article ".$data["articleNumber"]." ".$data['articleName']." not found!</br>";
+			print "Article ".data['product']["attributes"]["productNumber"]." ".$data['product']["attributes"]["name"]." not found!</br>";
 			$posFmge = $data["attributes"]["quantity"] ; 
 			$posPrice = $data["attributes"]["unitPrice"];				
 			$posApjs = 1;
