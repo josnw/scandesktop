@@ -375,7 +375,8 @@ class Shopware6Orders {
 		if ($article->productData[0]['aart'] == 2) {
 			$stckListData = $article->getStcklistData();
 			foreach( $stckListData as $slArticle ) {
-				$facPos[$this->fpos++] = $this->getStckListPos($slArticle, $posFmge, $data);
+				$facPos[$this->fpos] = $this->getStckListPos($slArticle, $posFmge, $data);
+				$this->fpos++;
 			}
 		}
 		
