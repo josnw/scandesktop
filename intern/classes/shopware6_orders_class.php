@@ -371,6 +371,7 @@ class Shopware6Orders {
 			'QPAS' => '',
 			'ASCO' => $data['product']["attributes"]["ean"],
 			'FAKT' => $fakt,
+			'FAKX' => $fakx,
 		];	
 
 		$facPos[$this->fpos]['FABL'] = [
