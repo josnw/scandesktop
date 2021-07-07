@@ -159,6 +159,10 @@ class tradebyteOrders {
 			if ($article->productData[0]['aart'] == 2) {
 				$fakt = 3153923;
 				$fpid = '';
+			} elseif (!empty($article->productData[0]['avsd'])) {
+				$fakt = 8195;
+				$fakx = 113;
+				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
 			} else {
 				$fakt = 8195;
 				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
@@ -207,7 +211,7 @@ class tradebyteOrders {
 				'FEPB' => $posPrice,
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
-				'FACT' => $fakt,
+				'FAKT' => $fakt,
 			];	
 
 			$facPos[$cnt]['FABL'] = [
@@ -223,7 +227,7 @@ class tradebyteOrders {
 			if ($article->productData[0]['aart'] == 2) {
 				$stckListData = $article->getStcklistData();
 				foreach( $stckListData as $slArticle ) {
-					$facPos[$cnt] = $this->getStckListPos($slArticle, $posFmge, $cnt++);
+					$facPos[$cnt] = $this->getStckListPos($slArticle, $posFmge, $cnt++, $orderId);
 				}
 			}
 		}
@@ -279,7 +283,7 @@ class tradebyteOrders {
 				'FEPB' => $this->OrdersData[$orderId]['head']['SHIPPING_COSTS'],
 				'QPAS' => '',
 				'ASCO' => '',
-				'FACT' => 8195,
+				'FAKT' => 8195,
 			];	
 		}
 		
@@ -303,7 +307,7 @@ class tradebyteOrders {
 		return $this->OrdersData[$orderId]['head']['CHANNEL_KEY'];
 	}
 
-	public function  getStckListPos($slArticle, $quantity, $cnt) {
+	public function  getStckListPos($slArticle, $quantity, $cnt, $orderId) {
 
 			$article = new product($slArticle['astl']);
 			$posFmge = $quantity * $slArticle['asmg']; 
@@ -360,7 +364,7 @@ class tradebyteOrders {
 				'FEPB' => $posPrice,
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
-				'FACT' => 33562627,
+				'FAKT' => 33562627,
 			];	
 			
 			$facPos['FABL'] = [
