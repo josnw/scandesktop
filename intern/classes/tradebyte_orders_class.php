@@ -229,7 +229,8 @@ class tradebyteOrders {
 			if ($article->productData[0]['aart'] == 2) {
 				$stckListData = $article->getStcklistData();
 				foreach( $stckListData as $slArticle ) {
-					$facPos[$cnt] = $this->getStckListPos($slArticle, $posFmge, $cnt++, $orderId);
+					$facPos[$cnt] = $this->getStckListPos($slArticle, $posFmge, $cnt, $orderId);
+					$cnt++;
 				}
 			}
 		}
