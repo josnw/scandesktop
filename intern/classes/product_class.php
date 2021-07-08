@@ -336,7 +336,7 @@ class product {
 
 	public function getStcklistData() {
 
-		if ($this->productData[0][aart] != 2) {
+		if ($this->productData[0]["aart"] != 2) {
 			return false;
 		}
 		if ($this->productStckListData == null) {
