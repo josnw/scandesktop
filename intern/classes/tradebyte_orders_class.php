@@ -1,4 +1,4 @@
-<?php cn
+<?php 
 
 
 class tradebyteOrders {
