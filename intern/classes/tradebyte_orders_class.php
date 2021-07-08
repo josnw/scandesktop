@@ -1,4 +1,4 @@
-<?php 
+<?php cn
 
 
 class tradebyteOrders {
@@ -158,13 +158,15 @@ class tradebyteOrders {
 			}
 			if ($article->productData[0]['aart'] == 2) {
 				$fakt = 3153923;
-				$fpid = '';
+				$fakx = '';
+				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
 			} elseif (!empty($article->productData[0]['avsd'])) {
 				$fakt = 8195;
 				$fakx = 113;
 				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
 			} else {
 				$fakt = 8195;
+				$fakx = '';
 				$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + $posData['POS_TB_ID'];
 			}			
 			
@@ -231,6 +233,7 @@ class tradebyteOrders {
 				}
 			}
 		}
+		
 		
 		if ($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'] > 0) {
 			
@@ -348,10 +351,10 @@ class tradebyteOrders {
 				'ASMN' => 1,
 				'QPRA' => 0,
 				'ASMZ' => 1,
-				'ABZ1' => $article->productData[0]['abz1'],
-				'ABZ2' => $article->productData[0]['abz2'],
-				'ABZ3' => $article->productData[0]['abz3'],
-				'ABZ4' => $article->productData[0]['abz4'],
+				'ABZ1' => utf8_decode($article->productData[0]['abz1']),
+				'ABZ2' => utf8_decode($article->productData[0]['abz2']),
+				'ABZ3' => utf8_decode($article->productData[0]['abz3']),
+				'ABZ4' => utf8_decode($article->productData[0]['abz4']),
 				'FMGB' => $posFmgb,
 				'FMGZ' => $article->productData[0]['amgz'],
 				'FMGN' => $article->productData[0]['amgn'],
@@ -364,7 +367,7 @@ class tradebyteOrders {
 				'FEPB' => $posPrice,
 				'QPAS' => '',
 				'ASCO' => $posData['POS_EAN'],
-				'FAKT' => 33562627,
+				'FAKT' => 8195,
 			];	
 			
 			$facPos['FABL'] = [
