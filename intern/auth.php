@@ -41,7 +41,7 @@ if (isset($_GET['mode']) and ($_GET['mode'] == 'DEMO')) {
 			<table id = "tab2" height="100" width="500">
 			<tr height="25">
 			<td>Name: </td>
-			<td><INPUT TYPE = "TEXT" NAME ="loginuser"></td>
+			<td><INPUT TYPE = "TEXT" NAME ="loginuser" autofocus></td>
 			</tr>
 			<tr height="25">
 			<td>Passwort: </td>
@@ -106,7 +106,7 @@ elseif (isset($_POST['loginuser']) and strlen($_POST['loginuser']) > 0)
     <table id = "tab2" height="100" width="500">
     <tr height="25">
 	<td>Name:</td>
-	<td><INPUT TYPE = "TEXT" NAME ="loginuser"></td>
+	<td><INPUT TYPE = "TEXT" NAME ="loginuser" autofocus></td>
     </tr>
     <tr height="25">
 	<td>Passwort:</td>
