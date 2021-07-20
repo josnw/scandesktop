@@ -170,14 +170,17 @@ class factoOrders {
 					  and  ( ($this->positions[$i]["arnr"] >= $this->Shipping['fromArticle']) and ($this->positions[$i]["arnr"] <= $this->Shipping['toArticle']) ) ) 
 				)	{
 				$articleList[] = $this->positions[$i]["arnr"];
+				print "Duplicate to fnum ".$this->newFnum.": Add Transportcosts".$this->positions[$i]["arnr"]."\n"; 
 			} elseif ( ($switch == 1) and ( $this->positions[$i]["fart"] == 6 ) ) {
 				$articleList[] = $this->positions[$i]["arnr"];
+				print "Duplicate to fnum ".$this->newFnum.": Add SubArticle".$this->positions[$i]["arnr"]."\n";
 				if ($factor != null) {
 					$overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] = $this->positions[$i]["fmge"] * $factor;
 					$overrides["positions"][$this->positions[$i]["arnr"]]["fmgb"] = $this->positions[$i]["fmgb"] * $factor;
 				}
 			} elseif (in_array($this->positions[$i]["arnr"],$articleList )) {
 				$switch = 1;
+				print "Duplicate to fnum ".$this->newFnum.": article in list".$this->positions[$i]["arnr"]."\n";
 				if ((array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
 					$factor = $overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] / $this->positions[$i]["fmge"];
 					print "\nFaktor: ".$factor."\n";
