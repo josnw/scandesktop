@@ -73,8 +73,15 @@ $devel=0;
 
 $docpath = "docs/";
 
+
 $parcelPath["DHL"] = 'docs/';
 $parcelPath["DPD"] = '';
+
+
+# Packstation
+$configPrinter["label"]["cupsname"] = "Dummy Label printer";
+
+$configPrinter["a4"]["cupsname2"] = "Dummy A4 printer";
 
 $sender = "me and myself"; 
 $sender_email = "me@mydomain.xyz"; 

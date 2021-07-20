@@ -44,8 +44,8 @@
 		<?php
 		 for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
 			print '<div class="DSEdit smallBorder" name="packLabel">
-				<div class="DSFeld1">Paketgewicht<br> <input type=numeric name="packWeight[]" value="'.$packs[$cnt]["agew"].'" pattern="^([1-9]|0\.[2-9])[0-9\.]*" required placeholder="Zahl größer 0, Punkt als Dezimalzeichen"></div>
-				<div class="DSFeld1" name="addremoveLabel"><input type=button value="+" onclick="newPack(this)"> <input type=button value="-" onclick="delPack(this)"></div>
+				<div class="DSFeld2">Paketgewicht <input type=numeric name="packWeight[]" value="'.$packs[$cnt]["agew"].'" pattern="^([1-9]|0\.[2-9])[0-9\.]*" required placeholder="Zahl größer 0, Punkt als Dezimalzeichen"></div>
+				<div class="DSFeld1" name="addremoveLabel"><br><input type=button class="minibutton"  value=" + " onclick="newPack(this)"> . <input type=button class="minibutton" value=" - " onclick="delPack(this)"></div>
 			</div>';
 		 }
 	    ?>

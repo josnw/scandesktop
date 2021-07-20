@@ -399,7 +399,7 @@ class order {
 	            		$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
 		            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
 		            	file_put_contents($filename , $response["result"]);
-	            		exec('lp -d pak-prn01 "'.$filename.'"'); 
+	            		exec('lp -d '.$_SESSION["printerLabel"].' "'.$filename.'"'); 
 		            }
 	            }
 	

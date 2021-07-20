@@ -1,4 +1,20 @@
 <?php
+ include "./intern/config.php";
+
+ if (isset($_COOKIE['packstation'])) {
+	//print "Cookie found ...";
+	$printer = unserialize(base64_decode($_COOKIE['packstation']));
+	$_SESSION["printerLabel"] = $printer["printerLabel"];
+	$_SESSION["printerA4"] = $printer["printerA4"];
+	$_SESSION["infobox"] = "Etiketten Drucker: ".$configPrinter['label'][$_SESSION["printerLabel"]]."<br>Picklisten Drucker: ".$configPrinter['a4'][$_SESSION["printerA4"]];
+ }
+ if (empty($_SESSION["printerLabel"])) {
+ 	
+ 	include "./intern/settings.php";
+ 	exit;
+ 	
+ }
+
  include './intern/autoload.php';
 
  // Funktionsmenü Pickliste
@@ -7,6 +23,7 @@
  $userPackOrder = $userData->getOrderCount(0);
  $allPackOrder["offen"] = $userData->getAllOrderCount('0');
  $allPackOrder["gepackt"] = $userData->getAllOrderCount('1');
+ 
  include("./intern/views/picklist_menu_view.php");
 
 
@@ -97,13 +114,16 @@
 		
 		if ((isset($_POST["pickListSrvPrint"])) and ($_POST["pickListSrvPrint"] == "Pickliste Serverprint")) {
 			$fp = fopen("./docs/".$picList.$_SESSION["pickid"].".txt",w);
-			fwrite ($fp, str_pad("Artikel",15," ", STR_PAD_LEFT)."  ". str_pad("Bezeichnung",60," ", STR_PAD_RIGHT).str_pad("Menge",15," ", STR_PAD_LEFT)."\n");
+			fwrite( $fp, "Pickliste ".date("Y-m-d")." ".$_SESSION['name']."\n \n" );
+			fwrite ($fp, str_pad("Artikel",12," ", STR_PAD_RIGHT)."  ". str_pad("EAN",20," ", STR_PAD_RIGHT).str_pad("Lager",20," ", STR_PAD_LEFT).str_pad("Menge",16," ", STR_PAD_LEFT)."\n");
 			foreach($pickListData->getItemList() as $item => $itemdata) {
-				fwrite ($fp, str_pad($itemdata["arnr"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz1"],60," ", STR_PAD_RIGHT).str_pad($itemdata["amge"],9," ", STR_PAD_LEFT).str_pad($itemdata["ameh"],6," ", STR_PAD_LEFT)."\n");
-				fwrite ($fp, str_pad($itemdata["asco"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz2"],60," ", STR_PAD_RIGHT)."\n");
-				fwrite ($fp, str_pad("Lager ".$itemdata["alag"],20," ", STR_PAD_LEFT)."  ".str_pad($itemdata["abz3"],60," ", STR_PAD_RIGHT)."\n\n");
+				fwrite ($fp, str_pad($itemdata["arnr"],12," ", STR_PAD_RIGHT)."  ".str_pad($itemdata["asco"],20," ", STR_PAD_RIGHT).str_pad($itemdata["alag"],6," ", STR_PAD_LEFT)."\n");
+				fwrite ($fp, str_pad($itemdata["abz1"],60," ", STR_PAD_RIGHT)."\n");
+				fwrite ($fp, str_pad($itemdata["abz2"],60," ", STR_PAD_RIGHT)."\n");
+				fwrite ($fp, str_pad($itemdata["abz3"],60," ", STR_PAD_RIGHT).str_pad($itemdata["fmge"],7," ", STR_PAD_LEFT)."  ". str_pad($itemdata["ameh"],5," ", STR_PAD_RIGHT)."\n");
+				fwrite ($fp, "-------------------------------------------------------------------------\n");
 			}
-			exec('lp -d pack_prn02 "'."./docs/".$picList.$_SESSION["pickid"].".txt".'"');
+			exec('lp -d '.$_SESSION["printerA4"].' "'."./docs/".$picList.$_SESSION["pickid"].".txt".'"');
 		}
 
 		if ( isset($_POST["showPickItems"]) ) {
@@ -158,12 +178,12 @@
 				$orderPacked = $packOrder->getPackedState();
 				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
 				
-/*				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
+				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
 
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
 				}
-*/
+
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }
