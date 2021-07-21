@@ -164,6 +164,9 @@ class factoOrders {
 		}
 		//add SetSubArticle booking amount and transport costs
 		$switch = 0; $factor = 0;
+		$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
+		
+		
 		for($i = 0; $i < count($this->positions); $i++) {
 			if (   ( isset($this->Shipping['article']) and  ( $this->positions[$i]["arnr"] == $this->Shipping['article'] ) )
 				or ( isset($this->Shipping['fromArticle']) 
@@ -178,7 +181,8 @@ class factoOrders {
 					$overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] = $this->positions[$i]["fmge"] * $factor;
 					$overrides["positions"][$this->positions[$i]["arnr"]]["fmgb"] = $this->positions[$i]["fmgb"] * $factor;
 				}
-			} elseif (in_array($this->positions[$i]["arnr"],$articleList )) {
+			} elseif ( (in_array($this->positions[$i]["arnr"],$articleList )) or 
+			    ( preg_match($idlist, $this->positions[$i]["fabl"])) ) {
 				$switch = 1;
 				print "Duplicate to fnum ".$this->newFnum.": article in list".$this->positions[$i]["arnr"]."\n";
 				if ((array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
@@ -240,9 +244,7 @@ class factoOrders {
 		for( $i = 0; $i < count($articleList); $i++) {
 			$f_qry->bindValue(':arnr'.$i,$articleList[$i]);
 		}
-		//$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
-		$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
-		// print "<br>".$idlist."</br>";
+
 		$f_qry->bindValue(':idlist', $idlist);
 
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
