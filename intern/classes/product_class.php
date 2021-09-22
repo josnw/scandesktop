@@ -33,7 +33,7 @@ class product {
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join mand_mwst m on a.apkz = m.mmid
 						left join art_grp ag on a.qgrp = ag.qgrp
-						where i.aamr = :aamr ";
+						where i.aamr = :aamr and i.askz < 8";
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
 		} elseif ($level == 'tradebyte') {
