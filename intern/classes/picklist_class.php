@@ -31,7 +31,7 @@ class picklist {
 	}
 	
 	// Pickliste erzeugen
-	private function createPickList($userId, $count = 20, $maxWeight = NULL, $name = NULL) {
+	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0) {
 
 		$this->pickUser = $userId;
 		$count = preg_replace("[^0-9]","",$count);
@@ -42,7 +42,8 @@ class picklist {
 							inner join auftr_pos p using (fblg) 
 							inner join art_0 a1 using (arnr)
 						where ks.ftyp = 2 and coalesce(fmgl,0) < fmge  
-				    		and coalesce(a1.agew,0) < :maxWeight
+				    		and coalesce(a1.agew,0) < :maxWeight 
+				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
@@ -54,14 +55,17 @@ class picklist {
 							inner join art_0 a using (arnr)
 							inner join ( '.$picArt_sql.' ) c using (arnr)
 						  where k.ftyp = 2 and coalesce(fmgl,0) < fmge  
+						    		and coalesce(a.agew,0) >= :minWeight 
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
 						  group by k.fnum, k.fblg
 						  having max(coalesce(a.agew,0)) < :maxWeight
+				    		     and coalesce(a.agew,0) >= :minWeight 
 						  order by minDate, ArtAnz desc limit :limit';
 		$picOrder_qry = $this->pg_pdo->prepare($picOrder_sql);
 		$picOrder_qry->bindValue(':limit', $count);
 		$picOrder_qry->bindValue(':maxWeight', $maxWeight);
+		$picOrder_qry->bindValue(':maxWeight', $minWeight);
 		$picOrder_qry->bindValue(':BelegKz', $this->wwsPickBelegKz);
 		$picOrder_qry->execute() or die (print_r($picOrder_qry->errorInfo()));
 		$OrderListStr = '';

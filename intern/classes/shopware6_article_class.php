@@ -211,7 +211,7 @@ class Shopware6Articles {
   //     						"ruleId" => md5("WWS ".$priceTyp),
        						"quantityStart" => 1,
        						"price" => [[
-//       								"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+      								"id" => md5("price".$priceTyp.$frow["arnr"]),
        								"currencyId" => $this->ShopwareCurrencyId,
        								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
        								"gross" => $price,
