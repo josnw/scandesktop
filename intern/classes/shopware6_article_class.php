@@ -205,7 +205,7 @@ class Shopware6Articles {
        						"rule" => [
        								"id" => md5("WWS ".$priceTyp),
        								"name" => "WWS ".$priceTyp,
-       								"priority" => 100
+       								"priority" => 900
        						],
 
   //     						"ruleId" => md5("WWS ".$priceTyp),
