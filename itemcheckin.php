@@ -42,7 +42,7 @@ session_start();
 			if (DEBUG == 1) {
 				print json_encode(["itemId" => "Order", "itemPacked" => "packed" ,"status" => true, "packId" =>  $getPackId, "info" => "Der TrackingCode passt nicht zum Auftrag!"]);
 			} else {
-				print json_encode(["itemId" => "", "itemPacked" => "" ,"status" => false, "info" => "Der TrackingCode passt nicht zum Auftrag! ".print_r($trackingIDs,1)]);
+				print json_encode(["itemId" => "", "itemPacked" => "" ,"status" => false, "info" => "Der TrackingCode ".$getItemID." passt nicht zum Auftrag! ".print_r($trackingIDs,1)]);
 				proto(print_r($trackIdResult["info"],1));
 			}
 			
