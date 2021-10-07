@@ -58,14 +58,14 @@ class picklist {
 						    		and coalesce(a.agew,0) >= :minWeight 
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
-						  group by k.fnum, k.fblg
+						  group by k.fnum, k.fblg, a.agew
 						  having max(coalesce(a.agew,0)) < :maxWeight
 				    		     and coalesce(a.agew,0) >= :minWeight 
 						  order by minDate, ArtAnz desc limit :limit';
 		$picOrder_qry = $this->pg_pdo->prepare($picOrder_sql);
 		$picOrder_qry->bindValue(':limit', $count);
 		$picOrder_qry->bindValue(':maxWeight', $maxWeight);
-		$picOrder_qry->bindValue(':maxWeight', $minWeight);
+		$picOrder_qry->bindValue(':minWeight', $minWeight);
 		$picOrder_qry->bindValue(':BelegKz', $this->wwsPickBelegKz);
 		$picOrder_qry->execute() or die (print_r($picOrder_qry->errorInfo()));
 		$OrderListStr = '';
