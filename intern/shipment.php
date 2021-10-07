@@ -30,7 +30,7 @@
  if ((isset($_POST["generatePicklist"])) and ($_POST["generatePicklist"] == "Speichern")) {
 	// neue Pickliste erstellen 
 
-	print "Pickliste wird generiert ...";
+ 	print "Pickliste wird generiert ...";
 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"]);
 	print " erstellt!<br>";
 	// Pickliste anzeigen

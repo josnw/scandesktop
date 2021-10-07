@@ -17,14 +17,14 @@ class picklist {
 	public $itemList;
 	public $orderList;
 
-	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL) {
+	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0) {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
 		
 		if (isset($count) and isset($maxWeight) and isset($name)) {
-			$this->createPickList($Id, $count, $maxWeight, $name);
+			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight );
 		} else {
 			$this->getPickList($Id);
 		}
@@ -32,7 +32,6 @@ class picklist {
 	
 	// Pickliste erzeugen
 	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0) {
-
 		$this->pickUser = $userId;
 		$count = preg_replace("[^0-9]","",$count);
 
@@ -58,14 +57,15 @@ class picklist {
 						    		and coalesce(a.agew,0) >= :minWeight 
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
-						  group by k.fnum, k.fblg, a.agew
+						  group by k.fnum, k.fblg
 						  having max(coalesce(a.agew,0)) < :maxWeight
-				    		     and coalesce(a.agew,0) >= :minWeight 
+				    		 and max(coalesce(a.agew,0)) >= :minWeight 
 						  order by minDate, ArtAnz desc limit :limit';
 		$picOrder_qry = $this->pg_pdo->prepare($picOrder_sql);
 		$picOrder_qry->bindValue(':limit', $count);
 		$picOrder_qry->bindValue(':maxWeight', $maxWeight);
 		$picOrder_qry->bindValue(':minWeight', $minWeight);
+
 		$picOrder_qry->bindValue(':BelegKz', $this->wwsPickBelegKz);
 		$picOrder_qry->execute() or die (print_r($picOrder_qry->errorInfo()));
 		$OrderListStr = '';
