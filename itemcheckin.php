@@ -30,6 +30,9 @@ session_start();
 			print json_encode($checkResult);
 		}
 	} elseif ((isset($_GET["typ"])) and ($_GET["typ"] == 'parcelId')) {
+		if (substr($getItemID,0,3) == '+C1') {
+			$getItemID = substr($getItemID,3);
+		}
 		$packOrder = new order($getOrderID);
 		$trackingIDs = $packOrder->getTrackingCodes($getPickId);
 		$dhl = new dhl($getItemID);
