@@ -61,6 +61,7 @@ $wwsChiefGroups = [ 1,2 ];
 $Shipping['fromArticle'] = '01';
 $Shipping['toArticle'] = '05';
 
+
 // Scandesktop intern 
 
 date_default_timezone_set("Europe/Berlin");
@@ -77,6 +78,9 @@ $docpath = "docs/";
 $parcelPath["DHL"] = 'docs/';
 $parcelPath["DPD"] = '';
 
+$parcelServices = [ 'dhl' => [ 'V01PAK' => 'DHL Paket', 'V62WP' => 'DHL Warenpost' ],
+		'gls' => [ null => '']
+];
 
 # Packstation
 $configPrinter["label"]["cupsname"] = "Dummy Label printer";

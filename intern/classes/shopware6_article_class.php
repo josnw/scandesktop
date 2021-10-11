@@ -207,8 +207,9 @@ class Shopware6Articles {
        								"name" => "WWS ".$priceTyp,
        								"priority" => 900
        						],
-
-  //     						"ruleId" => md5("WWS ".$priceTyp),
+       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+       						//     						"ruleId" => md5("WWS ".$priceTyp),
        						"quantityStart" => 1,
        						"price" => [[
       								"id" => md5("price".$priceTyp.$frow["arnr"]),
@@ -343,29 +344,33 @@ class Shopware6Articles {
             $restdata["stock"] = 0;
         }
         
-        // other prices 
+        // other prices
         foreach($prices as $priceTyp => $price) {
-            if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
-                $restdata["prices"][] = [ 
-                    "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-                    //                    "ruleId" => '4f86824b17504e638c8000ae5d573e0c',
-                    "rule" => [
-                        "id" => md5("WWS ".$priceTyp),
-                        "name" => "WWS ".$priceTyp,
-                        "priority" => 100
-                    ],
-                    "quantityStart" => 1,
-                    "price" => [[
-//                        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-                        "currencyId" => $this->ShopwareCurrencyId,
-                        "net"	=> $price/(1+$artData["mmss"]/100),
-                        "gross" => $price,
-                        "linked" => true,
-                    ]]
-               ];
-
-            }
+        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
+        		$restdata["prices"][] = [
+        				"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+        				"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+        				"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+        				"rule" => [
+        						"id" => md5("WWS ".$priceTyp),
+        						"name" => "WWS ".$priceTyp,
+        						"priority" => 900
+        				],
+        				
+        				//     						"ruleId" => md5("WWS ".$priceTyp),
+        				"quantityStart" => 1,
+        				"price" => [[
+        						"id" => md5("price".$priceTyp.$frow["arnr"]),
+        						"currencyId" => $this->ShopwareCurrencyId,
+        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
+        						"gross" => $price,
+        						"linked" => true,
+        				]]
+        		];
+        		
+        	}
         }
+        
         
 
         // Artikelatribute zum Beschreibungstext zusammensetzen bzw Eigenschaftsarray erstellen
