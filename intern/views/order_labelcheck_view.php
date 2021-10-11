@@ -30,11 +30,26 @@
 				<div class="DSFeld1">Land<br> <input name="qlnd" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"]); ?>" pattern="[A-Za-zäöüß0-9\- /]+"  required></div>
 			</div>	
 			<div class="DSEdit smallBorder"> 
-				<div class="DSFeld1">Spedition<br> <input name="parcelService" value="<?php  print($_SESSION["shipBlueprint"]["carrierTechnicalName"]); ?>" pattern="(dhl)" required ></div>
+				<div class="DSFeld1">Spedition<br>
+				    <select name="parcelService" required>
+					<?php
+						foreach ($parcelServices as $parcelServiceName => $parcelService) {
+							($_SESSION["shipBlueprint"]["carrierTechnicalName"] == $parcelServiceName) ? $selected = " selected" : $selected = ""; 
+							print "<option value=".$parcelServiceName.$selected.">".$parcelServiceName."</options>";
+						}
+					?>
+					</select>
+				</div>
 				<div class="DSFeld1">Versandart<br>
-					<select name="parcelProduct">
-					 <option value="V01PAK"<?php  if ($_SESSION["shipBlueprint"]["shipmentConfig"]["product"] == "V01PAK") { print "selected"; } ?>">DHL Paket</option>
-					 <option value="V62WP" <?php  if ($_SESSION["shipBlueprint"]["shipmentConfig"]["product"] == "V62WP") { print "selected"; } ?>">DHL Warenpost</option>
+				    <select name="parcelProduct" required>
+					<?php
+						foreach ($parcelServices as $parcelServiceName => $parcelService) {
+							foreach ($parcelService as $parcelProduct => $parcelProductName) {
+								($_SESSION["shipBlueprint"]["shipmentConfig"]["product"] == $parcelProduct) ? $selected = " selected" : $selected = ""; 
+								print "<option value=".$parcelProduct.$selected.">".$parcelServiceName.": ".$parcelProductName."</options>";
+							}
+						}
+					?>
 					</select>
 				</div>
 			</div>	
