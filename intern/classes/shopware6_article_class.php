@@ -202,17 +202,18 @@ class Shopware6Articles {
        			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
        				$restdata["prices"][] = [
        				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+       						"productid" => md5($frow["arnr"]),
        						"rule" => [
        								"id" => md5("WWS ".$priceTyp),
        								"name" => "WWS ".$priceTyp,
        								"priority" => 900
        						],
-       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
        						//     						"ruleId" => md5("WWS ".$priceTyp),
        						"quantityStart" => 1,
        						"price" => [[
-      								"id" => md5("price".$priceTyp.$frow["arnr"]),
+#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
        								"currencyId" => $this->ShopwareCurrencyId,
        								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
        								"gross" => $price,
@@ -510,7 +511,7 @@ class Shopware6Articles {
 	    } else {
 	        $returnError = '';
 	        foreach ($result["errors"] as $error) {
-	            $returnError .= $restdata["productNumber"]."\t".$error["detail"]."\t".$error["source"]["pointer"]."\n";
+	            $returnError .= $restdata["productNumber"]."\t".$error["detail"]."\n";
 	        }
 
 	        return ( $returnError );
