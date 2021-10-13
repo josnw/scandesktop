@@ -11,6 +11,7 @@ class Shopware6Articles {
 	private $ShopwareStockList;
 	private $ShopwareCurrencyId;
 	private $ShopwareMediaFolderId;
+	private $shopwareCategoryCmsPageId;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -24,6 +25,7 @@ class Shopware6Articles {
 		$this->ShopwareStockList = $ShopwareStockList;
 		$this->ShopwareMediaFolderId = $ShopwareMediaFolderId;
 		$this->dynamic_stock_upload = $dynamic_stock_upload;
+		$this->shopwareCategoryCmsPageId = $shopwareCategoryCmsPageId;
 		$this->api = $api;
 		return true;
 	}
@@ -328,7 +330,8 @@ class Shopware6Articles {
                 [
         	        "id" => md5($artData["qgrp"]),
                     "name" => $artData["gqsbz"], 
-                    "type" => "category"
+                    "type" => "page",
+                	"cmsPageId" => $this->shopwareCategoryCmsPageId
                 ]
             ],
             "manufacturer" => [
@@ -350,8 +353,8 @@ class Shopware6Articles {
         	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
         		$restdata["prices"][] = [
         				"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-        				"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-        				"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+#        				"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+#        				"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
         				"rule" => [
         						"id" => md5("WWS ".$priceTyp),
         						"name" => "WWS ".$priceTyp,
@@ -399,6 +402,7 @@ class Shopware6Articles {
                     "group" => [
                         "id" => md5($key),
                         "name" => $key,
+                    	"filterable" => false
                     ],
                 ];
             }
