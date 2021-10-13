@@ -17,7 +17,7 @@
 	</div>
 	<div class="DSEdit">
 		<div class="DSFeld2 right">Produktnummer der Variante:<br><input type="text" name="subArticle[]" value="" required ></div>
-		<div class="DSFeld2 right">Wert Merkmal 1:<br><input type="text" name="optionvalue2[]" value=""  required p></div>
+		<div class="DSFeld2 right">Wert Merkmal 1:<br><input type="text" name="optionvalue1[]" value=""  required p></div>
 		<?php if ($doubleKeys) {
 			print '<div class="DSFeld2 right">Wert Merkmal 2:<br><input type="text" name="optionvalue2[]" value=""  required p></div>';
 		}?>
