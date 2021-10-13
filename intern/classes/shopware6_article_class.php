@@ -625,6 +625,11 @@ class Shopware6Articles {
 				
 			}
 			$result = $api->patch('product/'.md5($varArticle), $vrestdata );
+			if (($_SESSION["debug"] ==1) and ($_SESSION["level"] == 9)) {
+				print "<pre>";
+				print_r($vresdata);
+				print "</pre>";
+			}
 			if ($result["success"] != 1) {
 				foreach($result["errors"] as $error) {
 					$errorList .= $varArticle." ".$error["detail"]."\n";
