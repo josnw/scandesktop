@@ -39,6 +39,10 @@ $shopware_key = 'apikey';
 // If different customer number ranges in shopware is used, you can map numbers less then CustomerNumber 
 // to Mappingnumber + Shopwarenumber
 $channelFacData['shopware']['CustomerNumber'] = 10000;
+
+//alternate to Group CustomerNumber
+//$channelFacData['shopware']['Customer'][WEBSHOPID] = 100001;
+
 $channelFacData['shopware']['MappingNumber'] = 10000;
 $channelFacData['shopware']['GroupCustomer'] = false;
 $channelFacData['shopware']['Filiale'] = 918;
