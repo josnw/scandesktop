@@ -22,6 +22,11 @@
   }
   
   $updInfo->close(); 
+  
+  // Funktionsmenü Pickliste
+  $userData = new user($_SESSION["uid"]);
+  $info = $userData->getAllStat();
+  include("./intern/views/home_overview.php");
  ?>
  </table>
  
