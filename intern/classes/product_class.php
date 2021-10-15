@@ -181,7 +181,7 @@ class product {
 		// select prices
 		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
 					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
-		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon < current_date and qbis > current_date 
+		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon <= current_date and qbis > current_date 
 					and pb.qbez not like 'VK-Preis %'
                     and cprs <> 0
                     order by csog, qdtm";
