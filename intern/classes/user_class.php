@@ -112,11 +112,11 @@ class user {
 	    $info['quoteToday'] = $info['doneToday'] / $info['allToday'];
 	    $info['openToday'] = $info['allToday'] - $info['doneToday'];
 	    
-	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+/*	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
-	    
+	    */
 	    $pickList_sql = 'select ktos,count(fblg) as cnt from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 group by ktos';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
@@ -125,7 +125,7 @@ class user {
 
 	    $pickList_sql = 'select fenr, p.qna1,count(fblg) as cnt from auftr_kopf k
                          inner join per_0 p on p.penr = k.fenr 
-                         where  fbkz = :fbkz  and ftyp = 2 and coalesce(ktos,0) < 2 and fenr > 0 group by fenr, p.qna1';
+                         where  fbkz = :fbkz  and ftyp = 2 and coalesce(ktos,0) < 2 and fenr > 0 and fprn > 0 group by fenr, p.qna1';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
