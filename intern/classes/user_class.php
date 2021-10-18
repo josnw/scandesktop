@@ -93,7 +93,29 @@ class user {
 	}
 	
 	public function getAllStat() {
-	    $liste = NULL;
+	    $info = [];
+	    
+	    $pickList_sql = 'select count(fblg) as cntAllDay from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 and fdtm <= current_date '; 
+	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
+	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	    $fetch = $pickList_qry->fetch( PDO::FETCH_ASSOC );
+	    $info['allToday'] = $fetch["cntallday"];
+	    
+	    $pickList_sql = 'select count(fblg) as cntDoneDay from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 and fdtm <= current_date and ktos = 2 ';
+	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
+	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	    $fetch = $pickList_qry->fetch( PDO::FETCH_ASSOC );
+	    $info['doneToday'] = $fetch["cntdoneday"];
+	    
+	    $info['quoteToday'] = $info['doneToday'] / $info['allToday'];
+	    $info['openToday'] = $info['allToday'] - $info['doneToday'];
+	    
+	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
+	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 	    
 	    $pickList_sql = 'select ktos,count(fblg) as cnt from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 group by ktos';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
@@ -116,6 +138,7 @@ class user {
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byDate'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 	    
+	    return $info;
 	
 	}
 }
