@@ -480,8 +480,8 @@ class Shopware6Orders {
 	*/
 	private function GetRealCustomerNumber($customerNumber) {
 		if ($this->channelFacData['shopware']['GroupCustomer'] ) {
-			if (! empty($this->channelFacData['shopware'][$this->ShopwareIdWebshop])) {
-				$realCustomerNumber = $this->channelFacData['shopware'][$this->ShopwareIdWebshop];
+			if (! empty($this->channelFacData['shopware']['Customer'][$this->ShopwareIdWebshop])) {
+				$realCustomerNumber = $this->channelFacData['shopware']['Customer'][$this->ShopwareIdWebshop];
 			} else {
 				$realCustomerNumber = $this->channelFacData['shopware']['CustomerNumber'];
 			}
