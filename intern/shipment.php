@@ -89,6 +89,11 @@
 	} else {
 		print "<error>Fehler bei der Zuordnung der ScanID!</error>";
 	}
+ } elseif ((isset($_POST["labelRePrint"])) )  {
+ 	
+ 	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
+ 	include("./intern/views/order_labelcheck_view.php");
+ 	
  } else {
  
 
@@ -176,7 +181,10 @@
 				}
 */
 				$orderPacked = $packOrder->getPackedState();
+				
+				
 				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
+				$shippingDocuments = $packOrder->getShippingDocuments;
 				
 				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
 

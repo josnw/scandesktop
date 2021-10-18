@@ -3,6 +3,7 @@
 class order {
 		
 	private $belegId;
+	private $shopwareOrderId;
 	private $pg_pdo;
 	private $itemPointer;
 	
@@ -93,6 +94,10 @@ class order {
 				
 			}
 		}
+		
+		$this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+		
+		
 		$this->itemPointer = 0;
 		return $this->MainItemCount;
 
@@ -547,21 +552,62 @@ class order {
 
 	}
 
-	public function getTrackingCodes($shippingId) {
+	// Type: shippingId, orderId
+	public function getTrackingCodes($shippingId, $type = 'shippingId') {
 	
 		$tracklist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-		$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
-
-		foreach($response["data"] as $tracking) {
-			$tracklist[] = $tracking["attributes"]["trackingCode"];
+		if ($type == "shippingId") {
+			$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
+			foreach($response["data"] as $tracking) {
+				$tracklist[] = $tracking["attributes"]["trackingCode"];
+			}
+		} elseif ($type == "orderId") { 
+			$response = $api->get('order/'.$this->shopwareOrderIdd.'/deliveries');
+			foreach($response["data"] as $delivery) {
+				foreach($delivery["attributes"]["trackingCodes"] as $tracking) {
+					$tracklist[] = $tracking;
+				}
+			}
 			
 		}
 	
 		return $tracklist;
-
 	}
+	
+	public function getShippingDocuments() {
+		
+		$documentlist = [];
+		include ("./intern/config.php");
+		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+
+		$response = $api->get('order/'.$this->shopwareOrderId.'/pickwareShippingShipments');
+		foreach($response["data"] as $delivery) {
+			$documents = $api->get('pickware-shipping-shipment/'.$delivery["id"].'/documents');
+
+			foreach ($documents["data"] as $document) {
+				$documentId = $document["id"];
+				$deepLinkId = $document["attributes"]["deepLinkCode"];
+				$documentCreated = $document["attributes"]["createdAt"];
+				
+				$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
+				$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
+				file_put_contents($filename , $response["result"]);
+				
+				$documentlist[] = [
+						"createdAt" => $documentCreated,
+						"filename" => $filename
+				];
+				
+			}
+			
+		}
+		
+		return $documentlist;
+	}
+	
+	
 	
 	public function genDeliver() {
 
@@ -610,7 +656,9 @@ class order {
 	        ];
 	        $properties = $api->get('order',$params );
 
+	        $this->shopwareOrderId = $properties["data"][0]["id"];
 	        return $properties["data"][0]["id"];
+	        
 	    } else {
 	        return $id;
 	    }
@@ -620,7 +668,7 @@ class order {
 
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-
+		
 		$params = [
 				'filter' => [
 						[
@@ -634,8 +682,17 @@ class order {
 		$response = $api->post('_action/order_delivery/'.$deliveryData["data"][0]["id"].'/state/'. $state	);
 		
 		if ($state == ORDER_DELIVERY_SHIP) {
+			//set state in shopware
 			$orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 			$response = $api->post('_action/order/'.$orderId.'/state/'. ORDER_STATE_COMPLETE );
+
+			// set complete state in www
+			$cntqry  = "update auftr_pos set ktos = 3 where fblg = :BelegID ";
+			$cnt_qry = $this->pg_pdo->prepare($cntqry);
+			$cnt_qry->bindValue(':BelegID', $this->belegId);
+			$cnt_qry->execute() or die (print_r($cnt_qry->errorInfo()));
+			
+			
 		}
 		
 		return true;		
