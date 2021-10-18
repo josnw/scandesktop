@@ -317,7 +317,8 @@ class Shopware6Orders {
 		if ($article->productData[0]['aart'] == 2) {
 			$fakt = 3153923;
 			$fakx = '';
-			$fpid = '';
+			//$fpid = '';
+			$fpid = $this->scanDeskFacFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
 		} elseif (!empty($article->productData[0]['avsd'])) {
 			$fakt = 8195;
 			$fakx = 113;
