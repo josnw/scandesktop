@@ -380,6 +380,7 @@ class order {
 		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
 		            print "<br>".json_encode($send)."<br>";
 		            print "Create Shipment...";
+		            print "<pre>".print_r($response,1)."</pre>";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
 		                foreach ($response["errors"] as $error) {
@@ -387,7 +388,7 @@ class order {
 		                }
 	                    return ["status" => false, "error" => $errorList ]; 
 		            }
-		            print "<pre>".print_r($response,1)."</pre>";
+
 		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipmentIds"][0];
 		            
 		            $response = $api->get('pickware-shipping-shipment/'.$shippingId.'/documents');
