@@ -61,7 +61,7 @@
 		$_SESSION["shipBlueprint"]["receiverAddress"]["zipCode"] = $_POST["qplz"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["city"] = $_POST["qort"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"] = $_POST["qlnd"];
-		$_SESSION["shipBlueprint"]["carrierTechnicalName"]["countryIso"] = $_POST["parcelService"];
+		$_SESSION["shipBlueprint"]["carrierTechnicalName"] = $_POST["parcelService"];
 		$_SESSION["shipBlueprint"]["shipmentConfig"]["product"] = $_POST["parcelProduct"];
 		
 		
