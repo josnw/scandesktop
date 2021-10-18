@@ -378,7 +378,7 @@ class order {
 	            } else {
 		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
 		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
-		            //print "<br>".json_encode($send)."<br>";
+		            print "<br>".json_encode($send)."<br>";
 		            print "Create Shipment...";
 		            if ( isset($response["errors"]) ) {
 		                $errorList = '';
