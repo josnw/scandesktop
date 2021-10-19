@@ -581,6 +581,7 @@ class order {
 		$documentlist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+		$this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 		print "ShopwareOrderID:".$this->shopwareOrderId."\n";
 		$response = $api->get('order/'.$this->shopwareOrderId.'/pickwareShippingShipments');
 		foreach($response["data"] as $delivery) {
