@@ -368,7 +368,7 @@ class order {
 	    include ("./intern/config.php");
 	    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
 
-	    $orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+	    $orderId = $this->checkShopwareOrderId('X');
 	    
 /*		foreach ($parcelData as $pack) {
 			print $pack["parcelService"]."/".$pack["packWeight"]."<br>";
