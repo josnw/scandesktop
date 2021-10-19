@@ -32,7 +32,7 @@ class order {
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		
 		//Belegkopfdaten einlesen
-		$oqry  = 'select * from auftr_kopf where fblg = :BelegID';
+		$oqry  = 'select * from auftr_kopf where fblg = :BelegID and ftyp = 2';
 
 		$r_qry = $this->pg_pdo->prepare($oqry);
 		$r_qry->bindValue(':BelegID', $belegnummer);
