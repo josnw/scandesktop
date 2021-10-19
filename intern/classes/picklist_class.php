@@ -136,7 +136,7 @@ class picklist {
                              left join art_0 a using (arnr) 
                              left join art_0fil af  on af.arnr = a.arnr and af.ifnr = p.ifnr 
                              left join art_ean e on a.arnr = e.arnr and e.qskz = 1  
-                          where k.fprn = :pickId  and coalesce(aart,0) <> 2  and coalesce(avsd,0) = 0
+                          where k.fprn = :pickId  and coalesce(aart,0) <> 2  and coalesce(avsd,0) = 0 and p.ftyp=2
                           group by a.arnr, abz1, abz2, a.ameh, p.asco, af.alag
                           having  sum(coalesce(fmge,0)-coalesce(fmgl,0)) > 0 
                           order by alag, a.arnr";
@@ -151,7 +151,7 @@ class picklist {
 	}
 
 	// Bestellungen der Pickliste ausgeben (Übersicht, keine Artikel)
-	public function getOrderList($status) {
+	public function getOrderList($status = '0,1,2') {
 
 		if ((isset($this->orderList)) and (count($this->orderList) > 0)) {
 			return $this->orderList;
@@ -160,9 +160,9 @@ class picklist {
 		$pickStatus = preg_replace("[^0-9,]","",$status);
 		$pickList_sql  = 'select fnum, fblg, ffbg, qna1, qna2, qstr, qplz, qort, fdtm, sges, ktou, ktos 
                           from auftr_kopf 
-                          where fprn = :pickId 
+                          where fprn = :pickId and ftyp = 2 and ktos in ('.$status.') 
                           order by fdtm, fnum';
-		  
+
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickId', $this->pickListNumber);
 		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));

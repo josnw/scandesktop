@@ -91,6 +91,7 @@
 	}
  } elseif ((isset($_POST["labelRePrint"])) )  {
  	$errorList = "lableReprint!";
+ 	$packOrder = new order($_POST["orderId"]);
  	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
  	include("./intern/views/order_finished_view.php");
  	
@@ -145,7 +146,7 @@
 			$sort1 = $_POST['sortorder'];
 
 			$packOrder = $pickListData->getNextPackOrder($sort1);
-			 if (count($pickListData->getOrderList("0,1")) == 0) {
+			 if (count($pickListData->getOrderList("0,1,2")) == 0) {
 				unset($_SESSION["pickid"]); 
 				$pickListData->setPickStatus(2);
 				include("./intern/views/picklist_generate_view.php");

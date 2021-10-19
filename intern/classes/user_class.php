@@ -31,7 +31,7 @@ class user {
 		//Artikel der �lteste Bestellungen und TopArtikel einlesen
 		$pickStatus = preg_replace("[^0-9,]","",$status);
 		$pickList_sql = 'select fprn , ktou, max(ktos) as ktos from auftr_kopf 
-                            where fenr = :pickUser and ktos in ('.$pickStatus.') and fprn is not null
+                            where fenr = :pickUser and ktos in ('.$pickStatus.') and fprn is not null and ftyp = 2
                             group by fprn, ktou
                             order by fprn';
 
