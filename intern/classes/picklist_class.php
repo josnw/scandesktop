@@ -109,7 +109,7 @@ class picklist {
 	// PickList Header aus DB lesen
 	private function getPickList($pickId) {
 		
-		$pickList_sql = "select fenr,ktou,ktos from auftr_kopf where fprn = :pickId and fytp = 2";
+		$pickList_sql = "select fenr,ktou,ktos from auftr_kopf where fprn = :pickId and ftyp = 2";
 		
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 		$pickList_qry->bindValue(':pickId', $pickId );
