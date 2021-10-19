@@ -687,7 +687,7 @@ class order {
 			$response = $api->post('_action/order/'.$orderId.'/state/'. ORDER_STATE_COMPLETE );
 
 			// set complete state in www
-			$cntqry  = "update auftr_pos set ktos = 3 where fblg = :BelegID ";
+			$cntqry  = "update auftr_kopf set ktos = 3 where fblg = :BelegID ";
 			$cnt_qry = $this->pg_pdo->prepare($cntqry);
 			$cnt_qry->bindValue(':BelegID', $this->belegId);
 			$cnt_qry->execute() or die (print_r($cnt_qry->errorInfo()));

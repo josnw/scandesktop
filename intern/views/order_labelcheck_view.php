@@ -2,7 +2,7 @@
 <div class="windowheadline" onmousedown="startDrag(this.parentNode);"></div>
 	<h1>Sendungsdaten</h1>
     <?php if(!empty($errorList)) { print($errorList); } ?>
-    <?php if(!empty($shippingDocuments)) { include("./intern/views/order_labelreprint_view.php"); } ?>
+    <?php if(!empty($shippingDocuments)) { print "Label bereits erstellt!\n"; include("./intern/views/order_labelreprint_view.php"); } ?>
 	<form action="#" method="POST" enctype="multipart/form-data" >
 		<input type = hidden name="orderId" value="<?php  print($packOrder->orderHeader["fblg"]); ?>"  required>
 		<input type = hidden name="scanId" value="<?php  print($_SESSION['ItemScanKey']); ?>"  required>
