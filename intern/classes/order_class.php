@@ -581,16 +581,17 @@ class order {
 		$documentlist = [];
 		include ("./intern/config.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-
+		print "ShopwareOrderID:".$this->shopwareOrderId."\n";
 		$response = $api->get('order/'.$this->shopwareOrderId.'/pickwareShippingShipments');
 		foreach($response["data"] as $delivery) {
+			print "DeliveryID:".$delivery["id"]."\n";
 			$documents = $api->get('pickware-shipping-shipment/'.$delivery["id"].'/documents');
 
 			foreach ($documents["data"] as $document) {
 				$documentId = $document["id"];
 				$deepLinkId = $document["attributes"]["deepLinkCode"];
 				$documentCreated = $document["attributes"]["createdAt"];
-				
+				print "LinkID:".$document["attributes"]["deepLinkCode"]."\n";
 				$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
 				$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
 				file_put_contents($filename , $response["result"]);
