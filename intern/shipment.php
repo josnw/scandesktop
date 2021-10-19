@@ -191,7 +191,7 @@
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
 				}
-				$errorList = "LableList:".print_r($shippingDocuments,1)
+				$errorList = "LableList:".print_r($shippingDocuments,1);
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }
