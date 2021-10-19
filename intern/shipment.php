@@ -184,7 +184,7 @@
 				
 				
 				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
-				$shippingDocuments = $packOrder->getShippingDocuments;
+				$shippingDocuments = $packOrder->getShippingDocuments();
 				
 				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
 
