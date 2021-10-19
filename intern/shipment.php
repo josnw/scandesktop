@@ -92,7 +92,7 @@
  } elseif ((isset($_POST["labelRePrint"])) )  {
  	$errorList = "lableReprint!";
  	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
- 	include("./intern/views/order_labelcheck_view.php");
+ 	include("./intern/views/order_finished_view.php");
  	
  } else {
  
