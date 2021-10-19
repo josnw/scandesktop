@@ -90,7 +90,7 @@
 		print "<error>Fehler bei der Zuordnung der ScanID!</error>";
 	}
  } elseif ((isset($_POST["labelRePrint"])) )  {
- 	
+ 	$errorList = "lableReprint!";
  	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
  	include("./intern/views/order_labelcheck_view.php");
  	
@@ -191,7 +191,7 @@
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
 				}
-
+				$errorList = "LableList:".print_r($shippingDocuments,1)
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }
