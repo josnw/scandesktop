@@ -180,7 +180,7 @@ class picklist {
 				$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
                            from auftr_kopf k
                            inner join auftr_pos p using (fblg, fnum)
-                          where k.fprn = :pickId and k.ktos <= 2 
+                          where k.fprn = :pickId and k.ktos <= 2 and ftyp = 2
                           group by fnum, fblg
                           order by sgew desc limit 1';
 				break;
@@ -191,7 +191,7 @@ class picklist {
                            inner join auftr_pos p using (fblg, fnum)
 						   left join (select arnr, count(fmgb) as cnt from auftr_kopf k1
 			                           inner join auftr_pos p1 using (fblg, fnum)
-										where k1.fprn = :pickId and k1.ktos <= 2 
+										where k1.fprn = :pickId and k1.ktos <= 2 and ftyp = 2
 			                           group by arnr) a using (arnr) 
                           where k.fprn = :pickId and k.ktos <= 2 
                           group by fnum, fblg
@@ -201,7 +201,7 @@ class picklist {
 				$pickList_sql  = 'select fnum, fblg, sum(agew) as sgew
                            from auftr_kopf k
                            inner join auftr_pos p using (fblg, fnum)
-                          where k.fprn = :pickId and k.ktos <= 2
+                          where k.fprn = :pickId and k.ktos <= 2 and ftyp = 2
                           group by fnum, fblg
                           order by k.fdtm desc limit 1';
 				break;
