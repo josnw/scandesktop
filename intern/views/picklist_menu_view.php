@@ -1,6 +1,7 @@
 <div class="DSEdit noprint">
-Es ist <?php print(count($userPickData));?> offene Pickliste mit noch <?php print($userPackOrder);?> unbearbeiteten Bestellungen vorhanden.
-  Insgesamt erwarten euch noch  <?php print($allPackOrder["offen"]);?> unbearbeitete Bestellungen.
+<b>Die Pickliste ist IMMER komplett abzuarbeiten! Bestellungen, die nicht abgeschlossen werden können, sind mit dem Button "Zurückstellen" aus der Pickliste zu entfernen!</b> 
+Die Pickliste ist personengebunden und der Packer ist für die pünktliche Abarbeitung verantwortlich!
+Du hast <?php print(count($userPickData));?> offene Pickliste mit noch <?php print($userPackOrder);?> offenen Bestellungen zu bearbeiten.</b>
 </div>
 
 

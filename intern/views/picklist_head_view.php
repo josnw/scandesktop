@@ -8,9 +8,4 @@
 <div class=oderinfoitem><?php print($pickListData->pickCreateDate);?></div>
 <div class=orderinfoname>Status</div>
 <div class=oderinfoitem><?php print($pickListData->pickStatus);?></div>
-<form action="#" method="POST" enctype="multipart/form-data" >
-	<div class="DSEdit noprint">
-		<div class="DSFeld2" style="background: #AA5555;"><input type="submit" name="removeOrder" value="Zurückstellen"></div>
-	</div>
-</form>
 </div>

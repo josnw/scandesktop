@@ -2,8 +2,9 @@
    <?php 
    if (( (($info["quoteToday"] < 0.5) and ($info["openToday"] > 10)) 
          or ($info["openToday"] > 10))
-       and (date("H") > 9)) {
-       print "<h1><error>ACHTUNG! Packquote zu gering oder offene Bestellungen zu viele!</error></h2>";
+   		and (date("H") > 9) and (date("H") < 11)) {
+       print "<h1><error>ACHTUNG! Packquote und offene Bestellungen prüfen</error></h2>";
+       print "Packquote heute: ".$info["quoteToday"]. "offene Bestellungen: ".$info["openToday"];
    }
    ?>
 </div>
@@ -41,7 +42,7 @@
              print "<div class=DSFeld2>".$stat["cnt"]."</div>";
              print "<div class=DSFeld1>";
              print '<input type=hidden name="penr" value="'.$stat["fenr"].'">';
-             print '<input type="submit" name="resetPicklist" value="reset Picklist">';
+             //print '<input type="submit" name="resetPicklist" value="reset Picklist">';
              print "</div></form>";
          }
      

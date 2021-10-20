@@ -33,6 +33,36 @@
      }
  }
  
+ if (isset($_POST["updateArticles"]) or (isset($argv) and in_array("/updateArticles", $argv))) {
+ 	
+ 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+ 		$checkDate = '2000-01-01';
+ 	} else {
+ 		$checkDate = NULL;
+ 	}
+ 	
+ 	if (isset($_POST["noUpload"]) or (isset($argv) and in_array("/noUpload", $argv))) {
+ 		$noUpload = 'noUpload';
+ 	} else {
+ 		$noUpload = NULL;
+ 	}
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	
+ 	$articles = new Shopware6Articles();
+ 	
+ 	$result = $articles->exportAllUpdates($shopwareApi, $noUpload , 0);
+ 	
+ 	$rowCount = $result['count'];
+ 	$errorList = $result['errors'];
+ 	$articleList = $result['articleList'];
+ 	
+ 	if (php_sapi_name() != 'cli') {
+ 		include("./intern/views/shopware_result_view.php");
+ 	} else {
+ 		print_r($result);
+ 	}
+ }
+ 
  if (isset($_POST["priceStockUpdate"]) or (isset($argv) and in_array("/priceStockUpdate", $argv))) {
 	
 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
