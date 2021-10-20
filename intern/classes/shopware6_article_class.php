@@ -158,6 +158,9 @@ class Shopware6Articles {
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 	        $cnt++;
 	        $article = new product($frow["arnr"]);
+	        //get article data
+	        $artData = $article->getResultList()[0];
+	        
 	        $stocks = $article->getStocks();
 	        
 	        $this->debugData('StockList:'.$frow["arnr"], $stocks);
@@ -189,6 +192,7 @@ class Shopware6Articles {
 	        		"id" => md5($frow["arnr"]),
 	        		"productNumber" => $frow["arnr"],
 	        		"stock" => $stockSum,
+	        		"weight" => $artData["agew"],
 			        "price" => [
 			        		[
 			        				"currencyId" => $this->ShopwareCurrencyId,
@@ -312,7 +316,7 @@ class Shopware6Articles {
             "ean" => $artData["asco"],
        	    "packUnit" => $artData["ageh"],  				        // SW Verpackungseinheit = ISO Verkaufsgebinde -> Facto Status Table id 9102
         	"referenceUnit" => '1',  								// Preismenge für den Grundpreis = static = 1 
-        		"weight" => $artData["agew"],
+        	"weight" => $artData["agew"],
 			"price" => [
         			[ 
         			    "currencyId" => $this->ShopwareCurrencyId,
