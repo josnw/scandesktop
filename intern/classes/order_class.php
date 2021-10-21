@@ -74,7 +74,9 @@ class order {
 				
 				$this->orderItems[$mainidx]["sliste"][$idx] = [ 
 						"arnr" => $row["arnr"], 
-						"abz1" => $row["abz1"]." ".$row["abz2"], 
+						"abz1" => $row["abz1"], 
+						"abz2" => $row["abz2"],
+						"abz3" => $row["abz3"],
 						"fmge" => $row["fmge"],
 						"fmgl" => $row["fmgl"], 
 						"ameh" => $row["ameh"] ,  
@@ -669,6 +671,7 @@ class order {
 	public function setOrderDeliveryState($trackingCode, $state) {
 
 		include ("./intern/config.php");
+		include ("./intern/function.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
 		
 		$params = [
@@ -689,11 +692,12 @@ class order {
 			$response = $api->post('_action/order/'.$orderId.'/state/'. ORDER_STATE_COMPLETE );
 
 			// set complete state in www
+			
 			$cntqry  = "update auftr_kopf set ktos = 3 where fblg = :BelegID ";
 			$cnt_qry = $this->pg_pdo->prepare($cntqry);
 			$cnt_qry->bindValue(':BelegID', $this->belegId);
-			$cnt_qry->execute() or die (print_r($cnt_qry->errorInfo()));
-			
+			$cnt_qry->execute() or die (Proto($this->belegId." ".$cnt_qry->errorInfo()));
+			Proto($this->belegId." ktos = 3 ");
 			
 		}
 		

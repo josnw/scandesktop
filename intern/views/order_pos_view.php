@@ -21,10 +21,10 @@ foreach($item as $itemrow) {
 	 
 	 if ($itemrow["astl"] == 1) {
 	    print '<div class="DSFeld5">Stückliste '.$itemrow["arnr"].' /';
-		print ' '.$itemrow["abz1"].'</div>';
+	    print ' '.$itemrow["abz1"].' '.$itemrow["abz2"].'</div>';
 	 } else {
 	    print '<div class=DSFeld1>'.$itemrow["arnr"].'</div>';
-		print '<div class="DSFeld2 bigFont">'.$itemrow["abz1"].'</div>';
+	    print '<div class="DSFeld2 bigFont">'.$itemrow["abz1"].' '.$itemrow["abz2"].' '.$itemrow["abz3"].'</div>';
 	 }
 	 if ($itemrow["astl"] != 1) {
 		
