@@ -394,6 +394,12 @@ class order {
 		                    $errorList .= $error["detail"]."\n";
 		                }
 	                    return ["status" => false, "error" => $errorList ]; 
+		            } elseif ( isset($response["shipmentsOperationResults"][0]["errorMessages"]) ) {
+		            	$errorList = '';
+		            	foreach ($response["shipmentsOperationResults"][0]["errorMessages"] as $error) {
+		            		$errorList .= $error["detail"]."\n";
+		            	}
+		            	return ["status" => false, "error" => $errorList ];
 		            }
 
 		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipmentIds"][0];

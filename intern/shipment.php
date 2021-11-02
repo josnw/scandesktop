@@ -148,7 +148,7 @@
 			$packOrder = $pickListData->getNextPackOrder($sort1);
 			 if (count($pickListData->getOrderList("0,1,2")) == 0) {
 				unset($_SESSION["pickid"]); 
-				$pickListData->setPickStatus(2);
+				$pickListData->setPickStatus(3);
 				include("./intern/views/picklist_generate_view.php");
 			 } else {
 
