@@ -397,7 +397,7 @@ class order {
 		            } elseif ( isset($response["shipmentsOperationResults"][0]["errorMessages"]) ) {
 		            	$errorList = '';
 		            	foreach ($response["shipmentsOperationResults"][0]["errorMessages"] as $error) {
-		            		$errorList .= $error["detail"]."\n";
+		            		$errorList .= $error."\n";
 		            	}
 		            	return ["status" => false, "error" => $errorList ];
 		            }
