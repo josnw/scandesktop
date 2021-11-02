@@ -76,7 +76,10 @@
 		    
 		} else {
 		    $orderPacked = $packOrder->orderHeader["ktos"];
-		    $errorList = $response["error"]; 
+		    $errorList = $response["error"];
+		    $packs = $packOrder->calcPacks(30);
+		    $labeledPacks = count($packOrder->getTrackingCodes(null, "orderId"));
+		    if (!is_numeric($labeledPacks)) { $labeledPacks = 0; }
 		    include("./intern/views/order_labelcheck_view.php");
 		    
 		}
@@ -156,8 +159,9 @@
 				
 				$packs = $packOrder->calcPacks(30);
 
-				$labeledPacks = 0; // count($packOrder->getTrackingCodes());
-				if ($labeledPacks == NULL) { $labeledPacks = 0; }
+				//$labeledPacks = 0; 
+				$labeledPacks = count($packOrder->getTrackingCodes(null, "orderId"));
+				if (!is_numeric($labeledPacks)) { $labeledPacks = 0; }
 				
 				$currentPack = -1;
 				//while ( $item = $packOrder->getNextItembyPack() ) {

@@ -572,7 +572,7 @@ class order {
 				$tracklist[] = $tracking["attributes"]["trackingCode"];
 			}
 		} elseif ($type == "orderId") { 
-			$response = $api->get('order/'.$this->shopwareOrderIdd.'/deliveries');
+			$response = $api->get('order/'.$this->shopwareOrderId.'/deliveries');
 			foreach($response["data"] as $delivery) {
 				foreach($delivery["attributes"]["trackingCodes"] as $tracking) {
 					$tracklist[] = $tracking;
