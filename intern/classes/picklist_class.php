@@ -42,12 +42,12 @@ class picklist {
 		$picArt_sql  = 'select p.arnr, min(ks.fdtm) as minDate , count(*) as ArtAnz from auftr_kopf ks 
 							inner join auftr_pos p using (fblg) 
 							inner join art_0 a1 using (arnr)
-							inner join art_0fil af1 using (arnr)
+							left join art_0fil af1 using (arnr)
 						where ks.ftyp = 2 and coalesce(fmgl,0) < fmge  
 				    		and coalesce(a1.agew,0) < :maxWeight 
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
-							and alag ~ :pattern
+							and coalesce(alag,\'\') ~ :pattern 
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
 
