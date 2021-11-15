@@ -17,33 +17,37 @@ class picklist {
 	public $itemList;
 	public $orderList;
 
-	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0) {
+	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0, $placePattern = ".*") {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
 		
 		if (isset($count) and isset($maxWeight) and isset($name)) {
-			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight );
+			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight, $placePattern );
 		} else {
 			$this->getPickList($Id);
 		}
 	}
 	
 	// Pickliste erzeugen
-	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0) {
+	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0, $placePattern = '.*') {
 		$this->pickUser = $userId;
 		$count = preg_replace("[^0-9]","",$count);
 
-		
+		if ($placePattern == '') {
+			$placePattern = ".*";
+		}
 		//Artikel der älteste Bestellungen und TopArtikel einlesen
 		$picArt_sql  = 'select p.arnr, min(ks.fdtm) as minDate , count(*) as ArtAnz from auftr_kopf ks 
 							inner join auftr_pos p using (fblg) 
 							inner join art_0 a1 using (arnr)
+							inner join art_0fil af1 using (arnr)
 						where ks.ftyp = 2 and coalesce(fmgl,0) < fmge  
 				    		and coalesce(a1.agew,0) < :maxWeight 
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
+							and alag ~ :pattern
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
 
@@ -65,7 +69,8 @@ class picklist {
 		$picOrder_qry->bindValue(':limit', $count);
 		$picOrder_qry->bindValue(':maxWeight', $maxWeight);
 		$picOrder_qry->bindValue(':minWeight', $minWeight);
-
+		$picOrder_qry->bindValue(':pattern', $placePattern);
+		
 		$picOrder_qry->bindValue(':BelegKz', $this->wwsPickBelegKz);
 		$picOrder_qry->execute() or die (print_r($picOrder_qry->errorInfo()));
 		$OrderListStr = '';

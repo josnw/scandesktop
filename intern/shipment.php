@@ -31,7 +31,7 @@
 	// neue Pickliste erstellen 
 
  	print "Pickliste wird generiert ...";
-	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"]);
+ 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"],$_POST["pickListPlacePattern"]);
 	print " erstellt!<br>";
 	// Pickliste anzeigen
 	include("./intern/views/picklist_head_view.php");
