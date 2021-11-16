@@ -99,10 +99,10 @@
 	print "<pre>";
  	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key); 
 
- 	if (! is_array($ShopwareIdWebshop) ) {
- 		$salesChannels = [ $ShopwareIdWebshop ];
+ 	if (! is_array($shopware6IdWebshop) ) {
+ 		$salesChannels = [ $shopware6IdWebshop ];
  	} else {
- 		$salesChannels = $ShopwareIdWebshop;
+ 		$salesChannels = $shopware6IdWebshop;
  	}
  	foreach ($salesChannels as $salesChannel) {
  		$ordersApi = new shopware6Orders($shopwareApi, $salesChannel);
@@ -119,15 +119,15 @@
 				$facOrderData = $ordersApi->getOrderFacData($order['id']);
 				// print_r($facOrderData); exit;
 				if (isset($facOrderData["Customer"])) {
-					$facfile->facHead("KUN_0", $channelFacData['shopware']['Filiale']);
+					$facfile->facHead("KUN_0", $channelFacData['shopware6']['Filiale']);
 					$facfile->facData($facOrderData["Customer"]);
 				}
 				
-				$facfile->facHead("AUFST_KOPF", $channelFacData['shopware']['Filiale']);
+				$facfile->facHead("AUFST_KOPF", $channelFacData['shopware6']['Filiale']);
 				$facfile->facData($facOrderData["Head"]);
 				$rowCount++;
 				foreach($facOrderData["Pos"] as $facpos) {
-					$facfile->facHead("AUFST_POS",  $channelFacData['shopware']['Filiale']);
+					$facfile->facHead("AUFST_POS",  $channelFacData['shopware6']['Filiale']);
 					$facfile->facData($facpos);
 				}
 				

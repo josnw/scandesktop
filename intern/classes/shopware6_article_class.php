@@ -18,14 +18,14 @@ class Shopware6Articles {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
-		$this->ShopwareWebshopNumber = $ShopwareWebshopNumber;
+		$this->ShopwareWebshopNumber = $Shopware6WebshopNumber;
 		$this->ShopwarePriceGroup = $ShopwarePriceGroup;
-		$this->ShopwarePriceBase = $ShopwarePriceBase;
-		$this->ShopwareCurrencyId = $ShopwareCurrencyId;
-		$this->ShopwareStockList = $ShopwareStockList;
-		$this->ShopwareMediaFolderId = $ShopwareMediaFolderId;
+		$this->ShopwarePriceBase = $shopware6PriceBase;
+		$this->ShopwareCurrencyId = $shopware6CurrencyId;
+		$this->ShopwareStockList = $shopware6StockList;
+		$this->ShopwareMediaFolderId = $shopware6MediaFolderId;
 		$this->dynamic_stock_upload = $dynamic_stock_upload;
-		$this->shopwareCategoryCmsPageId = $shopwareCategoryCmsPageId;
+		$this->shopwareCategoryCmsPageId = $shopware6CategoryCmsPageId;
 		$this->api = $api;
 		return true;
 	}

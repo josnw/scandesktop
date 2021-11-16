@@ -25,14 +25,14 @@ class Shopware6Orders {
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		if ($salesChannelId == null) {
-			$this->ShopwareIdWebshop = $ShopwareIdWebshop;
+			$this->ShopwareIdWebshop = $shopware6IdWebshop;
 		} else {
 			$this->ShopwareIdWebshop = $salesChannelId;
 		}
 		
 		$this->ShopwarePriceGroup = $ShopwarePriceGroup;
-		$this->ShopwarePriceBase = $ShopwarePriceBase;
-		$this->ShopwareStockList = $ShopwareStockList;
+		$this->ShopwarePriceBase = $shopware6PriceBase;
+		$this->ShopwareStockList = $shopware6StockList;
 		$this->Shipping = $Shipping;
 		$this->channelFacData = $channelFacData;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
@@ -92,7 +92,7 @@ class Shopware6Orders {
 		$customerData["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
 		
 		$FacArray = [];
-		if (! $this->channelFacData['shopware']['GroupCustomer'] ) { 
+		if (! $this->channelFacData['shopware6']['GroupCustomer'] ) { 
 			$FacArray["Customer"] = $this->getFacCustomerData($customerData);
 		}
 		$orderData["billingAddress"] = $customerData;
@@ -237,7 +237,7 @@ class Shopware6Orders {
 				'KPRP' => 6,
 				'FBKZ' => 60,
 				'KZBE' => 6,
-				'QFRM' => $this->channelFacData['shopware']['formId'],
+				'QFRM' => $this->channelFacData['shopware6']['formId'],
 	            'QHWG' => 'EUR',
 	            'QZWG' => 'EUR'
 		];
@@ -479,14 +479,14 @@ class Shopware6Orders {
 		Split customer number Handling if differnent ranges in shopware used
 	*/
 	private function GetRealCustomerNumber($customerNumber) {
-		if ($this->channelFacData['shopware']['GroupCustomer'] ) {
-			if (! empty($this->channelFacData['shopware']['Customer'][$this->ShopwareIdWebshop])) {
-				$realCustomerNumber = $this->channelFacData['shopware']['Customer'][$this->ShopwareIdWebshop];
+		if ($this->channelFacData['shopware6']['GroupCustomer'] ) {
+			if (! empty($this->channelFacData['shopware6']['Customer'][$this->ShopwareIdWebshop])) {
+				$realCustomerNumber = $this->channelFacData['shopware6']['Customer'][$this->ShopwareIdWebshop];
 			} else {
-				$realCustomerNumber = $this->channelFacData['shopware']['CustomerNumber'];
+				$realCustomerNumber = $this->channelFacData['shopware6']['CustomerNumber'];
 			}
-		} elseif ((isset($this->channelFacData['shopware']['MappingNumber'])) and ($customerNumber < $this->channelFacData['shopware']['CustomerNumber'] )) {
-			$realCustomerNumber = $this->channelFacData['shopware']['MappingNumber'] + $customerNumber;
+		} elseif ((isset($this->channelFacData['shopware6']['MappingNumber'])) and ($customerNumber < $this->channelFacData['shopware']['CustomerNumber'] )) {
+			$realCustomerNumber = $this->channelFacData['shopware6']['MappingNumber'] + $customerNumber;
 		} else {
 			$realCustomerNumber = $customerNumber;
 		}			
