@@ -112,6 +112,7 @@
 			"department",
 			"countryId",
 			"country",
+			"phoneNumber",
 			"additionalAddressLine1",
 			"additionalAddressLine2"
 		],

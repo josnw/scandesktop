@@ -18,7 +18,7 @@ class Shopware6Articles {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
-		$this->ShopwareWebshopNumber = $Shopware6WebshopNumber;
+		$this->ShopwareWebshopNumber = $shopware6WebshopNumber;
 		$this->ShopwarePriceGroup = $ShopwarePriceGroup;
 		$this->ShopwarePriceBase = $shopware6PriceBase;
 		$this->ShopwareCurrencyId = $shopware6CurrencyId;
