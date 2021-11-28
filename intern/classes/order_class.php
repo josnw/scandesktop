@@ -379,9 +379,14 @@ class order {
 */
 	           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
 	            if (DEBUG) { 
-	            	print "<pre>".print_r($send,1)."</pre>";
+	            	print "<pre>".print_r($send,1).print_r($_SERVER,1)."</pre>";
 	            	$filename ="./docs/label_test.pdf";
 	            	print "<a href=$filename >$filename</a>".LR;
+	            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
+	            		$baseurl = pathinfo($_SERVER['HTTP_REFERER']);
+	            		$url = $baseurl['dirname'].ltrim($filename,".");
+	            		print $url;
+	            	}
 	            } else {
 		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
 		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
@@ -413,7 +418,13 @@ class order {
 	            		$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
 		            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
 		            	file_put_contents($filename , $response["result"]);
-	            		exec('lp -d '.$_SESSION["printerLabel"].' "'.$filename.'"'); 
+		            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
+		            	    $baseurl = pathinfo($_SERVER['HTTP_REFERER']);
+		            	    $url = $baseurl['dirname'].ltrim($filename,".");
+		            	    file_get_contents($url);
+		            	} else {
+	            		 exec('lp -d '.$_SESSION["printerLabel"].' "'.$filename.'"');
+		            	}
 		            }
 	            }
 	
@@ -616,8 +627,6 @@ class order {
 		
 		return $documentlist;
 	}
-	
-	
 	
 	public function genDeliver() {
 

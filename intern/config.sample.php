@@ -102,6 +102,7 @@ $parcelServices = [ 'dhl' => [ 'V01PAK' => 'DHL Paket', 'V62WP' => 'DHL Warenpos
 
 # Packstation
 $configPrinter["label"]["cupsname"] = "Dummy Label printer";
+$configPrinter["label"]["pyWebPrint"] = "localhost:8091";
 $configPrinter["a4"]["cupsname2"] = "Dummy A4 printer";
 
 $sender = "me and myself";
