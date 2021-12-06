@@ -1,3 +1,5 @@
+var currentElement = null;
+
 function wartemal(schalter) {
         var showme = document.getElementById("wait");
         if (schalter == 'on') {
@@ -15,10 +17,12 @@ function checkIn ( comboInput, e, typ, orderId, pickId, scanId, packId)   {
     if ( e.keyCode  == 13 ) {     
 		item = comboInput.value;
 		comboInput.value = '';
+		comboInput.disabled = "true";
+		currentElement = comboInput; 
        jQuery.ajax ({
 		'url' :    'itemcheckin.php',
          'data':    'itemId=' + encodeURIComponent(item) + '&typ=' + typ + '&orderId=' + orderId + '&pickId=' + pickId + '&scanId=' + scanId + '&packId=' + packId,
-         'success': function(msg) { populateResult(msg); }  
+         'success': function(msg ) { populateResult(msg ); }  
        }); 
     };  
 }
@@ -26,6 +30,8 @@ function checkIn ( comboInput, e, typ, orderId, pickId, scanId, packId)   {
 function populateResult(msg) {
 
   console.log( msg );
+  currentElement.removeAttribute("disabled");
+		
   result = JSON.parse(msg);	
   var outputdiv    = document.getElementById('OrderItem' + result.itemId + "-" + result.packId);
   var amountdiv    = document.getElementById('OrderItemPackAmount' + result.itemId + "-" +result.packId);
