@@ -106,8 +106,8 @@
  	}
  	foreach ($salesChannels as $salesChannel) {
  		$ordersApi = new shopware6Orders($shopwareApi, $salesChannel);
-		if (!empty($_GET['orderId'])) {
-			$orders["data"][] = [ "id" => $_GET['orderId'] ];
+		if (!empty($_POST['orderId'])) {
+			$orders["data"][] = [ "id" => $_POST['orderId'] ];
 		} else {
 			$orders = $ordersApi->getOrderList();
 		}
@@ -145,6 +145,10 @@
 				include("./intern/views/shopware_result_view.php");
 			} else {
 				print($filename."\n");
+			}
+			
+			if (!empty($_POST['orderId'])) {
+				break;
 			}
 		} else {
 			print "No Orders found!\n";
