@@ -33,7 +33,7 @@
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit">
 		<div class="DSFeld2">
-			<input type="text" name="orderNumber" value="" > Einzelbestellung neu laden (optional ID eintragen, unabhängig vom Status)
+			<input type="text" name="orderId" value="" > Einzelbestellung neu laden (optional ID eintragen, unabhängig vom Status)
 		</div>
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="getOrders" value="Bestellungen abholen" onclick="wartemal('on')"></div>
 	</div>

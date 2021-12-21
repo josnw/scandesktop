@@ -106,8 +106,8 @@
  	}
  	foreach ($salesChannels as $salesChannel) {
  		$ordersApi = new shopware6Orders($shopwareApi, $salesChannel);
-		if (!empty($_GET['orderNumber'])) {
-			$orders = [ "data" => [ "id" => $_GET['orderNumber'] ] ];
+		if (!empty($_GET['orderId'])) {
+			$orders["data"][] = [ "id" => $_GET['orderId'] ];
 		} else {
 			$orders = $ordersApi->getOrderList();
 		}
