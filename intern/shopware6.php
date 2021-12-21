@@ -106,7 +106,11 @@
  	}
  	foreach ($salesChannels as $salesChannel) {
  		$ordersApi = new shopware6Orders($shopwareApi, $salesChannel);
-		$orders = $ordersApi->getOrderList();
+		if (!empty($_GET['orderNumber'])) {
+			$orders = [ "id" => $_GET['orderNumber'] ];
+		} else {
+			$orders = $ordersApi->getOrderList();
+		}
 		
 		if (count($orders['data']) > 0) {
 			$facfile = new myfile($docpath."/ORDERS_SW".time().".FAC","new");
