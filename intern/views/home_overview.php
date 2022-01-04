@@ -41,8 +41,11 @@
              print "<div class=DSFeld2>".$stat["qna1"]."</div>";
              print "<div class=DSFeld2>".$stat["cnt"]."</div>";
              print "<div class=DSFeld1>";
+             print '<input type=hidden name="pickid" value="'.$stat["minpickid"].'">';
              print '<input type=hidden name="penr" value="'.$stat["fenr"].'">';
-             //print '<input type="submit" name="resetPicklist" value="reset Picklist">';
+             if ($_SESSION['level'] > 5) {
+             	print '<input type="submit" name="resetPicklist" value="reset Picklist">';
+             }
              print "</div></form>";
          }
      

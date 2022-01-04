@@ -252,6 +252,15 @@ class picklist {
 		}
 	}	
 
+	public function resetPickList($penr) {
+		$pickList_sql = "update auftr_kopf set fprn = null, fenr = null, ktou = null
+							where fprn = :pickId and fenr = :penr and ftyp = 2 and ktos <= 1";
+		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+		$pickList_qry->bindValue(':pickId', $this->pickListNumber );
+		$pickList_qry->bindValue(':penr', $penr );
+		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	}
+	
 	private function checkInvoice($orderId,$orderDate) {
 		
 		$payment_sql = "select fnum from archiv.auftr_pos p5

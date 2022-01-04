@@ -95,7 +95,6 @@ $Shipping['fromArticle'] = '01';
 $Shipping['toArticle'] = '05';
 
 // Scandesktop 
-
 $parcelServices = [ 'dhl' => [ 'V01PAK' => 'DHL Paket', 'V62WP' => 'DHL Warenpost' ],
 		'gls' => [ null => '']
 ];
@@ -104,6 +103,10 @@ $parcelServices = [ 'dhl' => [ 'V01PAK' => 'DHL Paket', 'V62WP' => 'DHL Warenpos
 $configPrinter["label"]["cupsname"] = "Dummy Label printer";
 $configPrinter["label"]["pyWebPrint"] = "localhost:8091";
 $configPrinter["a4"]["cupsname2"] = "Dummy A4 printer";
+
+$configStorePlace["Komplett"] = ".*";
+$configStorePlace["Lager 1"] = ".*L1$";
+
 
 $sender = "me and myself";
 $sender_email = "me@mydomain.xyz";

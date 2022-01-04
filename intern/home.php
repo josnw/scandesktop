@@ -9,6 +9,12 @@
  include './intern/autoload.php';
  include ("./intern/config.php");
  
+ if ( (isset($_POST["resetPicklist"]) or (isset($argv) and in_array("/resetPicklist", $argv))) and 
+ 	  ($_SESSION['level'] > 5) ) {
+ 	$pickListData = new picklist($_POST["pickid"]);
+ 	$pickListData->resetPicklist($_POST["penr"]);
+ }
+ 
  $updInfo = new myFile("./intern/updateinfo.txt","read");
  
  while($line = $updInfo->readCSV()) {
