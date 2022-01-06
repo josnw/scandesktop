@@ -62,7 +62,7 @@ class Shopware6Orders {
 		$payload["filter"][0]["value"] = $orderId;
 		
 		$response = $this->ShopwareApiClient->post('search/order/', $payload );
-		//print_r($response); exit;
+
 		$order = $response["data"][0]["attributes"];
 		$order["orderId"] = $response["data"][0]["id"];
 		foreach ($response["data"][0]["relationships"] as $type => $data) {
@@ -79,6 +79,7 @@ class Shopware6Orders {
 				$order[$data["data"][0]["type"]][ $data["id"] ] = $data;
 			}
 		}
+		$order["paymentId"] = $this->getPaymentId($orderId);
 		//print_r($order); exit;
 		return $order;
 	}
@@ -106,7 +107,6 @@ class Shopware6Orders {
 		$this->fpos = 0;
 		$FacArray["Pos"] = [];
 		$orderItems = $orderData["order_line_item"];
-		$orderItems = $orderData["order_line_item"];
 		foreach ($orderItems as $item) {
 			print "Produkte";
 			$item["product"] = $orderData["product"][ $item["attributes"]["productId"]] ;
@@ -114,6 +114,7 @@ class Shopware6Orders {
 			$item["customernumber"] = $orderData["billingAddress"]["order_customer"]["attributes"]["customerNumber"];
 			$item["orderId"] = $orderData["orderId"];
 			$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
+			$item["paymentId"] = $orderData["paymentId"];
 			
 			$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
 			
@@ -148,6 +149,15 @@ class Shopware6Orders {
 			// throw new Exception("RestAPI setOrderState No success: ".$orderId."->".$state);			
 		}
 		
+	}
+	
+	public function getPaymentId($orderId) {
+	    $response = $this->ShopwareApiClient->get('order/'.$orderId.'/transactions');
+	    if (!empty($response["data"][0]["attributes"]["customFields"]["swag_paypal_resource_id"])) {
+	       return $response["data"][0]["attributes"]["customFields"]["swag_paypal_resource_id"];
+	    } else {
+	        return null;
+	    }
 	}
 	
 	public function setOrderDeliveryState($orderId, $trackinCode, $state) {
@@ -268,6 +278,7 @@ class Shopware6Orders {
 		$facHead['QTXC'] = [
 				'SW_ORDER_ID='. $data["orderId"],
 				'SW_EXTERNAL_ORDER_ID='. $data["externalOrderId"],
+		        'SW_PAYMENT_ID='. $data["paymentId"],
 		];
 		
 		foreach($data["customFields"] as $key => $customField) {
@@ -349,7 +360,7 @@ class Shopware6Orders {
 			'FART' => 1,
 			'XXAK' => '',
 			'XYAK' => '',
-			'QNVE' => $data["transactionId"],
+			'QNVE' => $data["paymentId"],
 			'ALGO' => 'HL',
 			'APKZ' => $article->productData[0]['apkz'],
 			'ASMN' => 1,
@@ -380,6 +391,7 @@ class Shopware6Orders {
 				'SW_ORDER_ID='. $data["orderId"],
 				'SW_ORDER_ITEM_ID='. $data["id"],
 				'SW_EXTERNAL_ORDER_ID='. $data["externalOrderId"],
+		        'SW_PAYMENT_ID='. $data["paymentId"],
 		];
 		$this->fpos++;
 		

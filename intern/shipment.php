@@ -16,7 +16,7 @@
  }
 
  include './intern/autoload.php';
-
+ 
  // Funktionsmenü Pickliste
  $userData = new user($_SESSION["uid"]);
  $userPickData = $userData->getPickLists('0,1');
@@ -33,12 +33,14 @@
  	print "Pickliste wird generiert ...";
  	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"],$configStorePlace[$_POST["pickListPlacePattern"]]);
 	print " erstellt!<br>";
+	Proto("Shipment: Picklist erstellt");
 	// Pickliste anzeigen
 	include("./intern/views/picklist_head_view.php");
 	include("./intern/views/picklist_pos_view.php");
 	
  } elseif ((isset($_POST["finishingOrder"])) )  {
     // Bestellung abschließen
+ 	Proto("Shipment: Bestellung wird abgeschlossen ".$_POST["orderId"]);
 	if ($_POST["scanId"] == $_SESSION['ItemScanKey']) {
 		$packOrder = new order($_POST["orderId"]);
 		
@@ -68,13 +70,14 @@
 		$response = $packOrder->exportShipping();
 		
 		if ($response["status"]) {
-		
+			Proto("Shipment: Shipment Label generiert ".$response["shippingId"]);
 		    $delivery = $packOrder->genDeliver();
 		    $labelLink = $response["link"];
 		    $shippingId = $response["shippingId"];
 		    include("./intern/views/order_finished_view.php");
 		    
 		} else {
+			Proto("Shipment: Fehler beim Shipment Label ".$response["error"]);
 		    $orderPacked = $packOrder->orderHeader["ktos"];
 		    $errorList = $response["error"];
 		    $packs = $packOrder->calcPacks(30);
@@ -93,6 +96,7 @@
 		print "<error>Fehler bei der Zuordnung der ScanID!</error>";
 	}
  } elseif ((isset($_POST["labelRePrint"])) )  {
+ 	Proto("Shipment: ReLabel ".$_POST["orderId"]);
  	$errorList = "lableReprint!";
  	$packOrder = new order($_POST["orderId"]);
  	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
@@ -111,7 +115,7 @@
 		} else {
 			$_SESSION["pickid"] = 0;	
 		}
-
+		Proto("Shipment: Öffne Picklist ".$_SESSION["pickid"]);
 		$pickListData = new picklist($_SESSION["pickid"]);
 		
 		if ((isset($_POST["removeOrder"])) and ($_POST["removeOrder"] == "Zurückstellen")) {
@@ -122,6 +126,7 @@
 		
 		
 		if ((isset($_POST["pickListSrvPrint"])) and ($_POST["pickListSrvPrint"] == "Pickliste Serverprint")) {
+			Proto("Shipment: Druck Picklist ".$_SESSION["pickid"]);
 			$fp = fopen("./docs/".$picList.$_SESSION["pickid"].".txt",w);
 			fwrite( $fp, "Pickliste ".date("Y-m-d")." ".$_SESSION['name']."\n \n" );
 			fwrite ($fp, str_pad("Artikel",12," ", STR_PAD_RIGHT)."  ". str_pad("EAN",20," ", STR_PAD_RIGHT).str_pad("Lager",20," ", STR_PAD_LEFT).str_pad("Menge",16," ", STR_PAD_LEFT)."\n");
@@ -149,7 +154,8 @@
 			$sort1 = $_POST['sortorder'];
 
 			$packOrder = $pickListData->getNextPackOrder($sort1);
-			 if (count($pickListData->getOrderList("0,1,2")) == 0) {
+			Proto("Shipment: Bestellung zunm Packen geöffnet ".$packOrder->orderHeader["fnum"]);
+			if (count($pickListData->getOrderList("0,1,2")) == 0) {
 				unset($_SESSION["pickid"]); 
 				$pickListData->setPickStatus(3);
 				include("./intern/views/picklist_generate_view.php");
@@ -197,6 +203,8 @@
 					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
 				}
 				$errorList = "LableList:".print_r($shippingDocuments,1);
+				Proto("Shipment: LabelCheck für ".$packOrder->orderHeader["fnum"]);
+				
 				include("./intern/views/order_labelcheck_view.php");
 
 			 }

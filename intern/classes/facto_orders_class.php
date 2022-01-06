@@ -111,6 +111,8 @@ class factoOrders {
 	}
 	
 	public function duplicateOrder( $newOrderTyp,  $articleList, $overrides = NULL, $setInOrder = true) {
+		include ("./intern/config.php");
+		include ("./intern/function.php");
 		if( (!isset($this->head)) or (!is_array($this->head)) ) {
 			$this->readDBHead();
 			$this->readDBPos();
@@ -156,6 +158,9 @@ class factoOrders {
 
 		$this->newFnum = $result['fnum'];
 		$this->newFblg = $result['fblg'];
+
+		Proto("Shipping: Erstelle Beleg ".$this->newFnum);
+		
 		
 		// Duplicate Position
 

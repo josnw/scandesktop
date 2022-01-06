@@ -367,77 +367,80 @@ class order {
 	
 	public function exportShipping($parcelData = null) {
 	    
-	    include ("./intern/config.php");
-	    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
-
-	    $orderId = $this->checkShopwareOrderId('X');
-	    
-/*		foreach ($parcelData as $pack) {
-			print $pack["parcelService"]."/".$pack["packWeight"]."<br>";
-			if ($pack["parcelService"] == "DHL") {
-				$dhl["Gewicht"] = $pack["packWeight"];
-*/
-	           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
-	            if (DEBUG) { 
-	            	print "<pre>".print_r($send,1).print_r($_SERVER,1)."</pre>";
-	            	$filename ="./docs/label_test.pdf";
-	            	print "<a href=$filename >$filename</a>".LR;
-	            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
-	            		$baseurl = pathinfo($_SERVER['HTTP_REFERER']);
-	            		$url = $baseurl['dirname'].ltrim($filename,".");
-	            		print $url;
-	            	}
-	            } else {
-		            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
-		            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
-		            //print "<br>".json_encode($send)."<br>";
-		            print "Create Shipment...";
-		            //print "<pre>".print_r($response,1)."</pre>";
-		            if ( isset($response["errors"]) ) {
-		                $errorList = '';
-		                foreach ($response["errors"] as $error) {
-		                    $errorList .= $error["detail"]."\n";
-		                }
-	                    return ["status" => false, "error" => $errorList ]; 
-		            } elseif ( isset($response["shipmentsOperationResults"][0]["errorMessages"]) ) {
-		            	$errorList = '';
-		            	foreach ($response["shipmentsOperationResults"][0]["errorMessages"] as $error) {
-		            		$errorList .= $error."\n";
-		            	}
-		            	return ["status" => false, "error" => $errorList ];
-		            }
-
-		            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipmentIds"][0];
-		            
-		            $response = $api->get('pickware-shipping-shipment/'.$shippingId.'/documents');
+		try {
+		    include ("./intern/config.php");
+		    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
 	
-		            foreach ($response["data"] as $document) {
-		            	$documentId = $document["id"];
-		            	$deepLinkId = $document["attributes"]["deepLinkCode"];
-		
-	            		$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
-		            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
-		            	file_put_contents($filename , $response["result"]);
+		    $orderId = $this->checkShopwareOrderId('X');
+		    
+	/*		foreach ($parcelData as $pack) {
+				print $pack["parcelService"]."/".$pack["packWeight"]."<br>";
+				if ($pack["parcelService"] == "DHL") {
+					$dhl["Gewicht"] = $pack["packWeight"];
+	*/
+		           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
+		            if (DEBUG) { 
+		            	print "<pre>".print_r($send,1).print_r($_SERVER,1)."</pre>";
+		            	$filename ="./docs/label_test.pdf";
+		            	print "<a href=$filename >$filename</a>".LR;
 		            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
-		            	    $baseurl = pathinfo($_SERVER['HTTP_REFERER']);
-		            	    $url = $baseurl['dirname'].ltrim($filename,".");
-		            	    file_get_contents($url);
-		            	} else {
-	            		 exec('lp -d '.$_SESSION["printerLabel"].' "'.$filename.'"');
+		            		$baseurl = pathinfo($_SERVER['HTTP_REFERER']);
+		            		$url = $baseurl['dirname'].ltrim($filename,".");
+		            		print $url;
 		            	}
-		            }
-	            }
+		            } else {
+			            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
+			            $response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
+			            //print "<br>".json_encode($send)."<br>";
+			            print "Create Shipment...";
+			            //print "<pre>".print_r($response,1)."</pre>";
+			            if ( isset($response["errors"]) ) {
+			                $errorList = '';
+			                foreach ($response["errors"] as $error) {
+			                    $errorList .= $error["detail"]."\n";
+			                }
+		                    return ["status" => false, "error" => $errorList ]; 
+			            } elseif ( isset($response["shipmentsOperationResults"][0]["errorMessages"]) ) {
+			            	$errorList = '';
+			            	foreach ($response["shipmentsOperationResults"][0]["errorMessages"] as $error) {
+			            		$errorList .= $error."\n";
+			            	}
+			            	return ["status" => false, "error" => $errorList ];
+			            }
 	
-	/*		}
-		}
-*/
-		$parcelqry = "update auftr_kopf set ktos=2 where fblg = :BelegID and ktos = 1 ";
-		$parcel_qry = $this->pg_pdo->prepare($parcelqry);
-		$parcel_qry->bindValue(':BelegID',$this->belegId);
-		$parcel_qry->execute() or die (print_r($parcel_qry->errorInfo()));
-
-		return ["status" => true, "link" => $filename, "shippingId" => $shippingId];
+			            $shippingId =  $response["successfullyOrPartlySuccessfullyProcessedShipmentIds"][0];
+			            
+			            $response = $api->get('pickware-shipping-shipment/'.$shippingId.'/documents');
 		
+			            foreach ($response["data"] as $document) {
+			            	$documentId = $document["id"];
+			            	$deepLinkId = $document["attributes"]["deepLinkCode"];
+			
+		            		$response = $api->get('pickware-document/'.$documentId.'/contents?deepLinkCode='.$deepLinkId );
+			            	$filename ="./docs/label_".$this->belegId."_".uniqid().".pdf";
+			            	file_put_contents($filename , $response["result"]);
+			            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
+			            	    $baseurl = pathinfo($_SERVER['HTTP_REFERER']);
+			            	    $url = $baseurl['dirname'].ltrim($filename,".");
+			            	    file_get_contents($url);
+			            	} else {
+		            		 exec('lp -d '.$_SESSION["printerLabel"].' "'.$filename.'"');
+			            	}
+			            }
+		            }
+		
+		/*		}
+			}
+	*/
+			$parcelqry = "update auftr_kopf set ktos=2 where fblg = :BelegID and ktos = 1 ";
+			$parcel_qry = $this->pg_pdo->prepare($parcelqry);
+			$parcel_qry->bindValue(':BelegID',$this->belegId);
+			$parcel_qry->execute() or die (print_r($parcel_qry->errorInfo()));
+	
+			return ["status" => true, "link" => $filename, "shippingId" => $shippingId];
+		} catch (Exception $e) {
+			return ["status" => false, "error" => $e->getMessage()];
+		}
 		//$dhlfile->close();		
 
 	}
