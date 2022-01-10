@@ -66,7 +66,7 @@
 		 }
 	    ?>
 		</div>
-			<div class="DSFeld2 right" style="background: #AA5555;"><input id="finishingOrderBtn" type="submit" name="finishingOrder" value="Versandlabel erstellen"></div>
+			<div class="DSFeld2 right" style="background: #AA5555;"><input id="finishingOrderBtn" type="submit" name="finishingOrder" onclick="this.style.display = 'none';" value="Versandlabel erstellen"></div>
 		</div>
 	</form>
 

@@ -62,7 +62,6 @@ if (isset($_GET['menu']) and strlen($_GET['menu']) > 0) {
 }
 ?>
 </main>
-
 <footer>
 <div id="infobox"><?php if (!empty($_SESSION["infobox"])) { print $_SESSION["infobox"]; } ?></div>
 <div><?php print date("Y-m-d h:i"); ?></div>

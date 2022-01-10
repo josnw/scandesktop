@@ -636,8 +636,9 @@ class order {
 		$override = [];
 		$articleList = [];
 		
-		$cntqry  = "select distinct arnr from auftr_pos 
-						where fblg = :BelegID and fmgl > 0 and fmgl > coalesce(fmgr,0) ";
+		$cntqry  = "select distinct arnr from auftr_pos pa
+						where fblg = :BelegID and fmgl > 0 and fmgl > coalesce(fmgr,0) 
+						 and fmgl > coalesce((select sum(fmge) from auftr_pos pl where pa.fpid = pl.fpid and pl.ftyp = 4),0)";
 		$cnt_qry = $this->pg_pdo->prepare($cntqry);
 		$cnt_qry->bindValue(':BelegID', $this->belegId);
 		$cnt_qry->execute() or die (print_r($cnt_qry->errorInfo()));

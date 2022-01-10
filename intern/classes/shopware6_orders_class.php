@@ -264,7 +264,7 @@ class Shopware6Orders {
 		
 
 		$facHead['QTXK'] = [
-				'Payment: '.$data["payment"]["type"]["attributes"]["name"],
+				'Zahlung per '.$data["payment"]["type"]["attributes"]["name"],
 //				'Payment ID: '.$data["transactionId"],
 //				'Versand: '.$data["dispatch"]["name"],
 		];
@@ -279,6 +279,7 @@ class Shopware6Orders {
 				'SW_ORDER_ID='. $data["orderId"],
 				'SW_EXTERNAL_ORDER_ID='. $data["externalOrderId"],
 		        'SW_PAYMENT_ID='. $data["paymentId"],
+				'SW_PAYMENT_NAME='.$data["payment"]["type"]["attributes"]["name"],
 		];
 		
 		foreach($data["customFields"] as $key => $customField) {

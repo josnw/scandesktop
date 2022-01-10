@@ -3,7 +3,7 @@
 
  if (isset($_COOKIE['packstation'])) {
 	//print "Cookie found ...";
-	$printer = unserialize(base64_decode($_COOKIE['packstation']));
+ 	$printer = unserialize(base64_decode($_COOKIE['packstation']));
 	$_SESSION["printerLabel"] = $printer["printerLabel"];
 	$_SESSION["printerA4"] = $printer["printerA4"];
 	$_SESSION["infobox"] = "Etiketten Drucker: ".$configPrinter['label'][$_SESSION["printerLabel"]]."<br>Picklisten Drucker: ".$configPrinter['a4'][$_SESSION["printerA4"]];
@@ -43,14 +43,16 @@
  	Proto("Shipment: Bestellung wird abgeschlossen ".$_POST["orderId"]);
 	if ($_POST["scanId"] == $_SESSION['ItemScanKey']) {
 		$packOrder = new order($_POST["orderId"]);
+		Proto("Shipment: ".$_POST["orderId"]. "Paketanzahl  _POST: ".count($_POST["packWeight"]));
 		
-		if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
-			$parcelData = []; 
+		//if (count($_POST["packWeight"]) == count($_POST["parcelService"])) {
+			//$parcelData = [];
+			$_SESSION["shipBlueprint"]["parcels"] = [];
 			for($i = 0; $i < count($_POST["packWeight"]); $i++) {
 				$_SESSION["shipBlueprint"]["parcels"][$i]["weightOverwrite"]["value"] = $_POST["packWeight"][$i];
 				$_SESSION["shipBlueprint"]["parcels"][$i]["weightOverwrite"]["unit"] = "kg";
 			}
-		}
+		//}
 		
 
 		$_SESSION["shipBlueprint"]["receiverAddress"]["firstName"] = $_POST["qna1"];
