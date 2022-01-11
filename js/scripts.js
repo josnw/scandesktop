@@ -17,7 +17,7 @@ function checkIn ( comboInput, e, typ, orderId, pickId, scanId, packId)   {
     if ( e.keyCode  == 13 ) {     
 		item = comboInput.value;
 		comboInput.value = '';
-		comboInput.disabled = "true";
+		//comboInput.disabled = "true";
 		currentElement = comboInput; 
        jQuery.ajax ({
 		'url' :    'itemcheckin.php',
@@ -30,7 +30,7 @@ function checkIn ( comboInput, e, typ, orderId, pickId, scanId, packId)   {
 function populateResult(msg) {
 
   console.log( msg );
-  currentElement.removeAttribute("disabled");
+  //currentElement.removeAttribute("disabled");
   FocusOnInput("scanid");
 		
   result = JSON.parse(msg);	
