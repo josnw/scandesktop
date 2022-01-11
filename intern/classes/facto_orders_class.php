@@ -112,7 +112,7 @@ class factoOrders {
 	
 	public function duplicateOrder( $newOrderTyp,  $articleList, $overrides = NULL, $setInOrder = true) {
 		include ("./intern/config.php");
-		include ("./intern/function.php");
+		include ("./intern/functions.php");
 		if( (!isset($this->head)) or (!is_array($this->head)) ) {
 			$this->readDBHead();
 			$this->readDBPos();
