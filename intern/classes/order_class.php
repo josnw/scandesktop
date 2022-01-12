@@ -690,7 +690,7 @@ class order {
 	public function setOrderDeliveryState($trackingCode, $state) {
 
 		include ("./intern/config.php");
-		include ("./intern/functions.php");
+	//	include ("./intern/functions.php");
 		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
 		
 		$params = [
