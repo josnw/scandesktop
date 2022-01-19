@@ -378,7 +378,7 @@ class order {
 				if ($pack["parcelService"] == "DHL") {
 					$dhl["Gewicht"] = $pack["packWeight"];
 	*/
-		           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
+		           $send = [ "shipmentBlueprint" =>  ["shipmentBlueprint" => $_SESSION["shipBlueprint"]] , "orderId" => $orderId] ;
 		            if (DEBUG) { 
 		            	print "<pre>".print_r($send,1).print_r($_SERVER,1)."</pre>";
 		            	$filename ="./docs/label_test.pdf";

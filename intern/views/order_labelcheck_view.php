@@ -1,7 +1,7 @@
 <div id="OrderFinished"  <?php if($orderPacked >= 1) {print 'style="display:block;"'; } ?> >
 <div class="windowheadline" onmousedown="startDrag(this.parentNode);"></div>
 	<h1>Sendungsdaten</h1>
-    <?php if(!empty($errorList)) { print($errorList); } ?>
+    <?php if(!empty($errorList)) { print("<error>".$errorList."</error>"); } ?>
     <?php if(!empty($shippingDocuments)) { print "Label bereits erstellt!\n"; include("./intern/views/order_labelreprint_view.php"); } ?>
 	<form action="#" method="POST" enctype="multipart/form-data" >
 		<input type = hidden name="orderId" value="<?php  print($packOrder->orderHeader["fblg"]); ?>"  required>
