@@ -343,7 +343,8 @@ class order {
 	    $orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 	    
 	    //$response = $api->post('_action/order/'.$orderId.'/create-shipment-blueprint');
-	    $response = $api->post('_action/pickware-shipping/shipment/create-shipment-blueprint-for-order',['orderId' => $orderId]);
+	    $response1 = $api->post('_action/pickware-shipping/shipment/create-shipment-blueprint-for-order',['orderId' => $orderId]);
+	    $response = $response1["shipmentBlueprint"];
 	    $response["senderAddress"]["firstName"] = $_SESSION["senderAddress"]["firstName"];
 	    $response["senderAddress"]["lastName"] = $_SESSION["senderAddress"]["lastName"];
 	    $response["senderAddress"]["street"] = $_SESSION["senderAddress"]["street"];
@@ -352,18 +353,18 @@ class order {
 	    $response["senderAddress"]["zipCode"] = $_SESSION["senderAddress"]["zipCode"];
 	    $response["senderAddress"]["countryIso"] = $_SESSION["senderAddress"]["countryIso"];
 	    
-	    unset($response["codAmount"]);
-	    unset($response["identCheckGivenName"]);
-	    unset($response["identCheckSurname"]);
-	    unset($response["identCheckDateOfBirth"]);
-	    unset($response["identCheckMinimumAge"]);
-	    unset($response["endorsement"]);
-	    unset($response["frankatur"]);
-	    unset($response["incotermEurope"]);
-	    unset($response["incotermInternational"]);
+	    unset($response["shipmentConfig"]["codAmount"]);
+	    unset($response["shipmentConfig"]["identCheckGivenName"]);
+	    unset($response["shipmentConfig"]["identCheckSurname"]);
+	    unset($response["shipmentConfig"]["identCheckDateOfBirth"]);
+	    unset($response["shipmentConfig"]["identCheckMinimumAge"]);
+	    unset($response["shipmentConfig"]["endorsement"]);
+	    unset($response["shipmentConfig"]["frankatur"]);
+	    unset($response["shipmentConfig"]["incotermEurope"]);
+	    unset($response["shipmentConfig"]["incotermInternational"]);
 	    
 	    
-	    return $response["shipmentBlueprint"];
+	    return $response;
 	}
 	
 	public function exportShipping($parcelData = null) {
@@ -379,15 +380,16 @@ class order {
 				if ($pack["parcelService"] == "DHL") {
 					$dhl["Gewicht"] = $pack["packWeight"];
 	*/
-		           $send = [ "shipmentBlueprint" =>  ["shipmentBlueprint" => $_SESSION["shipBlueprint"]] , "orderId" => $orderId] ;
+		           $send = [ "shipmentBlueprint" =>  $_SESSION["shipBlueprint"] , "orderId" => $orderId] ;
 		            if (DEBUG) { 
+		            	$response = $api->post('_action/pickware-shipping/shipment/create-shipment-for-order', $send );
 		            	print "<pre>".print_r($send,1).print_r($_SERVER,1)."</pre>";
 		            	$filename ="./docs/label_test.pdf";
 		            	print "<a href=$filename >$filename</a>".LR;
 		            	if ($_SESSION["printerLabel"] == 'pyWebPrint') {
 		            		$baseurl = pathinfo($_SERVER['HTTP_REFERER']);
 		            		$url = $baseurl['dirname'].ltrim($filename,".");
-		            		print $url;
+		            		print $url;		            		
 		            	}
 		            } else {
 			            //$response = $api->post('_action/order/'.$orderId.'/create-shipment', $send);
