@@ -359,7 +359,8 @@ class order {
 	    unset($response["identCheckMinimumAge"]);
 	    unset($response["endorsement"]);
 	    unset($response["frankatur"]);
-	    unset($response["incoterm"]);
+	    unset($response["incotermEurope"]);
+	    unset($response["incotermInternational"]);
 	    
 	    
 	    return $response["shipmentBlueprint"];
