@@ -362,7 +362,7 @@ class order {
 	    unset($response["incoterm"]);
 	    
 	    
-	    return $response;
+	    return $response["shipmentBlueprint"];
 	}
 	
 	public function exportShipping($parcelData = null) {
