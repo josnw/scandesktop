@@ -47,10 +47,15 @@ function Proto($logdata) {
 
  include './intern/autoload.php';
  include ("./intern/config.php");
-
- $log = new myfile("log/Protokoll".date("Y-m").".log","append");
+ $filename = "log/Protokoll".date("Y-m").".log";
+ file_exists($filename) ? $newFile = false : $newFile = true;
+  
+ $log = new myfile($filename,"append");
  $log->writeLn(date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata);
  $log->close();
+ 
+ if ($newFile) chmod($filename, 0664);
+ 
 
 }
 
