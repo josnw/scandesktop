@@ -2,7 +2,8 @@
 <?php
  include './intern/autoload.php';
  include ("./intern/config.php");
-
+ include_once ("./intern/functions.php");
+ 
  if (isset($_POST["addArticles"]) or (isset($argv) and in_array("/addArticles", $argv))) {
      
      if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {

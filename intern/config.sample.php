@@ -48,6 +48,7 @@ $shopware6WebshopNumber = 2;
 $shopware6PriceBase = 'Bruttopreis 1';
 $shopware6IdWebshop = 1;  // SW% = ShopID; SW6 = SalesChannelID, optionaly as array
 $shopware6StockList = [0,36];
+$shopware6StockCheckOrders = true;
 
 $shopware6CurrencyId = '5235734534790347953475037';
 $shopware6MediaFolderId = '342ß573490789728977897657589';

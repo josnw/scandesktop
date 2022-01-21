@@ -17,13 +17,16 @@ class Shopware6Articles {
 	public function __construct($api = null) {
 		
 		include ("./intern/config.php");
+		
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->ShopwareWebshopNumber = $shopware6WebshopNumber;
 		$this->ShopwarePriceGroup = $ShopwarePriceGroup;
 		$this->ShopwarePriceBase = $shopware6PriceBase;
 		$this->ShopwareCurrencyId = $shopware6CurrencyId;
 		$this->ShopwareStockList = $shopware6StockList;
+		$this->ShopwareStockCheckOrders = $shopware6StockCheckOrders;
 		$this->ShopwareMediaFolderId = $shopware6MediaFolderId;
+		$this->ShopwareDynamicExternalStock = $shopware6DynamicStock;
 		$this->dynamic_stock_upload = $dynamic_stock_upload;
 		$this->shopwareCategoryCmsPageId = $shopware6CategoryCmsPageId;
 		$this->api = $api;
@@ -78,7 +81,7 @@ class Shopware6Articles {
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 			$cnt++;
 			$article = new product($frow["arnr"]);
-			$stocks = $article->getStocks();
+			$stocks = $article->getStocks($this->ShopwareStockCheckOrders);
 			
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "<br/>\nStockList: ".print_r($this->ShopwareStockList,1)."<br/>";
@@ -90,8 +93,9 @@ class Shopware6Articles {
 				foreach($stocks as $stockNumber => $stockAmount ) { 
 					if (in_array( $stockNumber , $this->ShopwareStockList)) {
 						$stockSum += $stockAmount;
-					}
+					} 
 				}
+				
 			}
 			$prices = $article->getPrices( true );
 
@@ -162,24 +166,44 @@ class Shopware6Articles {
 	        $artData = $article->getResultList()[0];
 	        
 	        $stocks = $article->getStocks();
+	        $orders = $article->getOrderSum();
 	        
 	        $this->debugData('StockList:'.$frow["arnr"], $stocks);
 	        
-	        $stockSum = 0;
+	        $stockSum = 0; $orderSum = 0; $orderCnt = 0;
 	        if ($frow["wson"] == 1) {
 	            foreach($stocks as $stockNumber => $stockAmount ) {
 	                if (in_array( $stockNumber , $this->ShopwareStockList)) {
 	                    $stockSum += $stockAmount;
 	                }
+	                if (!empty($orders[$stockNumber])) {
+	                	$orderSum += $orders[$stockNumber];
+	                }
+	                
 	            }
-	            
-	            // 
+
 	            if (!empty($this->dynamic_stock_upload["divisor"]) ) {
 	            	$stockSum = floor($stockSum / $this->dynamic_stock_upload["divisor"]);
 	            }
-
-	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > $this->dynamic_stock_upload["max"])) {
-	            	$stockSum = $this->dynamic_stock_upload["max"];
+	            
+	            foreach($stocks as $stockNumber => $stockAmount ) {
+	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
+            			(! in_array( $stockNumber , $this->ShopwareStockList)) ) {
+	            				
+            				if ( ($stockSum <= $orderSum) and ($orderCnt > 0) ) {
+            					if (!empty($this->dynamic_stock_upload["divisor"]) ) {
+            						$stockSum = floor($stockAmount / $this->dynamic_stock_upload["divisor"]);
+            					} else {
+            						$stockSum += $stockAmount;
+            					}
+            					Proto($frow["arnr"]." dynamic external stock used (".$stockAmount." ME)");
+            				}
+	            	}
+	            }
+	            
+	            //Verfügbarer Bestand in Shopware ist Bestand - offene Aufträge, deshalb Limit erhöhen, falls Bestand vorhanden 
+	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > ($this->dynamic_stock_upload["max"] + $orderSum) )) {
+	            	$stockSum = $this->dynamic_stock_upload["max"] + $orderSum;
 	            }
 	            
 	            

@@ -16,6 +16,8 @@ class product {
 	private $productPictures;
 	private $productDataTradeByteFormat;
 	private $productStckListData;
+	private $productStocks;
+	private $productOrderSum;
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
@@ -250,20 +252,34 @@ class product {
 			}
 			return $this->productPictures;
 	}	
+
+	private function getOrderSumFromDB() {
+		
+		$aqry  = "select ifnr,cast(sum((fmge-COALESCE(fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge, count(distinct fblg) as fcnt from auftr_pos b inner join art_0 a using (arnr)
+					where ftyp = 2 and arnr = :aamr
+					group by ifnr";
+		$a_qry = $this->pg_pdo->prepare($aqry);
+		$a_qry->bindValue(':aamr',$this->productId);
+		$a_qry->execute() or die (print_r($a_qry->errorInfo()));
+		$affmge = [];
+		while ( $row = $a_qry->fetch( PDO::FETCH_ASSOC )) {
+			$orderData[$row['ifnr']]['fmge'] = $row['fmge'];
+			$orderData[$row['ifnr']]['fcnt'] = $row['fcnt'];
+		}
+		$this->productOrderSum = $orderData;
+	}
+	
+	public function getOrderSum() {
+		if (! isset($this->productOrderSum) or $this->productOrderSum == NULL ) {
+			$this->getStocksFromDB();
+		}
+		return $this->getOrderSumFromDB;
+	}	
 	
 	private function getStocksFromDB($checkOrders = true) {
 
 		if ($checkOrders ) {
-			$aqry  = "select ifnr,cast(sum((fmge-COALESCE(fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge from auftr_pos b inner join art_0 a using (arnr)
-						where ftyp = 2 and arnr = :aamr
-						group by ifnr";
-			$a_qry = $this->pg_pdo->prepare($aqry);
-			$a_qry->bindValue(':aamr',$this->productId);
-			$a_qry->execute() or die (print_r($a_qry->errorInfo()));
-			$affmge = [];
-			while ( $row = $a_qry->fetch( PDO::FETCH_ASSOC )) {
-				$affmge[$row['ifnr']] = $row['fmge'];
-			}
+			$affmge = $this->getOrderSum();
 		}
 		
 		if ($this->productData[0]["aart"] == 2) {
@@ -290,8 +306,8 @@ class product {
 			if ($row["amgb"] == null) {
 				$row["amgb"] = 0;
 			}
-			if ($checkOrders and (isset($affmge[$row['ifnr']])) and ($affmge[$row['ifnr']] > 0)) {
-				$this->productStocks[$row["ifnr"]] = $row["amgb"] - $affmge[$row['ifnr']];
+			if ($checkOrders and (!empty($affmge[$row['ifnr']]["fmge"]))) {
+				$this->productStocks[$row["ifnr"]] = $row["amgb"] - $affmge[$row['ifnr']]["fmge"];
 			} else {
 				$this->productStocks[$row["ifnr"]] = $row["amgb"];
 			}	
@@ -299,9 +315,9 @@ class product {
 		}
 	}
 	
-	public function getStocks() {
+	public function getStocks($checkOrders = true) {
 			if (! isset($this->productStocks) or $this->productStocks == NULL ) {
-					$this->getStocksFromDB();
+				$this->getStocksFromDB($checkOrders);
 			}
 			return $this->productStocks;
 	}	
