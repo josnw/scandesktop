@@ -272,7 +272,7 @@ class product {
 	
 	public function getOrderSum() {
 		if (! isset($this->productOrderSum) or $this->productOrderSum == NULL ) {
-			$this->getStocksFromDB();
+			$this->getOrderSumFromDB();
 		}
 		return $this->getOrderSumFromDB;
 	}	
