@@ -254,7 +254,7 @@ class product {
 	}	
 
 	private function getOrderSumFromDB() {
-		
+
 		$aqry  = "select ifnr,cast(sum((fmge-COALESCE(fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge, count(distinct fblg) as fcnt from auftr_pos b inner join art_0 a using (arnr)
 					where ftyp = 2 and arnr = :aamr
 					group by ifnr";
@@ -280,9 +280,14 @@ class product {
 	private function getStocksFromDB($checkOrders = true) {
 
 		if ($checkOrders ) {
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print " get order data ..";
+			}
 			$affmge = $this->getOrderSum();
 		}
-		
+		if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			print " get stock data ..";
+		}
 		if ($this->productData[0]["aart"] == 2) {
 			$fqry  = "select f.ifnr, min( (case when a.amgz > 0 then cast((coalesce(amge,0)*a.amgn/a.amgz) as decimal(8,2)) else coalesce(amge,0) end) * s.asmn/s.asmz) as amgb 
 						from art_stl s left join art_0 a on s.astl = a.arnr
@@ -313,6 +318,9 @@ class product {
 				$this->productStocks[$row["ifnr"]] = $row["amgb"];
 			}	
 			
+		}
+		if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+			print " stock data done! \n";
 		}
 	}
 	
