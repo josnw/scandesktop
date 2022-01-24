@@ -267,6 +267,7 @@ class product {
 			$orderData[$row['ifnr']]['fcnt'] = $row['fcnt'];
 		}
 		$this->productOrderSum = $orderData;
+		return $orderData;
 	}
 	
 	public function getOrderSum() {

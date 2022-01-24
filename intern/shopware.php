@@ -19,9 +19,9 @@
 	$shopwareApi = new RestApiClient($shopware_url, $shopware_user, $shopware_key); 
 	
 	$articles = new shopwareArticles();
-	
+	if (php_sapi_name() == 'cli') { print "Generate Artikellist ... "; }
 	$articles->articleUpdateList($checkDate);
-	
+	if (php_sapi_name() == 'cli') { print "done.\n"; }
 	$result = $articles->exportToShopware($shopwareApi, $noUpload);
 	$rowCount = $result['count'];
 	$errorList = $result['errors'];
