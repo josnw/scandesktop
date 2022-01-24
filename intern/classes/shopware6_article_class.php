@@ -186,17 +186,27 @@ class Shopware6Articles {
 	            	$stockSum = floor($stockSum / $this->dynamic_stock_upload["divisor"]);
 	            }
 	            
+	            // auf externes Lager nicht für Gelegenheitskäufe, nur bei hohen Umsatzerwartungen und vollen BestellVE im externen Lager zugreifen. 
 	            foreach($stocks as $stockNumber => $stockAmount ) {
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
-            			(! in_array( $stockNumber , $this->ShopwareStockList)) ) {
-	            				
-            				if ( ($stockSum <= $orderSum) and ($orderCnt > 0) ) {
+            			(! in_array( $stockNumber , $this->ShopwareStockList)) and
+	            		($stockSum <= $orderSum) and ($orderCnt > 0) ) {
+	            			Proto($frow["arnr"]." Check dynamic external stock amount");
+            				$supplierData = $article->getDBFields("ablz,abln,abeh");
+            				if (($supplierData["abln"] > 0) and ($supplierData["ablz"] > 1) and ($supplierData["abeh"] == 'Pal')){
+            					$supplierPackUnit = $supplierData["ablz"] / $supplierData["abln"];
+            				} else {
+            					$supplierPackUnit = 100;
+            				}
+            				if ( ($stockAmount > $supplierPackUnit)) {
             					if (!empty($this->dynamic_stock_upload["divisor"]) ) {
             						$stockSum = floor($stockAmount / $this->dynamic_stock_upload["divisor"]);
             					} else {
             						$stockSum += $stockAmount;
             					}
             					Proto($frow["arnr"]." dynamic external stock used (".$stockAmount." ME)");
+            				} else {
+            					Proto($frow["arnr"]." dynamic external stock not used.");
             				}
 	            	}
 	            }

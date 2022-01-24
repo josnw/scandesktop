@@ -31,7 +31,7 @@ function populateResult(msg) {
 
   console.log( msg );
   //currentElement.removeAttribute("disabled");
-  FocusOnInput("scanid");
+  //FocusOnInput("scanid");
 		
   result = JSON.parse(msg);	
   var outputdiv    = document.getElementById('OrderItem' + result.itemId + "-" + result.packId);
