@@ -64,8 +64,19 @@ class ShopwareArticles {
 		// fill array and write to file
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 			$cnt++;
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "Stock for ".$frow["arnr"].": Init ...";
+			}
+			
 			$article = new product($frow["arnr"]);
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "done ... stock download ...";
+			}
+			
 			$stocks = $article->getStocks();
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print "done.\n";
+			}
 			
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "<br/>\nStockList: ".print_r($this->ShopwareStockList,1)."<br/>";
