@@ -51,6 +51,7 @@ class picklist {
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
 							and coalesce(alag,\' \') ~ :pattern 
+							and coalesce(avsd,0) = 0 
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
 
@@ -64,6 +65,7 @@ class picklist {
 						    		and coalesce(a.agew,0) >= :minWeight 
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
+									and coalesce(avsd,0) = 0 
 						  group by k.fnum, k.fblg
 						  having max(coalesce(a.agew,0)) < :maxWeight
 				    		 and max(coalesce(a.agew,0)) >= :minWeight 
