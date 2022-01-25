@@ -38,6 +38,9 @@ class picklist {
 		if ($placePattern == '') {
 			$placePattern = ".*";
 		}
+		if (DEBUG) {
+			print ($userId." | ".$count." | ".$maxWeight." | ".$name ." | ".$minWeight." | ". $placePattern."\n");
+		}
 		//Artikel der älteste Bestellungen und TopArtikel einlesen
 		$picArt_sql  = 'select p.arnr, min(ks.fdtm) as minDate , count(*) as ArtAnz from auftr_kopf ks 
 							inner join auftr_pos p using (fblg) 
@@ -47,7 +50,7 @@ class picklist {
 				    		and coalesce(a1.agew,0) < :maxWeight 
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
-							and coalesce(alag,\'\') ~ :pattern 
+							and coalesce(alag,\' \') ~ :pattern 
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
 

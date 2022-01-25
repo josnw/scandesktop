@@ -10,7 +10,7 @@
 			<select name="pickListPlacePattern">
 				<?php 
 				   foreach($configStorePlace as $name => $regex) {
-						print "<option value=".$name." >".$name."</option>\n";
+						print "<option value='".$name."' >".$name."</option>\n";
 					};
 				?>
 			</select>		
