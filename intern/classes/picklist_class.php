@@ -46,7 +46,7 @@ class picklist {
 							inner join auftr_pos p using (fblg) 
 							inner join art_0 a1 using (arnr)
 							left join art_0fil af1 using (arnr)
-						where ks.ftyp = 2 and coalesce(fmgl,0) < fmge  
+						where ks.ftyp = 2 and ((coalesce(fmgl,0) < fmge) or (ktos < 2))  
 				    		and coalesce(a1.agew,0) < :maxWeight 
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
@@ -61,7 +61,7 @@ class picklist {
 							inner join auftr_pos p using (fblg) 
 							inner join art_0 a using (arnr)
 							inner join ( '.$picArt_sql.' ) c using (arnr)
-						  where k.ftyp = 2 and coalesce(fmgl,0) < fmge  
+						  where k.ftyp = 2 and ((coalesce(fmgl,0) < fmge) or (ktos < 2))
 						    		and coalesce(a.agew,0) >= :minWeight 
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
