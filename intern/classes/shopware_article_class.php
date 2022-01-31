@@ -64,6 +64,10 @@ class ShopwareArticles {
 		// fill array and write to file
 		while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 			$cnt++;
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9) and $cnt > 5) {
+				break;
+			}
+			
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "Stock for ".$frow["arnr"].": Init ...";
 			}
@@ -92,20 +96,29 @@ class ShopwareArticles {
 				}
 			}
 			$prices = $article->getPrices( true );
+			$advertisingPrices = $article->getAdvertisingPrices( true );
+
+			if(!empty($advertisingPrices[$this->ShopwarePriceBase])) {
+				$shopprice = $advertisingPrices[$this->ShopwarePriceBase];
+				$shoppseudoprice = $prices[$this->ShopwarePriceBase];
+			} else {
+				$shopprice = $prices[$this->ShopwarePriceBase];
+				$shoppseudoprice = null;
+			}
 
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 				print "<br/>\nPriceBase: ".$this->ShopwarePriceBase."<br/>";
 				print_r($prices);
+				print_r($advertisingPrices);
 			}
-
-
+			
 			$restdata = [ "mainDetail" => [ 
 					"instock" => $stockSum,
 					"prices" => [ 
 						0 => [	
 							"customerGroupKey" => $this->ShopwarePriceGroup,
-							"price" => $prices[$this->ShopwarePriceBase],
-							"pseudoprice" => null
+							"price" => $shopprice,
+							"pseudoprice" => $shoppseudoprice
 						]
 					],
 					'__options_prices' => ['replace' => false ] 
@@ -125,6 +138,7 @@ class ShopwareArticles {
 				}
 			
 			} else {
+				print "<pre>";print_r($restdata);print "</pre>";
 				$result = [ "success" => 0, "put" => 'articles/'.$frow['aenr'].'?useNumberAsId=true', "restdata" => $restdata, "json" => json_encode($restdata)];
 
 			}

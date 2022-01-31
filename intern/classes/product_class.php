@@ -13,6 +13,7 @@ class product {
 	private $productGtin;
 	private $productParameter;
 	private $productPrices;
+	private $productAdvertisingPrices;
 	private $productPictures;
 	private $productDataTradeByteFormat;
 	private $productStckListData;
@@ -186,7 +187,7 @@ class product {
 		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon <= current_date and qbis > current_date 
 					and pb.qbez not like 'VK-Preis %'
                     and cprs <> 0
-                    order by csog, qdtm";
+                    order by case when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 
@@ -225,6 +226,65 @@ class product {
 			return $this->productPrices;
 	}	
 
+	private function getAdvertisingPricesFromDB( $withStdPrice = false) {
+		
+		$this->productAdvertisingPrices = [] ;
+		$standardAdvertisingPrice = null;
+		
+		// sql check pricekey list
+		$priceqry  = "select qbez from mand_prsbas where mprb >= 6 and qbez not like 'VK-Preis %'";
+		$price_qry = $this->pg_pdo->prepare($priceqry);
+		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
+		while ($row = $price_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			$this->productAdvertisingPrices[$row["qbez"]] = null;
+		}
+		
+		// select prices
+		$fqry  = "select c.mprb, coalesce(pb.qbez,'ALL') as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
+					from cond_vk c left join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh)
+		          where arnr = :aamr and cbez = 'FPAK' and (mprb >= 6 or c.mprb = 0) and qvon <= current_date and qbis > current_date
+					and coalesce(pb.qbez,'ALL') not like 'VK-Preis %' 
+                    and cprs <> 0
+                    order by case when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm
+				";
+		
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		
+		$f_qry->bindValue(':aamr',$this->productId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		
+		// calulate price for one
+		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			if (isset($row["apjs"]) and ($row["apjs"] > 0)) {
+				$this->productAdvertisingPrices[$row["mprn"]] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
+			} else {
+				$this->productAdvertisingPrices[$row["mprn"]] = round(($row["cprs"]*$row["amgm"]),2);
+			}
+			if ($row["mprb"] == 0) {
+				$standardAdvertisingPrice = $this->productAdvertisingPrices[$row["mprn"]];
+				//default no export for standard price
+				if (! $withStdPrice ) {
+					unset($this->productAdvertisingPrices[$row["mprn"]]);
+				}
+			}
+		}
+		
+		// fill zero price with standard price
+		foreach($this->productAdvertisingPrices as $key => $value) {
+			if ($value == null) {
+				$this->productAdvertisingPrices[$key] = $standardAdvertisingPrice;
+			}
+		}
+		
+	}
+	
+	public function getAdvertisingPrices($withStdPrice = false) {
+		if (! isset($this->productAdvertisingPrices) or $this->productAdvertisingPrices == NULL ) {
+			$this->getAdvertisingPricesFromDB( $withStdPrice );
+		}
+		return $this->productAdvertisingPrices;
+	}	
+	
 	private function getPicturesFromDB() {
 		
 		$fqry  = "select qbez, qurl from art_liefdok d where adtp = 91701 and arnr = :aamr order by qbez, qadt";

@@ -1,6 +1,12 @@
 <?php
 include_once 'config.php';
 
+if (!empty($_GET['menu']) and ($_GET['menu'] == "Logout")) {
+	
+	include './intern/logout.php';
+	Proto("Menüpunkt LOGOUT gestartet. (".$_SERVER['REMOTE_ADDR'].")");
+}
+
 if (isset($_GET['mode']) and ($_GET['mode'] == 'DEMO')) {
 	if (isset($_COOKIE['scandesk'])) {
 		//print "Cookie found ...";
@@ -23,18 +29,19 @@ if (isset($_GET['mode']) and ($_GET['mode'] == 'DEMO')) {
 	
 } elseif (( !isset($_SESSION['user']) or (strlen($_SESSION['user']) == 0)) and ( !isset($_POST['loginuser']) or (strlen($_POST['loginuser']) == 0)))
 {
-	if (isset($_COOKIE['scandesk'])) {
+	if ((isset($_COOKIE['scandesk'])) and ($_SESSION['typ'] != 'logout')) {
 		//print "Cookie found ....";
-		$_SESSION = unserialize(base64_decode($_COOKIE['scandesk']));
-		if ((!isset($_SESSION['level'])) or ( $_SESSION['level'] == 0)) {
+		$cookieData = unserialize(base64_decode($_COOKIE['scandesk']));
+		
+		if ((!isset($cookieData['level'])) or ( $cookieData['level'] == 0)) {
 			setcookie("scandesk", '', time()-28800);
 		} else {
+			$_SESSION = $cookieData;
 			//print "and initialized";
 		}
 	} else {
-
+		include_once './intern/views/header.php';
 		print <<<END
-    
 			<div id="main">
 			<br><br><br><h2>Bitte geben Sie zum Login Ihrer FACTO-Daten an:<h2><BR><BR>
 			<FORM ACTION = "#" METHOD = "POST" TARGET=_top>
@@ -98,32 +105,33 @@ elseif (isset($_POST['loginuser']) and strlen($_POST['loginuser']) > 0)
 		include 'config.php';
         Proto($_SESSION['user']."eingeloggt");	
 	} else {
+		include_once './intern/views/header.php';
 		print <<<END
     
-    <div id="main">
-    <br><br>Falsche Zugangsdaten!<br><br>
-    <FORM ACTION = "#" METHOD = "POST" TARGET=_top>
-    <table id = "tab2" height="100" width="500">
-    <tr height="25">
-	<td>Name:</td>
-	<td><INPUT TYPE = "TEXT" NAME ="loginuser" autofocus></td>
-    </tr>
-    <tr height="25">
-	<td>Passwort:</td>
-	<td><INPUT TYPE = "PASSWORD" NAME ="password"></td>
-    </tr>
-    <tr height="25">
-	<td></td>
-	<td><INPUT TYPE = "SUBMIT" VALUE = "Login"></td>
-    </tr>
-    </table><BR>
-    </center>
-    </FORM>                            	    	        	                                
-    
-    <br><br><br><br>
-    <div id="main-ende"> </div>
-    </div>
-    </body></html>
+		    <div id="main">
+		    <br><br>Falsche Zugangsdaten!<br><br>
+		    <FORM ACTION = "#" METHOD = "POST" TARGET=_top>
+		    <table id = "tab2" height="100" width="500">
+		    <tr height="25">
+			<td>Name:</td>
+			<td><INPUT TYPE = "TEXT" NAME ="loginuser" autofocus></td>
+		    </tr>
+		    <tr height="25">
+			<td>Passwort:</td>
+			<td><INPUT TYPE = "PASSWORD" NAME ="password"></td>
+		    </tr>
+		    <tr height="25">
+			<td></td>
+			<td><INPUT TYPE = "SUBMIT" VALUE = "Login"></td>
+		    </tr>
+		    </table><BR>
+		    </center>
+		    </FORM>                            	    	        	                                
+		    
+		    <br><br><br><br>
+		    <div id="main-ende"> </div>
+		    </div>
+		    </body></html>
 END;
     exit;
     

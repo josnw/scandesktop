@@ -46,7 +46,7 @@ class email {
 		   $content.= $message."\r\n";
 		 
 		   //$anhang ist ein Mehrdimensionals Array
-		   //$anhang enthält mehrere Dateien
+		   //$anhang enthï¿½lt mehrere Dateien
 		   foreach($attachments AS $dat) {
 				 $data = chunk_split(base64_encode($dat['data']));
 				 $content.= "--".$mime_boundary."\r\n";
@@ -65,4 +65,4 @@ class email {
 	
 }
 
-?>	
+?>
