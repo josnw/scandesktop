@@ -100,7 +100,11 @@ class ShopwareArticles {
 
 			if(!empty($advertisingPrices[$this->ShopwarePriceBase])) {
 				$shopprice = $advertisingPrices[$this->ShopwarePriceBase];
-				$shoppseudoprice = $prices[$this->ShopwarePriceBase];
+				if ($article->productData[0]["mmss"] > 0) {
+					$shoppseudoprice = round($prices[$this->ShopwarePriceBase]/(1 + $article->productData[0]["mmss"]/100),2);
+				} else {
+					$shoppseudoprice = $prices[$this->ShopwarePriceBase];
+				}
 			} else {
 				$shopprice = $prices[$this->ShopwarePriceBase];
 				$shoppseudoprice = null;
