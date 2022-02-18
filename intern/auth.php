@@ -92,7 +92,7 @@ elseif (isset($_POST['loginuser']) and strlen($_POST['loginuser']) > 0)
 		if (in_array($pw_row['penr'],$wwsAdminUsers) ) {
 			$_SESSION['typ'] = 'root';
 			$_SESSION['level'] = '9';
-		} elseif (in_array($pw_row['qgrp'],wwsChiefGroups) ) {
+		} elseif (in_array($pw_row['qgrp'],$wwsChiefGroups) ) {
 			$_SESSION['typ'] = 'user';
 			$_SESSION['level'] = '6';
 		} else {
