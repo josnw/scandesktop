@@ -14,6 +14,7 @@
  	$pickListData = new picklist($_POST["pickid"]);
  	$pickListData->resetPicklist($_POST["penr"]);
  }
+	
  
  $updInfo = new myFile("./intern/updateinfo.txt","read");
  
@@ -32,6 +33,14 @@
   // Funktionsmenü Pickliste
   $userData = new user($_SESSION["uid"]);
   $info = $userData->getAllStat();
+  
+  $orderOverview = [];
+  if ( (isset($_POST["showOrderDetails"]) or (isset($argv) and in_array("/showOrderDetails", $argv))) and
+  		($_SESSION['level'] > 5) ) {
+  			$orderOverview = $userData->getOrderOverview($_POST["orderStatus"]);
+  		}
+  		
+  
   include("./intern/views/home_overview.php");
  ?>
  </table>

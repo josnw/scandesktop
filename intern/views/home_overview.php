@@ -15,12 +15,36 @@
      <div class=DSFeld2><b>Status</b></div>
      <div class=DSFeld2><b>Bezeichnung</b></div>
      <div class=DSFeld2><b>Anzahl</b></div>
+     <div class=DSFeld1> </div>
      <?php 
      foreach($info["byPackStat"] as $stat) {
+       		 print '<form action="#" method="POST" enctype="multipart/form-data" >';
              print "<div class=DSFeld2>".$stat["ktos"]."</div>";
              print "<div class=DSFeld2>".$packStat[$stat["ktos"]]."</div>";
              print "<div class=DSFeld2>".$stat["cnt"]."</div>";
-         }
+             print "<div class=DSFeld1>";
+             print '<input type=hidden name="orderStatus" value="'.$stat["ktos"].'">';
+             if ($_SESSION['level'] > 5) {
+             	print '<input type="submit" name="showOrderDetails" value="Details anzeigen">';
+             }
+             print "</div></form>";
+             if (!empty($orderOverview) and ($_POST["orderStatus"] == $stat["ktos"])) {
+             	$lastorder = 0;
+             	print '<div class="DSEdit">';
+             	foreach($orderOverview as $order) {
+             		if ($order["fnum"] <> $lastorder) {
+             			if ($lastorder > 0) { print "</div>"; }
+             			print "<div class=DSFeld4>";
+             			$lastorder = $order["fnum"];
+             			print "<b>".$order["fxnr"]." ".$order["fnum"]." ".$order["fdtm"]." ".
+               					$order["qna1"]." ".$order["qna2"]." ".$order["qort"]."</b><br/> ";
+             		}
+             		print " --> ".$order["arnr"]." ".$order["abz1"]." ".$order["abz2"]." ".$order["fmge"]." ".$order["ageh"]."<br/> ";
+             	}
+             	print "</div></div>";
+             	
+             }
+     }
      
      ?> 
     </div>

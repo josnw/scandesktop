@@ -141,5 +141,26 @@ class user {
 	    return $info;
 	
 	}
+
+	public function getOrderOverview($status = 0) {
+		$pickStatus = preg_replace("[^0-9,]","",$status);
+		
+		$pickList_sql = 'select k.fnum, k.fxnr, k.fdtm, qna1, qna2, qort, arnr, abz1, abz2, fmge, fmgl, fmgt, ageh 
+							from auftr_kopf k inner join auftr_pos p using (fblg)
+							where ktos in ('.$pickStatus.') and fbkz = :fbkz  and k.ftyp = 2 
+							order by k.fnum';
+		
+		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);
+		$pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
+		
+		$pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+		
+		$pickList_row = $pickList_qry->fetchall( PDO::FETCH_ASSOC );
+		return $pickList_row;
+		
+	}
+	
+
 }
+
 ?>

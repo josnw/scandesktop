@@ -145,7 +145,7 @@ class picklist {
                              inner join auftr_pos p using (fblg) 
                              left join art_0 a using (arnr) 
                              left join art_0fil af  on af.arnr = a.arnr and af.ifnr = p.ifnr 
-                             left join art_ean e on a.arnr = e.arnr and e.qskz = 1  
+                             
                           where k.fprn = :pickId  and coalesce(aart,0) <> 2  and coalesce(avsd,0) = 0 and p.ftyp=2
                           group by a.arnr, abz1, abz2, a.ameh, p.asco, af.alag
                           having  sum(coalesce(fmge,0)-coalesce(fmgl,0)) > 0 
