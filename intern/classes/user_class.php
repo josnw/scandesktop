@@ -145,9 +145,9 @@ class user {
 	public function getOrderOverview($status = 0) {
 		$pickStatus = preg_replace("[^0-9,]","",$status);
 		
-		$pickList_sql = 'select k.fnum, k.fxnr, k.fdtm, qna1, qna2, qort, arnr, abz1, abz2, fmge, fmgl, fmgt, ageh 
-							from auftr_kopf k inner join auftr_pos p using (fblg)
-							where ktos in ('.$pickStatus.') and fbkz = :fbkz  and k.ftyp = 2 
+		$pickList_sql = 'select k.fnum, k.fxnr, k.fdtm::date as fdtm, qna1, qna2, qort, arnr, abz1, abz2, fmge, fmgl, fmgt, p.ageh 
+							from auftr_kopf k inner join auftr_pos p using (fblg) left join art_0 a using (arnr) 
+							where ktos in ('.$pickStatus.') and fbkz = :fbkz  and k.ftyp = 2 and coalesce(avsd,0) = 0
 							order by k.fnum';
 		
 		$pickList_qry = $this->pg_pdo->prepare($pickList_sql);

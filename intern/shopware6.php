@@ -5,7 +5,8 @@
  include_once ("./intern/functions.php");
  
  if (isset($_POST["addArticles"]) or (isset($argv) and in_array("/addArticles", $argv))) {
-     
+ 	$starttime = time();
+ 	
      if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
          $checkDate = '2000-01-01';
      } else {
@@ -34,8 +35,26 @@
      }
  }
  
- if (isset($_POST["updateArticles"]) or (isset($argv) and in_array("/updateArticles", $argv))) {
+ if (isset($_POST["getCategoryMapping"]) or (isset($argv) and in_array("/getCategoryMapping", $argv))) {
+ 	$starttime = time();
  	
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	
+ 	$articles = new Shopware6Articles($shopwareApi);
+ 	
+ 	$result = $articles->getCategoryWWsMatch();
+ 	$rowCount = count($result);
+ 	//file_put_contents($sw6GroupMatching, $result);
+ 	//$errorList = json_encode($result);
+ 	if (php_sapi_name() != 'cli') {
+ 		include("./intern/views/shopware_result_view.php");
+ 	} else {
+ 		print_r($result);
+ 	}
+ }
+ 
+ if (isset($_POST["updateArticles"]) or (isset($argv) and in_array("/updateArticles", $argv))) {
+ 	$starttime = time();
  	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
  		$checkDate = '2000-01-01';
  	} else {
@@ -65,7 +84,8 @@
  }
  
  if (isset($_POST["priceStockUpdate"]) or (isset($argv) and in_array("/priceStockUpdate", $argv))) {
-	
+ 	$starttime = time();
+ 	
 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
 		$checkDate = '2000-01-01';
 	} else {
@@ -82,7 +102,7 @@
 	
 	$articles = new Shopware6Articles();
 	
-	$articles->articleUpdateList($checkDate);
+	$articles->articleUpdateListPriceStock($checkDate);
 	
 	$result = $articles->updateSW6StockPrice($shopwareApi, $noUpload);
 	$rowCount = $result['count'];
@@ -99,7 +119,8 @@
  if (isset($_POST["getOrders"]) or (isset($argv) and in_array("/getOrders", $argv))) {
 	print "<pre>";
  	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key); 
-
+ 	$starttime = time();
+ 	
  	if (! is_array($shopware6IdWebshop) ) {
  		$salesChannels = [ $shopware6IdWebshop ];
  	} else {

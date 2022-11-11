@@ -45,11 +45,15 @@ class OpenApi3Client {
 	
 	private function initToken($username, $apiKey) {
 		$body = [
-				"client_id" => "administration",
-				"grant_type" => "password",
-				"scopes" => "write",
-				"username" => $username,
-				"password"=> $apiKey
+				"grant_type" => "client_credentials",
+				"client_id" => $username,
+				"client_secret"=> $apiKey
+				
+		//	"client_id" => "administration",
+		//	"grant_type" => "password",
+		//	"scopes" => "write",
+		//	"username" => $username,
+		//	"password"=> $apiKey
             ];
   
 		$response = $this->post(

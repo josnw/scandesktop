@@ -19,6 +19,7 @@ class product {
 	private $productStckListData;
 	private $productStocks;
 	private $productOrderSum;
+	private $clpData = [];
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
@@ -50,11 +51,12 @@ class product {
                         case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt,
-                        0 as askz, a.agew, a.avsd
+                        0 as askz, a.agew, a.avsd, a.hsnr, h.qsbz as hqsbz
 					from art_0 a  inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
 						left join art_ean e on a.arnr = e.arnr and e.qskz = 1
 						left join art_lief al on a.arnr = al.arnr and a.linr = al.linr
 						left join lif_0 l on a.linr = l.linr
+						left join her_0 h on a.hsnr = h.hsnr
 						left join mand_mwst m on a.apkz = m.mmid
                         left join art_grp ag on a.qgrp = ag.qgrp
 						where a.arnr = :aamr ";
@@ -285,12 +287,22 @@ class product {
 		return $this->productAdvertisingPrices;
 	}	
 	
-	private function getPicturesFromDB() {
+	private function getPicturesFromDB($type, $shopid) {
 		
-		$fqry  = "select qbez, qurl from art_liefdok d where adtp = 91701 and arnr = :aamr order by qbez, qadt";
+		if (($type == "new") or (empty($shopid))) {
+			$fqry  = "select qbez, qurl from art_liefdok d where adtp = 91701 and arnr = :aamr order by qbez, qadt";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':aamr',$this->productId);
+		} else {
+			$fqry  = "select qbez, qurl from art_liefdok d 
+						left join web_art w using (arnr) 
+						where wsnr = :wsnr and adtp = 91701 and arnr = :aamr and d.qedt > w.wsdt 
+						order by qbez, d.qadt";
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':aamr',$this->productId);
+			$f_qry->bindValue(':wsnr',$shopid);
+		}
 		
-		$f_qry = $this->pg_pdo->prepare($fqry);
-		$f_qry->bindValue(':aamr',$this->productId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 
 		$this->productPictures = [] ;
@@ -305,10 +317,53 @@ class product {
 			$this->productPictures[$row["qbez"]][$typeCounter[$row["qbez"]]] = $row["qurl"];
 		}
 	}
+
+	public function getCLPData($type = "new", $shopid = null) {
+
+		if (!empty($this->clpData)) {
+			return $this->clpData;
+		}
+
+		if (($type == "new") or (empty($shopid))) {
+
+			$artclp = "select g.arnr, g.gpsa, g.ghsa, g.gghs from art_ggv g 
+					where arnr = :aamr and ( g.qbis is null or g.qbis > current_date ) order by qdtm desc";
+			$f_qry = $this->pg_pdo->prepare($artclp);
+			$f_qry->bindValue(':aamr',$this->productId);
+		} else {
+			$artclp = "select g.arnr, g.gpsa, g.ghsa, g.gghs from art_ggv g using (arnr)
+					left join web_art w using (arnr)
+					where arnr = :aamr and ( g.qbis is null or g.qbis > current_date ) 
+					and g.qedt > w.wsdt and wsnr = :wsnr 
+					order by qdtm desc";
+			$f_qry = $this->pg_pdo->prepare($artclp);
+			$f_qry->bindValue(':aamr',$this->productId);
+			$f_qry->bindValue(':wsnr',$shopid);
+		}
+		
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		
+		$this->clpData = [] ;
+		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			if (strlen($row["gpsa"]) > 1 ) { 
+				$gpsa = preg_replace('/[^a-z0-9,+]/', '', strtolower($row["gpsa"]));
+				$this->clpData = array_merge($this->clpData, explode(",", $gpsa)); 
+			}
+			if (strlen($row["ghsa"]) > 1 ) {
+				$ghsa = preg_replace('/[^a-z0-9,+]/', '', strtolower($row["ghsa"]));
+				$this->clpData = array_merge($this->clpData, explode(",", $ghsa)); 
+			}
+			if (strlen($row["gghs"]) > 1 ) { 
+				$gghs = preg_replace('/[^a-z0-9,+]/', '', strtolower($row["gghs"]));
+				$this->clpData = array_merge($this->clpData, explode(",", $gghs)); 
+			}
+		}
+		return $this->clpData;
+	}
 	
-	public function getPictures() {
+	public function getPictures($type = "new", $shopid = null) {
 			if (! isset($this->productPictures) or $this->productPictures == NULL ) {
-					$this->getPicturesFromDB();
+				$this->getPicturesFromDB($type, $shopid);
 			}
 			return $this->productPictures;
 	}	

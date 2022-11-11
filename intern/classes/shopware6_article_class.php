@@ -12,6 +12,17 @@ class Shopware6Articles {
 	private $ShopwareCurrencyId;
 	private $ShopwareMediaFolderId;
 	private $shopwareCategoryCmsPageId;
+	private $shopware6CategoryMatching;
+	private $shopware6CategoryMatchingFieldName;
+	private $shopware6CategoryMatchingFile;
+	private $shopware6LenzCLP;
+	private $shopware6AlternatePrices;
+	private $shopClpList;
+	private $shopware6SetCloseout;
+	private $shopware6SetMaxPurchaseToStock;
+	private $shopware6Visibilities;
+	private $shopware6NoPrices;
+	private $shopware6AlternateProductname;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -29,11 +40,27 @@ class Shopware6Articles {
 		$this->ShopwareDynamicExternalStock = $shopware6DynamicStock;
 		$this->dynamic_stock_upload = $dynamic_stock_upload;
 		$this->shopwareCategoryCmsPageId = $shopware6CategoryCmsPageId;
+		$this->shopware6CategoryMatchingFieldName = $shopware6CategoryMatchingFieldName;
+		$this->shopware6CategoryMatchingFile = $sw6GroupMatching;
+		$this->shopware6LenzCLP = $shopware6LenzCLP;
+		$this->shopware6AlternatePrices = $shopware6AlternatePrices;
+		$this->shopware6SetCloseout = $shopware6SetCloseout;
+		$this->shopware6SetMaxPurchaseToStock = $shopware6SetMaxPurchaseToStock;
+		$this->shopware6Visibilities = $shopware6Visibilities;
+		$this->shopware6NoPrices = $shopware6NoPrices;
+		$this->shopware6AlternateProductname = $shopware6AlternateProductname;
+		$this->shopware6UseHsnr = $shopware6UseHsnr;
 		$this->api = $api;
+		
+		if (file_exists($sw6GroupMatching)) {
+			$this->shopware6CategoryMatching = json_decode(file_get_contents($sw6GroupMatching),true);
+			
+		}
+		
 		return true;
 	}
 	
-	public function articleUpdateList($checkDate = NULL) {
+	public function articleUpdateListPriceStock($checkDate = NULL) {
 		
 		if (!isset($this->startTime) or (!$this->startTime > 0)) {
 			$this->startTime = time();
@@ -53,7 +80,8 @@ class Shopware6Articles {
 					   where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
 					  order by arnr
 					";	
-			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+			$options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
 		} else {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
@@ -65,7 +93,8 @@ class Shopware6Articles {
 					   where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
 					  order by arnr
 					";	
-			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
+			$options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
+			$this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
 			$this->articleList_qry->bindValue(':wsdt',$checkDate);
 		}
 		$this->articleList_qry->bindValue(':wsnr',$this->ShopwareWebshopNumber);
@@ -156,7 +185,7 @@ class Shopware6Articles {
 	}
 
     /*
-     * Shopware6 read
+     * Shopware6 ready
      */
 	public function updateSW6StockPrice($api, $noupload = null) {
 	    
@@ -167,7 +196,9 @@ class Shopware6Articles {
 	    $cnt = 0;
 	    $errorlist = '';
 	    // fill array and write to file
-	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
+	    $first = true; 
+	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC, $first ? PDO::FETCH_ORI_FIRST : PDO::FETCH_ORI_NEXT )) {
+	    	$first = false;
 	        $cnt++;
 	        $article = new product($frow["arnr"]);
 	        //get article data
@@ -317,13 +348,14 @@ class Shopware6Articles {
 	    $this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
 	}
 
-	public function updateArticleList() {
+	public function articleUpdateListBaseData() {
 	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is not null )
                       and a.qedt > w.wsdt
 					  order by arnr
 					";
-	    $this->articleList_qry = $this->pg_pdo->prepare($fqry);
+	    $options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
+	    $this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
 	    $this->articleList_qry->bindValue(':wsnr',$this->ShopwareWebshopNumber);
 	    $this->articleList_qry->execute() or die (print_r($this->articleList_qry->errorInfo()));
 	}
@@ -348,7 +380,14 @@ class Shopware6Articles {
         $properties = $article->getParameter();
 
         //get article pics
-        $pictures = $article->getPictures();
+        $pictures = $article->getPictures( $type , $this->ShopwareWebshopNumber);
+        
+        //get article clp data
+        if (!empty($this->shopware6LenzCLP)) {
+        	$clpData = $article->getCLPData();
+        } else {
+        	$clpData = null;
+        }
         
         //generate shopware formated array
 
@@ -359,70 +398,120 @@ class Shopware6Articles {
        	    "packUnit" => $artData["ageh"],  				        // SW Verpackungseinheit = ISO Verkaufsgebinde -> Facto Status Table id 9102
         	"referenceUnit" => '1',  								// Preismenge für den Grundpreis = static = 1 
         	"weight" => $artData["agew"],
-			"price" => [
-        			[ 
-        			    "currencyId" => $this->ShopwareCurrencyId,
-        			    "net"	=> $prices[$this->ShopwarePriceBase]/(1+$artData["mmss"]/100),
-        			    "gross" => $prices[$this->ShopwarePriceBase],
-        				"linked" => false
-        			]
-        	],
 
             "tax" => [ 
                 "id" => md5($artData["mmss"]),
                 "taxRate" => $artData["mmss"],
                 "name" => $artData["mmss"]."% Mwst"
-               ],
-            "categories" => [
-                [
-        	        "id" => md5($artData["qgrp"]),
-                    "name" => $artData["gqsbz"], 
-                    "type" => "page",
-                	"cmsPageId" => $this->shopwareCategoryCmsPageId
-                ]
-            ],
-            "manufacturer" => [
-               "id" =>  md5($artData['linr']),
-               "name" =>  $artData['lqsbz'],
-            ]
+               ]
         ];
+        
+        if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0)) {
+        	$restdata["manufacturer"] = [
+        			"id" =>  md5($artData['hsnr']),
+        			"name" =>  $artData['hqsbz'],
+        			"customFields" => [
+        					"id_manufacturer" =>  $artData['hsnr']
+        			]
+        	];
+        } else {
+        	$restdata["manufacturer"] = [
+        			"id" =>  md5($artData['linr']),
+        			"name" =>  $artData['lqsbz'],
+        			"customFields" => [
+        				"id_manufacturer" =>  $artData['linr']
+        			]
+        	];
+        }
+
+        $restdata["categories"] = [];
+        		
+        if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
+        	 //$restdata["categoryIds"] =  $this->shopware6CategoryMatching[$artData["qgrp"]]	;
+        	foreach($this->shopware6CategoryMatching[$artData["qgrp"]] as $cat) {
+        		$restdata["categories"][] =  [
+        										"id" =>  $cat
+        									 ];
+        	}
+        	
+        } else {
+	        $restdata["categories"] = [
+					        		[
+					        				"id" => md5($artData["qgrp"]),
+					        				"name" => $artData["gqsbz"],
+					        				"type" => "page",
+					        				"cmsPageId" => $this->shopwareCategoryCmsPageId
+					        		]
+					        	  ];
+        }
         
         // new uploads only
         if ($type == "new") {
-            $restdata["name"] = $artData['abz1']." ".$artData['abz2']." ".$artData['abz3'];
+        	if (($this->shopware6AlternateProductname) and (strlen($artData['abz4']) > 5)) {
+        		$restdata["name"] = $artData['abz4'];
+        	} else {
+            	$restdata["name"] = $artData['abz1']." ".$artData['abz2']." ".$artData['abz3'];
+        	}
             $restdata["active"] = true;
-            $restdata["isCloseout"] = true;
             $restdata["description"] = $artData["atxt"];
             $restdata["stock"] = 0;
+            //if stock sold out dont view product in shop 
+            if ( $this->shopware6SetCloseout ) {
+	            $restdata["isCloseout"] = true;
+            } 
+            if ($this->shopware6SetMaxPurchaseToStock) {
+            	$restdata["maxPurchase"] = 0;
+            }
+            
+            $restdata["visibilities"] = [];
+            foreach ($this->shopware6Visibilities as $channelId) {
+            	$restdata["visibilities"][] = [
+            			"salesChannelId" => $channelId,
+            			"visibility" => 30
+            	];
+            }
+            
         }
         
+        if ( (! $this->shopware6NoPrices) or ($type == "new")) {
+	        $restdata["price"] = [
+					        		[
+					        				"currencyId" => $this->ShopwareCurrencyId,
+					        				"net"	=> $prices[$this->ShopwarePriceBase]/(1+$artData["mmss"]/100),
+					        				"gross" => $prices[$this->ShopwarePriceBase],
+					        				"linked" => false
+					        		]
+						        ];
+        }
         // other prices
-        foreach($prices as $priceTyp => $price) {
-        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
-        		$restdata["prices"][] = [
-        				"id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-        				"productid" => md5($frow["arnr"]),
-        				"rule" => [
-        						"id" => md5("WWS ".$priceTyp),
-        						"name" => "WWS ".$priceTyp,
-        						"priority" => 900
-        				],
-        				#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-        				#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
-        				//     						"ruleId" => md5("WWS ".$priceTyp),
-        				"quantityStart" => 1,
-        				"price" => [[
-        				#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
-        						"currencyId" => $this->ShopwareCurrencyId,
-        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
-        						"gross" => $price,
-        						"linked" => true,
-        				]]
-        		];
-        		
-        	}
+        // TODO: $frow["arnr"] not definined -> change to $article -> tets in Shopware
+        if ($this->shopware6AlternatePrices) {
+	        foreach($prices as $priceTyp => $price) {
+	        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
+	        		$restdata["prices"][] = [
+	        				"id" => md5("WWS ".$priceTyp), //.$frow["arnr"]),
+	        				//"productid" => md5(null), //$frow["arnr"]),
+	        				"rule" => [
+	        						"id" => md5("WWS ".$priceTyp),
+	        						"name" => "WWS ".$priceTyp,
+	        						"priority" => 900
+	        				],
+	        				#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+	        				#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+	        				//     						"ruleId" => md5("WWS ".$priceTyp),
+	        				"quantityStart" => 1,
+	        				"price" => [[
+	        				#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
+	        						"currencyId" => $this->ShopwareCurrencyId,
+	        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
+	        						"gross" => $price,
+	        						"linked" => true,
+	        				]]
+	        		];
+	        		
+	        	}
+	        }
         }
-        
         
 
         // Artikelatribute zum Beschreibungstext zusammensetzen bzw Eigenschaftsarray erstellen
@@ -514,7 +603,7 @@ class Shopware6Articles {
             }
         }
      
-        return [ "product" => $restdata, "mediaUrls" =>  $picUrls];
+        return [ "product" => $restdata, "mediaUrls" =>  $picUrls, "clpData" => $clpData];
 	    
 	}
 
@@ -537,6 +626,47 @@ class Shopware6Articles {
 	    
 	    $result = $api->post($apiurl, $restdata ); 
 	    $this->debugData('Mediaupload 2'.$apiurl, $result);
+	}
+	
+	private function getClps($api) {
+		$response = $api->get('lenz-platform-clp');   // Liste mit Sätzen
+		
+		$this->shopClpList = [];
+		foreach($response["data"] as $clp) {
+			$this->shopClpList[$clp["attributes"]["slug"]] = [
+					"id" => $clp["id"],
+					"name" => $clp["attributes"]["name"]
+			];
+		}
+	}
+	
+	public function uploadSW6CLPData($api, $article, $clpData) {
+		
+		if (empty($this->shopware6LenzCLP)) {
+			return FALSE;
+		}
+		
+		if (empty($this->shopClpList)) {
+			$this->getClps($api);
+		}
+		
+		$response = $api->get('product/'.md5($article).'/extensions/lenzPlatformClp');  // Artikelzuordnung
+		$productClps = [];
+		foreach($response["data"] as $productClp) {
+			$productClps[] = $productClp["attributes"]["slug"];
+		}
+
+		foreach($productClps as $productClp ) {
+			if (! in_array($productClp, $clpData)) {
+				$response = $api->DELETE('product/'.md5($article).'/extensions/lenzPlatformClp/'.$this->shopClpList[$productClp]["id"]);
+			}
+		}
+		foreach($clpData as $clp ) {
+			if (! in_array($clp, $productClps)) {
+				$payload = [ "id" =>  $this->shopClpList[$clp]["id"] ];
+				$response = $api->POST('product/'.md5($article).'/extensions/lenzPlatformClp/', $payload);
+			}
+		}
 	}
 	
 	/*
@@ -582,6 +712,7 @@ class Shopware6Articles {
 	    $errorList = '';
 	    $articleList = '';
 	    $this->newArticleList();
+	    $cnt = 0;
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 	        $cnt++;
 	        if (! $noUpload) {
@@ -592,6 +723,10 @@ class Shopware6Articles {
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
 	                $this->uploadSW6Media($api, $pictureUrl);
 	            }
+	            if (!empty($productData["clpData"])) {
+	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"]);
+	            }
+	            
 	        } else {
 	           print "<pre>"; 
 	           print_r($this->generateSW6Product($frow["arnr"]));
@@ -612,7 +747,8 @@ class Shopware6Articles {
 	    }
 	    
 	    $errorList = '';
-	    $this->updateArticleList();
+	    $this->articleUpdateListBaseData();
+	    $cnt = 0;
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 	        $cnt++;
 	        if (! $noUpload) {
@@ -621,6 +757,9 @@ class Shopware6Articles {
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
 	                $this->uploadSW6Media($api, $pictureUrl);
 	            }
+	            if (!empty($productData["clpData"])) {
+	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"]);
+	            }
 	        } else {
 	            print "<pre>";
 	            print_r($this->generateSW6Product($frow["arnr"]));
@@ -628,6 +767,10 @@ class Shopware6Articles {
 	        }
 	        if ($test and ($cnt > 5)) { break; }
 	    }
+	    if (! $this->shopware6NoPrices) {
+	    	$this->updateSW6StockPrice($api, $noUpload);
+	    }
+	    
 	    return ["count" => $cnt, "errors" => $errorList];
 	}
 	
@@ -734,6 +877,22 @@ class Shopware6Articles {
 		return $response;
 	}
 	
+	public function getCategoryWWsMatch() {
+		
+		$result = $this->api->get('category');
+		
+		$catMapping = [];
+		foreach ($result["data"] as $cat) {
+			if (!empty($cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName])) {
+				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]][] = $cat["id"];
+			}
+		}
+		if (!empty($catMapping)) {
+			file_put_contents($this->shopware6CategoryMatchingFile, json_encode($catMapping));
+		}
+		
+		return $catMapping;
+	}
 	
 }
 ?>

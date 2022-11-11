@@ -46,13 +46,41 @@ $channelFacData['shopware']['formId'] = '0001';
 // Shopware 6 Config
 $shopware6WebshopNumber = 2;
 $shopware6PriceBase = 'Bruttopreis 1';
-$shopware6IdWebshop = 1;  // SW% = ShopID; SW6 = SalesChannelID, optionaly as array
+$shopware6IdWebshop = [
+	// ChannelID for order download
+];
+$shopware6Visibilities = [
+		// ChannelID for visibilities
+		
+];
 $shopware6StockList = [0,36];
 $shopware6StockCheckOrders = true;
+$shopware6DynamicStock = [1];
+
 
 $shopware6CurrencyId = '5235734534790347953475037';
 $shopware6MediaFolderId = '342ß573490789728977897657589';
 $shopware6CategoryCmsPageId = '3489534895734892335749';
+
+// If not set, WWS Category is used
+$sw6GroupMatching = "./intern/data/sw6GroupMatching.json";
+$shopware6CategoryMatchingFieldName = "wws_category";
+
+//if Set upload CLp Dat ati Lenz CLP Plugin
+$shopware6LenzCLP = true;
+
+// load other prices than facto id 6 
+$shopware6AlternatePrices = true;
+// set clouseout if stock 0
+$shopware6SetCloseout=false;
+// set maxpurcase to stock 
+$shopware6SetMaxPurchaseToStock=true;
+// update no prices 
+$shopware6NoPrices = true;
+// upload Bezeichnung intern
+$shopware6AlternateProductname= true;
+// load hsnr no linr
+$shopware6UseHsnr=true;
 
 $shopware6_url = 'https://host/api';
 $shopware6_user = 'apiuser';
