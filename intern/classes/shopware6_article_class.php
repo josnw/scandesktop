@@ -278,6 +278,10 @@ class Shopware6Articles {
 			        ]
 	        ];
 	        
+	        if ($this->shopware6SetMaxPurchaseToStock) {
+	        	$restdata["maxPurchase"] = $stockSum;
+	        }
+	        
 	        // other prices
 	        if ($this->shopware6AlternatePrices) {
 	        	foreach($prices as $priceTyp => $price) {
@@ -315,7 +319,7 @@ class Shopware6Articles {
 	            } else {
 	            	$this->setVisibility($api, $frow["arnr"],true);
 	            }
-	            
+	        } else {
 	        	$result = [ "success" => 0, "put" => 'articles/'.$restdata["id"], "restdata" => $restdata, "json" => json_encode($restdata)];
 	        	return ['count' => $cnt , 'errors' => print_r($result,1)];
 	        }
