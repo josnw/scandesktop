@@ -21,16 +21,21 @@ class OpenApi3Client {
 	private $apiToken;
 	private $tokenExpires;
 	private $tokenExpiresTimer;
-	private $apiRefresh;
+	//private $apiRefresh;
+	private $username;
+	private $apiKey;
+
 
     public function __construct($apiUrl, $username, $apiKey) {
         $this->apiUrl = rtrim($apiUrl, '/') . '/';
-		$this->tokenExpires = time()+60;
+		$this->tokenExpires = time() + 600;
         $this->cURL = curl_init();
+        $this->username = $username;
+        $this->apiKey = $apiKey;
 		
        curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
        curl_setopt($this->cURL, CURLOPT_FOLLOWLOCATION, false);
-       curl_setopt($this->cURL, CURLOPT_USERAGENT, 'RHG Rest API Client 0.90');
+       curl_setopt($this->cURL, CURLOPT_USERAGENT, 'RHG Rest API Client 0.91');
        // curl_setopt($this->cURL, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
        // curl_setopt($this->cURL, CURLOPT_USERPWD, $username . ':' . $apiKey);
         curl_setopt(
@@ -39,15 +44,15 @@ class OpenApi3Client {
             ['Content-Type: application/json'],
 			
         );
-		$this->initToken($username, $apiKey);
+		$this->initToken();
 
     }
 	
-	private function initToken($username, $apiKey) {
+	private function initToken() {
 		$body = [
 				"grant_type" => "client_credentials",
-				"client_id" => $username,
-				"client_secret"=> $apiKey
+				"client_id" => $this->username,
+				"client_secret"=> $this->apiKey
 				
 		//	"client_id" => "administration",
 		//	"grant_type" => "password",
@@ -61,10 +66,9 @@ class OpenApi3Client {
                 $body
             );
 		
-		
 		$this->tokenType = $response['token_type'];
 		$this->apiToken = $response['access_token'];
-		$this->apiRefresh = $response['refresh_token'];
+		//$this->apiRefresh = $response['refresh_token'];
 		$this->tokenExpires = time() + $response['expires_in'];
 		$this->tokenExpiresTimer = $response['expires_in'];
 		
@@ -78,8 +82,12 @@ class OpenApi3Client {
 	
 
 	private function refreshToken() {
+
+		$this->tokenExpires = time() + $this->tokenExpiresTimer;
+		return $this->initToken();
+		/*
 		$body = [
-				"client_id" => "administration",
+				"client_id" => $username,
 				"grant_type" => "refresh_token",
 				"refresh_token"=> $this->apiRefresh
             ];
@@ -96,7 +104,7 @@ class OpenApi3Client {
 		$this->apiToken = $response['access_token'];
 		$this->apiRefresh = $response['refresh_token'];
 		$this->tokenExpires = time() + $this->tokenExpiresTimer;
-		
+		*/
 
 	}
 

@@ -20,6 +20,7 @@ class Shopware6Articles {
 	private $shopClpList;
 	private $shopware6SetCloseout;
 	private $shopware6SetMaxPurchaseToStock;
+	private $shopware6DefaultVisibilities;
 	private $shopware6Visibilities;
 	private $shopware6NoPrices;
 	private $shopware6AlternateProductname;
@@ -46,6 +47,7 @@ class Shopware6Articles {
 		$this->shopware6AlternatePrices = $shopware6AlternatePrices;
 		$this->shopware6SetCloseout = $shopware6SetCloseout;
 		$this->shopware6SetMaxPurchaseToStock = $shopware6SetMaxPurchaseToStock;
+		$this->shopware6DefaultVisibilities = $shopware6DefaultVisibilities;
 		$this->shopware6Visibilities = $shopware6Visibilities;
 		$this->shopware6NoPrices = $shopware6NoPrices;
 		$this->shopware6AlternateProductname = $shopware6AlternateProductname;
@@ -306,8 +308,12 @@ class Shopware6Articles {
 	        if ( ! $noupload ) {
 	            
 	            $this->SingleUpload($api, $restdata, "patch");
+	            if ($stockSum <= 0) {
+	            	$this->setVisibility($api, $frow["arnr"],false);
+	            } else {
+	            	$this->setVisibility($api, $frow["arnr"],true);
+	            }
 	            
-	        } else {
 	        	$result = [ "success" => 0, "put" => 'articles/'.$restdata["id"], "restdata" => $restdata, "json" => json_encode($restdata)];
 	        	return ['count' => $cnt , 'errors' => print_r($result,1)];
 	        }
@@ -464,8 +470,9 @@ class Shopware6Articles {
             }
             
             $restdata["visibilities"] = [];
-            foreach ($this->shopware6Visibilities as $channelId) {
+            foreach ($this->shopware6DefaultVisibilities as $channelId) {
             	$restdata["visibilities"][] = [
+            			"id" => md5($channelId.$artData["arnr"]),
             			"salesChannelId" => $channelId,
             			"visibility" => 30
             	];
@@ -489,19 +496,17 @@ class Shopware6Articles {
 	        foreach($prices as $priceTyp => $price) {
 	        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
 	        		$restdata["prices"][] = [
-	        				"id" => md5("WWS ".$priceTyp), //.$frow["arnr"]),
-	        				//"productid" => md5(null), //$frow["arnr"]),
+	        				"id" => md5("WWS ".$priceTyp. $artData["arnr"]),
+	        				"productid" => md5( $artData["arnr"]),
 	        				"rule" => [
 	        						"id" => md5("WWS ".$priceTyp),
 	        						"name" => "WWS ".$priceTyp,
 	        						"priority" => 900
 	        				],
-	        				#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-	        				#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
-	        				//     						"ruleId" => md5("WWS ".$priceTyp),
+	        				// "ruleId" => md5("WWS ".$priceTyp),
 	        				"quantityStart" => 1,
 	        				"price" => [[
-	        				#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
+	        						"id" => md5("price".$priceTyp. $artData["arnr"]),
 	        						"currencyId" => $this->ShopwareCurrencyId,
 	        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
 	        						"gross" => $price,
@@ -640,7 +645,7 @@ class Shopware6Articles {
 		}
 	}
 	
-	public function uploadSW6CLPData($api, $article, $clpData) {
+	public function uploadSW6CLPData($api, $article, $clpData, $type = "new") {
 		
 		if (empty($this->shopware6LenzCLP)) {
 			return FALSE;
@@ -650,17 +655,20 @@ class Shopware6Articles {
 			$this->getClps($api);
 		}
 		
-		$response = $api->get('product/'.md5($article).'/extensions/lenzPlatformClp');  // Artikelzuordnung
 		$productClps = [];
-		foreach($response["data"] as $productClp) {
-			$productClps[] = $productClp["attributes"]["slug"];
-		}
-
-		foreach($productClps as $productClp ) {
-			if (! in_array($productClp, $clpData)) {
-				$response = $api->DELETE('product/'.md5($article).'/extensions/lenzPlatformClp/'.$this->shopClpList[$productClp]["id"]);
+		if ($type != "new") {
+			$response = $api->get('product/'.md5($article).'/extensions/lenzPlatformClp');  // Artikelzuordnung
+			foreach($response["data"] as $productClp) {
+				$productClps[] = $productClp["attributes"]["slug"];
+			}
+	
+			foreach($productClps as $productClp ) {
+				if (! in_array($productClp, $clpData)) {
+					$response = $api->DELETE('product/'.md5($article).'/extensions/lenzPlatformClp/'.$this->shopClpList[$productClp]["id"]);
+				}
 			}
 		}
+		
 		foreach($clpData as $clp ) {
 			if (! in_array($clp, $productClps)) {
 				$payload = [ "id" =>  $this->shopClpList[$clp]["id"] ];
@@ -693,7 +701,7 @@ class Shopware6Articles {
 	    } else {
 	        $returnError = '';
 	        foreach ($result["errors"] as $error) {
-	            $returnError .= $restdata["productNumber"]."\t".$error["detail"]."\n";
+	        	$returnError .= $restdata["productNumber"]."\t".$error["detail"]."\t".$error["source"]["pointer"]."\n";
 	        }
 
 	        return ( $returnError );
@@ -724,13 +732,21 @@ class Shopware6Articles {
 	                $this->uploadSW6Media($api, $pictureUrl);
 	            }
 	            if (!empty($productData["clpData"])) {
-	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"]);
+	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"], "new");
 	            }
 	            
 	        } else {
 	           print "<pre>"; 
 	           print_r($this->generateSW6Product($frow["arnr"]));
 	           print "</pre>";
+	        }
+	        if (php_sapi_name() == 'cli') {
+	        	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
+	        	if (strlen($response) > 1) { 
+	        		print substr($response, 0, 70)."\n"; 
+	        	} else {
+	        		print "OK!\n";
+	        	}
 	        }
 	        if ($test and ($cnt > 2)) { break; }
 	    }
@@ -753,12 +769,13 @@ class Shopware6Articles {
 	        $cnt++;
 	        if (! $noUpload) {
 	            $productData = $this->generateSW6Product($frow["arnr"], "update");
-	            $errorList .= $this->SingleUpload($api, $productData["product"], "patch");
+	            $response .= $this->SingleUpload($api, $productData["product"], "patch");
+	            $errorList .= $response;
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
 	                $this->uploadSW6Media($api, $pictureUrl);
 	            }
 	            if (!empty($productData["clpData"])) {
-	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"]);
+	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"], "update");
 	            }
 	        } else {
 	            print "<pre>";
@@ -770,6 +787,14 @@ class Shopware6Articles {
 	    if (! $this->shopware6NoPrices) {
 	    	$this->updateSW6StockPrice($api, $noUpload);
 	    }
+	    if (php_sapi_name() == 'cli') {
+	    	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
+	    	if (strlen($response) > 1) {
+	    		print substr($response, 0, 70)."\n";
+	    	} else {
+	    		print "OK!\n";
+	    	}
+	    }
 	    
 	    return ["count" => $cnt, "errors" => $errorList];
 	}
@@ -778,6 +803,33 @@ class Shopware6Articles {
 	 * SW6 noch offen
 	 */
 	public function exportSW6Stock($api, $noupload = null) {
+	}
+
+	public function setVisibility($api, $articleId, $visibility = true) {
+		$visibilities = $api->get('product/'.md5($articleId).'/visibilities');
+		
+		$isVisibilities = [];
+		foreach($visibilities as $checkvisbility) {
+			if ( in_array($checkvisbility["attributes"][salesChannelId], $this->shopware6Visibilities)  and (! $visibility )) {
+				$api->delete('product-visibility/'.$checkvisbility["id"] );
+			} elseif ( in_array($checkvisbility["attributes"][salesChannelId], $this->shopware6Visibilities)  and ( $visibility )) {
+				$isVisibilities[] = $checkvisbility["attributes"][salesChannelId];
+			}
+		}
+		
+		foreach($this->shopware6Visibilities as $setVisibility) {
+			if ( ! in_array($setVisibility, $isVisibilities) ) {
+				
+				$payload = [
+						"id" => md5($setVisibility.$articleId),
+						"productId" => md5($articleId),
+						"salesChannelId" => $setVisibility,
+						"visibility" => 30
+				];
+				$api->post('product-visibility/', $payload );
+			}
+		}
+				
 	}
 	
 	private function debugData($title, $values) {
