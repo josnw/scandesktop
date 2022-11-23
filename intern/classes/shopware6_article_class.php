@@ -279,31 +279,33 @@ class Shopware6Articles {
 	        ];
 	        
 	        // other prices
-        	foreach($prices as $priceTyp => $price) {
-       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
-       				$restdata["prices"][] = [
-       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-       						"productid" => md5($frow["arnr"]),
-       						"rule" => [
-       								"id" => md5("WWS ".$priceTyp),
-       								"name" => "WWS ".$priceTyp,
-       								"priority" => 900
-       						],
-#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
-       						//     						"ruleId" => md5("WWS ".$priceTyp),
-       						"quantityStart" => 1,
-       						"price" => [[
-#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
-       								"currencyId" => $this->ShopwareCurrencyId,
-       								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
-       								"gross" => $price,
-       								"linked" => true,
-       						]]
-       				];
-        				
-       			}
-        	}
+	        if ($this->shopware6AlternatePrices) {
+	        	foreach($prices as $priceTyp => $price) {
+	       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
+	       				$restdata["prices"][] = [
+	       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
+	       						"productid" => md5($frow["arnr"]),
+	       						"rule" => [
+	       								"id" => md5("WWS ".$priceTyp),
+	       								"name" => "WWS ".$priceTyp,
+	       								"priority" => 900
+	       						],
+	#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+	#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+	       						//     						"ruleId" => md5("WWS ".$priceTyp),
+	       						"quantityStart" => 1,
+	       						"price" => [[
+	#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
+	       								"currencyId" => $this->ShopwareCurrencyId,
+	       								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
+	       								"gross" => $price,
+	       								"linked" => true,
+	       						]]
+	       				];
+	        				
+	       			}
+	        	}
+	        }
 
 	        if ( ! $noupload ) {
 	            
