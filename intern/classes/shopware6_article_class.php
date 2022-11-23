@@ -809,11 +809,11 @@ class Shopware6Articles {
 		$visibilities = $api->get('product/'.md5($articleId).'/visibilities');
 		
 		$isVisibilities = [];
-		foreach($visibilities as $checkvisbility) {
-			if ( in_array($checkvisbility["attributes"][salesChannelId], $this->shopware6Visibilities)  and (! $visibility )) {
+		foreach($visibilities["data"] as $checkvisbility) {
+			if ( in_array($checkvisbility["attributes"]["salesChannelId"], $this->shopware6Visibilities)  and (! $visibility )) {
 				$api->delete('product-visibility/'.$checkvisbility["id"] );
-			} elseif ( in_array($checkvisbility["attributes"][salesChannelId], $this->shopware6Visibilities)  and ( $visibility )) {
-				$isVisibilities[] = $checkvisbility["attributes"][salesChannelId];
+			} elseif ( in_array($checkvisbility["attributes"]["salesChannelId"], $this->shopware6Visibilities)  and ( $visibility )) {
+				$isVisibilities[] = $checkvisbility["attributes"]["salesChannelId"];
 			}
 		}
 		
