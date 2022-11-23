@@ -5,6 +5,10 @@
  include_once ("./intern/functions.php");
  
  if (isset($_POST["addArticles"]) or (isset($argv) and in_array("/addArticles", $argv))) {
+ 	if ($shopware6NoBaseData) {
+ 		die("NoBaseData in Config.php active!\n");
+ 	}
+ 	
  	$starttime = time();
  	
      if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
@@ -54,6 +58,10 @@
  }
  
  if (isset($_POST["updateArticles"]) or (isset($argv) and in_array("/updateArticles", $argv))) {
+ 	if ($shopware6NoBaseData) {
+ 		die("NoBaseData in Config.php active!\n");
+ 	}
+ 	
  	$starttime = time();
  	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
  		$checkDate = '2000-01-01';
