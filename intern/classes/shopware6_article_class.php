@@ -749,7 +749,7 @@ class Shopware6Articles {
 	        if (php_sapi_name() == 'cli') {
 	        	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
 	        	if (strlen($response) > 1) { 
-	        		print substr($response, 0, 70)."\n"; 
+	        		print substr($response, 0, 100)."\n"; 
 	        	} else {
 	        		print "OK!\n";
 	        	}
@@ -796,7 +796,7 @@ class Shopware6Articles {
 	    if (php_sapi_name() == 'cli') {
 	    	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
 	    	if (strlen($response) > 1) {
-	    		print substr($response, 0, 70)."\n";
+	    		print substr($response, 0, 100)."\n";
 	    	} else {
 	    		print "OK!\n";
 	    	}
@@ -952,5 +952,25 @@ class Shopware6Articles {
 		return $catMapping;
 	}
 	
+	public function setArticlesOnline() {
+		
+		// select article list for export, create handle only for scaling up big artile lists
+		$fqry  = "insert into web_art (arnr, xxak, xyak, wsnr, wson)
+					select distinct arnr, '','', :wsnr::int, 1 from
+					art_best b inner join art_liefdok d using (arnr) inner join art_txt t using (arnr)
+					where b.ifnr = 919 and amge > 0 and d.adtp = 91701
+					on conflict do nothing";
+		
+		$setWebshop = $this->pg_pdo->prepare($fqry);
+
+		$setWebshop->bindValue(':wsnr',$this->ShopwareWebshopNumber);
+
+		$setWebshop->execute() or die (print_r($setWebshop->errorInfo()));
+		
+		return true;
+		
+		
+		
+	}
 }
 ?>

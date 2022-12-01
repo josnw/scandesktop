@@ -55,6 +55,18 @@
 	</div>
 </form>
 
+
+<h2>Artikel mit Bestand und Bild für Webshop aktivieren *</h2>
+
+<form action="#" method="POST" enctype="multipart/form-data" >
+	<div class="DSEdit">
+		<div class="DSFeld2">
+			
+		</div>
+		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="setArticleOnline" value="Artikel aktivieren" onclick="wartemal('on')"></div>
+	</div>
+</form>
+
 <?php 
 if(!empty($sw6GroupMatching)) {
  print '	

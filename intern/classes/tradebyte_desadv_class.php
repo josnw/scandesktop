@@ -197,7 +197,7 @@ class tradebyteDesAdv {
 				'FBLG' => $this->OrdersData[$orderId]['head']['TB_ORDER_ID'],
 				'QSBZ' => $this->OrdersData[$orderId]['head']['CHANNEL_KEY'].' '.$this->OrdersData[$orderId]['head']['CHANNEL_ORDER_ID'],
 				'FDTM' => date("d.m.Y",strtotime($this->OrdersData[$orderId]['head']['ORDER_DATE'])),
-				'FLDT' => date("d.m.Y", time()+(60*60*18)),
+				'FLDT' => date("d.m.Y", time()),   // lt. Absprache mit Andreas am 2022-11-24
 				'FPOS' => $cnt++,
 				'FPNZ' => $posData['POS_LFDNR'],
 				'AAMR' => $posData['POS_ANR'],

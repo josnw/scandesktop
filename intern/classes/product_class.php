@@ -150,7 +150,7 @@ class product {
 	
 	private function getParameterFromDB() {
 		
-		$fqry  = "select * from art_param where arnr = :aamr and qpky not like '%text%' order by qpky";
+		$fqry  = "select * from art_param where arnr = :aamr and qpky not like '%text%' and length(qpvl) > 0 order by qpky";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 		$f_qry->bindValue(':aamr',$this->productId);
