@@ -127,7 +127,7 @@
 	$articles = new Shopware6Articles();
 	
 	$articles->articleUpdateListPriceStock($checkDate);
-	
+	print "<pre>";
 	$result = $articles->updateSW6StockPrice($shopwareApi, $noUpload);
 	$rowCount = $result['count'];
 	$errorList = $result['errors'];
