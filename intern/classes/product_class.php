@@ -573,7 +573,7 @@ class product {
 
 	public function getDBFields($DbFields) {
 		
-		$DbFields = preg_replace("/[^a-z0-9, ]/i",$DbFields);
+		$DbFields = preg_replace("/[^a-z0-9, ]/i","",$DbFields);
 		$fqry  = "select ".$DbFields." from art_0 a inner join art_lief l using (arnr,linr) where xxak = '' and xyak = '' and obnr = 0 and arnr = :arnr";
 
 		$f_qry = $this->pg_pdo->prepare($fqry);

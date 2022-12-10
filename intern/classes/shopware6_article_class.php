@@ -134,8 +134,8 @@ class Shopware6Articles {
 						$stockSum += $stockAmount;
 					} 
 				}
-				
 			}
+			
 			$prices = $article->getPrices( true );
 
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
@@ -257,7 +257,7 @@ class Shopware6Articles {
 	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > ($this->dynamic_stock_upload["max"] + $orderSum) )) {
 	            	$stockSum = $this->dynamic_stock_upload["max"] + $orderSum;
 	            }
-	            
+	            Proto($frow["arnr"]." Stock Sum ".$stockSum." ME");
 	            
 	        }
 	        $prices = $article->getPrices( true );
