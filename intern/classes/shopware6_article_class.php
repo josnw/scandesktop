@@ -74,8 +74,9 @@ class Shopware6Articles {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt or wsdt is null)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt or wsdt is null) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
+						left join auftr_pos ap on ap.arnr = a.arnr and ftyp in (4,5)  
 					   where  ( wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
-					    and ( b.qedt is not null or c.qbis is not null  or wson = 0 ) )
+					    and ( b.qedt is not null or c.qbis is not null  or wson = 0 or ap.fmge > 0) )
  	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
 						inner join art_stl sl on sl.arnr = w.arnr 	
 						inner join art_best b2 on b2.arnr = sl.astl and (b2.qedt > w.wsdt or wsdt is null) 	
@@ -84,6 +85,7 @@ class Shopware6Articles {
 					";	
 			$options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
+			
 		} else {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
@@ -200,6 +202,7 @@ class Shopware6Articles {
 	    // fill array and write to file
 	    $first = true; 
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC, $first ? PDO::FETCH_ORI_FIRST : PDO::FETCH_ORI_NEXT )) {
+	    	Proto($frow["arnr"]." Start StockPriceUpdate");
 	    	$first = false;
 	        $cnt++;
 	        $article = new product($frow["arnr"]);
@@ -231,6 +234,7 @@ class Shopware6Articles {
 	            
 	            // auf externes Lager nicht für Gelegenheitskäufe, nur bei hohen Umsatzerwartungen und vollen BestellVE im externen Lager zugreifen. 
 	            foreach($stocks as $stockNumber => $stockAmount ) {
+	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." StockSum:".$stockSum);
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
 	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderSum > 0) and ($stockSum > 0)  ) {
 	            			Proto($frow["arnr"]." Check dynamic external stock amount");
