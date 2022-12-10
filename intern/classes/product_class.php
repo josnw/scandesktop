@@ -376,7 +376,7 @@ class product {
 		$aqry  = "select b.ifnr,cast(sum((b.fmge-COALESCE(b.fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge, count(distinct fblg) as fcnt 
 					from auftr_pos b inner join auftr_kopf k using (fblg) inner join art_0 a using (arnr)
 					where k.ftyp = 2 and arnr = :aamr and fskz = :fskz
-					group by ifnr";
+					group by b.ifnr";
 		$a_qry = $this->pg_pdo->prepare($aqry);
 		$a_qry->bindValue(':aamr',$this->productId);
 		$a_qry->bindValue(':fskz',$this->wwsPickBelegKz);
