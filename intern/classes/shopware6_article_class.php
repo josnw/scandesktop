@@ -72,15 +72,15 @@ class Shopware6Articles {
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
-						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt or wsdt is null)
-						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt or wsdt is null) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
-						left join auftr_pos ap on ap.arnr = a.arnr and ftyp in (4,5)  
-					   where  ( wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
-					    and ( b.qedt is not null or c.qbis is not null  or wson = 0 or ap.fmge > 0) )
+						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt)
+						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
+						left join auftr_pos ap on ap.arnr = a.arnr and ftyp = 2 and fdtm > ( current_date - interval '1 day')  
+					   where  ( wsnr = :wsnr and wsdt is not null ) 
+					    and ( b.qedt is not null or c.qbis is not null or ap.fmge > 0) 
  	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
 						inner join art_stl sl on sl.arnr = w.arnr 	
-						inner join art_best b2 on b2.arnr = sl.astl and (b2.qedt > w.wsdt or wsdt is null) 	
-					   where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null )) 
+						inner join art_best b2 on b2.arnr = sl.astl and (b2.qedt > w.wsdt) 	
+					   where  wsnr = :wsnr and ( wsdt is not null )
 					  order by arnr
 					";	
 			$options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
