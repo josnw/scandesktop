@@ -709,7 +709,12 @@ class Shopware6Articles {
 	        $returnError = '';
 
 	        foreach ($result["errors"] as $error) {
-	        	$returnError .= $restdata["productNumber"]."\t".$error["detail"]."\t".$error["source"]["pointer"]."\n";
+	        	$returnError .= $restdata["productNumber"]."\t".$error["detail"];
+	        	if (!empty($error["source"]["pointer"])) {
+	        		$returnError .= "\t".$error["source"]["pointer"]."\n";
+	        	} else {
+	        		$returnError .= "\n";
+	        	}
 	        }
 
 	        return ( $returnError );
