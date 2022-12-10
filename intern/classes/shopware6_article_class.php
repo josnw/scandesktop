@@ -74,7 +74,7 @@ class Shopware6Articles {
 			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
-						left join auftr_pos ap on ap.arnr = a.arnr and ftyp = 2 and fdtm > ( current_date - interval '1 day')  
+						left join auftr_pos ap on ap.arnr = a.arnr and ftyp = 2 and ap.qadt > ( current_time - interval '1 hour')  
 					   where  ( wsnr = :wsnr and wsdt is not null ) 
 					    and ( b.qedt is not null or c.qbis is not null or ap.fmge > 0) 
  	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
