@@ -376,7 +376,7 @@ class product {
 		$a_qry = $this->pg_pdo->prepare($aqry);
 		$a_qry->bindValue(':aamr',$this->productId);
 		$a_qry->execute() or die (print_r($a_qry->errorInfo()));
-		$affmge = [];
+		$orderData = [];
 		while ( $row = $a_qry->fetch( PDO::FETCH_ASSOC )) {
 			$orderData[$row['ifnr']]['fmge'] = $row['fmge'];
 			$orderData[$row['ifnr']]['fcnt'] = $row['fcnt'];
@@ -389,7 +389,7 @@ class product {
 		if (! isset($this->productOrderSum) or $this->productOrderSum == NULL ) {
 			$this->getOrderSumFromDB();
 		}
-		return $this->getOrderSumFromDB;
+		return $this->productOrderSum;
 	}	
 	
 	private function getStocksFromDB($checkOrders = true) {

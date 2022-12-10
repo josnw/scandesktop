@@ -22,7 +22,7 @@
      } else {
          $noUpload = NULL;
      }
-     $shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+     $shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
      
      $articles = new Shopware6Articles();
      
@@ -42,7 +42,7 @@
  if (isset($_POST["getCategoryMapping"]) or (isset($argv) and in_array("/getCategoryMapping", $argv))) {
  	$starttime = time();
  	
- 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	
  	$articles = new Shopware6Articles($shopwareApi);
  	
@@ -60,7 +60,7 @@
  if (isset($_POST["setArticleOnline"]) or (isset($argv) and in_array("/setArticleOnline", $argv))) {
  	$starttime = time();
  	
- 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	
  	$articles = new Shopware6Articles($shopwareApi);
  	
@@ -90,7 +90,7 @@
  	} else {
  		$noUpload = NULL;
  	}
- 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	
  	$articles = new Shopware6Articles();
  	
@@ -122,7 +122,7 @@
 		$noUpload = NULL;
 	}
 	
-	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 	
 	$articles = new Shopware6Articles();
 	
@@ -142,7 +142,7 @@
 
  if (isset($_POST["getOrders"]) or (isset($argv) and in_array("/getOrders", $argv))) {
 	print "<pre>";
- 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key); 
+	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	$starttime = time();
  	
  	if (! is_array($shopware6IdWebshop) ) {

@@ -3,7 +3,7 @@
 include './intern/autoload.php';
 include ("./intern/config.php");
 
-$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 print "Swagger:<pre>\n";
 $yaml = $shopwareApi->getSwagger();
 

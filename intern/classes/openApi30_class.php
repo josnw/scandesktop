@@ -24,15 +24,17 @@ class OpenApi3Client {
 	//private $apiRefresh;
 	private $username;
 	private $apiKey;
+	private $apiType;
 
 
-    public function __construct($apiUrl, $username, $apiKey) {
+    public function __construct($apiUrl, $username, $apiKey, $type = "client_credentials") {
         $this->apiUrl = rtrim($apiUrl, '/') . '/';
 		$this->tokenExpires = time() + 600;
         $this->cURL = curl_init();
         $this->username = $username;
         $this->apiKey = $apiKey;
-		
+        $this->$apiType = $type;
+        
        curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
        curl_setopt($this->cURL, CURLOPT_FOLLOWLOCATION, false);
        curl_setopt($this->cURL, CURLOPT_USERAGENT, 'RHG Rest API Client 0.91');
@@ -49,22 +51,31 @@ class OpenApi3Client {
     }
 	
 	private function initToken() {
-		$body = [
-				"grant_type" => "client_credentials",
-				"client_id" => $this->username,
-				"client_secret"=> $this->apiKey
-				
-		//	"client_id" => "administration",
-		//	"grant_type" => "password",
-		//	"scopes" => "write",
-		//	"username" => $username,
-		//	"password"=> $apiKey
+		if ($this->apiType == "client_credentials") {
+			$body = [
+					"grant_type" => "client_credentials",
+					"client_id" => $this->username,
+					"client_secret"=> $this->apiKey
+			];
+		} else {
+			$body = [
+					"client_id" => "administration",
+					"grant_type" => "password",
+					"scopes" => "write",
+					"username" => $this->username,
+					"password"=> $this->apiKey
             ];
-  
+		}
+		
 		$response = $this->post(
                 'oauth/token',
                 $body
             );
+		
+		if(!empty($response["error"])) {
+			print $response["error"][0]["title"];
+			return false;
+		}
 		
 		$this->tokenType = $response['token_type'];
 		$this->apiToken = $response['access_token'];

@@ -705,6 +705,7 @@ class Shopware6Articles {
 	        $this->setUpdateTime($restdata["productNumber"],1);
 	    } else {
 	        $returnError = '';
+
 	        foreach ($result["errors"] as $error) {
 	        	$returnError .= $restdata["productNumber"]."\t".$error["detail"]."\t".$error["source"]["pointer"]."\n";
 	        }

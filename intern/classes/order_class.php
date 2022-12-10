@@ -338,7 +338,7 @@ class order {
 	public function getShippingBlueprint() {
 	    
 	    include ("./intern/config.php");
-	    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+	    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 	    
 	    $orderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 	    
@@ -371,7 +371,7 @@ class order {
 	    
 		try {
 		    include ("./intern/config.php");
-		    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+		    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 	
 		    $orderId = $this->checkShopwareOrderId('X');
 		    
@@ -582,7 +582,7 @@ class order {
 	
 		$tracklist = [];
 		include ("./intern/config.php");
-		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 		if ($type == "shippingId") {
 			$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
 			foreach($response["data"] as $tracking) {
@@ -605,7 +605,7 @@ class order {
 		
 		$documentlist = [];
 		include ("./intern/config.php");
-		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 		$this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 		print "ShopwareOrderID:".$this->shopwareOrderId."\n";
 		$response = $api->get('order/'.$this->shopwareOrderId.'/pickwareShippingShipments');
@@ -670,7 +670,7 @@ class order {
 	    
 	    if (! preg_match('/[a-z0-9]{32}/', $id)) {
 	        include ("./intern/config.php");
-	        $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+	        $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);;
 	        $params = [
 	            'filter' => [
 	                [
@@ -694,7 +694,7 @@ class order {
 
 		include ("./intern/config.php");
 		include_once ("./intern/functions.php");
-		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+		$api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
 		
 		$params = [
 				'filter' => [

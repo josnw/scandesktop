@@ -3,7 +3,7 @@
  include ("./intern/config.php");
 
  if (isset($_POST["setMainArticle"]) or (isset($argv) and in_array("/setMainArticle", $argv))) {
- 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key);
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	print LR."Hauptartikel: ".$_POST["mainArticle"].LR;
  	$relationships = [];
  	for($i = 0; $i < count($_POST["subArticle"]); $i++)  {
