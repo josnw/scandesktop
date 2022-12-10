@@ -20,11 +20,14 @@ class product {
 	private $productStocks;
 	private $productOrderSum;
 	private $clpData = [];
+	private $wwsPickBelegKz;
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
 
 		include ("./intern/config.php");
+		
+		$this->wwsPickBelegKz = $wwsPickBelegKz;
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		
@@ -370,11 +373,13 @@ class product {
 
 	private function getOrderSumFromDB() {
 
-		$aqry  = "select ifnr,cast(sum((fmge-COALESCE(fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge, count(distinct fblg) as fcnt from auftr_pos b inner join art_0 a using (arnr)
-					where ftyp = 2 and arnr = :aamr
+		$aqry  = "select b.ifnr,cast(sum((b.fmge-COALESCE(b.fmgt,0))*a.amgn/a.amgz) as decimal(8,2)) as fmge, count(distinct fblg) as fcnt 
+					from auftr_pos b inner join auftr_kopf k using (fblg) inner join art_0 a using (arnr)
+					where k.ftyp = 2 and arnr = :aamr and fskz = :fskz
 					group by ifnr";
 		$a_qry = $this->pg_pdo->prepare($aqry);
 		$a_qry->bindValue(':aamr',$this->productId);
+		$a_qry->bindValue(':fskz',$this->wwsPickBelegKz);
 		$a_qry->execute() or die (print_r($a_qry->errorInfo()));
 		$orderData = [];
 		while ( $row = $a_qry->fetch( PDO::FETCH_ASSOC )) {
