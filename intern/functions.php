@@ -49,7 +49,7 @@ function Proto($logdata) {
  include ("./intern/config.php");
  $filename = "log/Protokoll".date("Y-m").".log";
  file_exists($filename) ? $newFile = false : $newFile = true;
-  
+ if (!empty($_SESSION['user'])) { $_SESSION['user'] = "cli"; }
  $log = new myfile($filename,"append");
  $log->writeLn(date("Y.m.d H:i")."\t".$_SESSION['user']."\t".$logdata);
  $log->close();
