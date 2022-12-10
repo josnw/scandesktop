@@ -706,17 +706,15 @@ class Shopware6Articles {
 	    if (! empty($result["success"])) {
 	        $this->setUpdateTime($restdata["productNumber"],1);
 	    } else {
-	        $returnError = '';
-
+	        $returnError = "Error StockPriceUpload ".$restdata["productNumber"];
 	        foreach ($result["errors"] as $error) {
-	        	$returnError .= $restdata["productNumber"]."\t".$error["detail"];
+	        	$returnError = "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
-	        		$returnError .= "\t".$error["source"]["pointer"]."\n";
-	        	} else {
-	        		$returnError .= "\n";
-	        	}
+	        		$returnError .= " (".$error["source"]["pointer"].") ";
+	        	} 
 	        }
-
+	        $returnError .= "\n";
+	        
 	        return ( $returnError );
 	    }
 	}
