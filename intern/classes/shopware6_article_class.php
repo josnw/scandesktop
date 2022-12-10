@@ -236,7 +236,7 @@ class Shopware6Articles {
 	            foreach($stocks as $stockNumber => $stockAmount ) {
 	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." StockSum:".$stockSum);
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
-	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderSum > 0) and ($stockSum > 0)  ) {
+	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderSum > 0) and (($stockSum+$orderSum) > 0)  ) {
 	            			Proto($frow["arnr"]." Check dynamic external stock amount");
             				$supplierData = $article->getDBFields("ablz,abln,abeh");
             				if (($supplierData["abln"] > 0) and ($supplierData["ablz"] > 1) and ($supplierData["abeh"] == 'Pal')){
@@ -715,7 +715,7 @@ class Shopware6Articles {
 	        	$returnError = "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
 	        		$returnError .= " (".$error["source"]["pointer"].") ";
-	        	} else if (preg_match('Expected command.*ProductDefinition', $returnError)) {
+	        	} else if (preg_match('/Expected command.*ProductDefinition/', $returnError)) {
 	        		$this->setUpdateTime($restdata["productNumber"],0);
 	        	}
 	        }
