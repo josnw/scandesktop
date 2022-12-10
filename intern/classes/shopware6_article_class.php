@@ -710,13 +710,14 @@ class Shopware6Articles {
 	    if (! empty($result["success"])) {
 	        $this->setUpdateTime($restdata["productNumber"],1);
 	    } else {
-	        $returnError = "Error StockPriceUpload ".$restdata["productNumber"];
+	    	$returnError = "Error StockPriceUpload ".$restdata["productNumber"];
 	        foreach ($result["errors"] as $error) {
 	        	$returnError = "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
 	        		$returnError .= " (".$error["source"]["pointer"].") ";
 	        	} 
 	        }
+	        Proto($restdata["productNumber"]." Upload Failed ".$returnError);
 	        $returnError .= "\n";
 	        
 	        return ( $returnError );
