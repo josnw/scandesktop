@@ -215,15 +215,15 @@ class Shopware6Articles {
 	        
 	        $this->debugData('StockList:'.$frow["arnr"], $stocks);
 	        
-	        $stockSum = 0; $orderSum = 0; 
+	        $stockSum = 0; $orderSum = 0; $orderCnt = 0;
 	        if ($frow["wson"] == 1) {
 	            foreach($stocks as $stockNumber => $stockAmount ) {
 	                if (in_array( $stockNumber , $this->ShopwareStockList)) {
 	                    $stockSum += $stockAmount;
 	                }
 	                if (!empty($orders[$stockNumber])) {
-
 	                	$orderSum += $orders[$stockNumber]['fmge'];
+	                	$orderCnt += $orders[$stockNumber]['fcnt'];
 	                }
 	                
 	            }
@@ -234,9 +234,9 @@ class Shopware6Articles {
 	            
 	            // auf externes Lager nicht für Gelegenheitskäufe, nur bei hohen Umsatzerwartungen und vollen BestellVE im externen Lager zugreifen. 
 	            foreach($stocks as $stockNumber => $stockAmount ) {
-	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." StockSum:".$stockSum);
+	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." OrderCnt:".$orderCnt." StockSum:".$stockSum);
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
-	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderSum > 0) and (($stockSum+$orderSum) > 0)  ) {
+	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderCnt > 0) and (($stockSum+$orderSum) > 0)  ) {
 	            			Proto($frow["arnr"]." Check dynamic external stock amount");
             				$supplierData = $article->getDBFields("ablz,abln,abeh");
             				if (($supplierData["abln"] > 0) and ($supplierData["ablz"] > 1) and ($supplierData["abeh"] == 'Pal')){
