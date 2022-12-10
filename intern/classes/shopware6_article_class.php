@@ -715,7 +715,9 @@ class Shopware6Articles {
 	        	$returnError = "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
 	        		$returnError .= " (".$error["source"]["pointer"].") ";
-	        	} 
+	        	} else if (preg_match('Expected command.*ProductDefinition', $returnError)) {
+	        		$this->setUpdateTime($restdata["productNumber"],0);
+	        	}
 	        }
 	        Proto($restdata["productNumber"]." Upload Failed ".$returnError);
 	        $returnError .= "\n";
