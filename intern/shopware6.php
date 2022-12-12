@@ -6,7 +6,8 @@
  
  if (isset($_POST["addArticles"]) or (isset($argv) and in_array("/addArticles", $argv))) {
  	if ($shopware6NoBaseData) {
- 		die("NoBaseData in Config.php active!\n");
+ 		Proto("NoBaseData in Config.php active!");
+ 		exit;
  	}
  	
  	$starttime = time();
@@ -24,10 +25,14 @@
      }
      $shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
      if (!$shopwareApi) {
-     	die("API Connection failed!\n");
+     	Proto("API ".$shopware6_url." Connection failed!");
+     	exit;
+     } else {
+     	Proto("API ".$shopware6_url." Connection successful!");
      }
      
      $articles = new Shopware6Articles();
+     Proto("Starting Export ...");
      
      $result = $articles->exportAllNew($shopwareApi, $noUpload , 0);
      
@@ -46,6 +51,12 @@
  	$starttime = time();
  	
  	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+ 	if (!$shopwareApi) {
+ 		Proto("API ".$shopware6_url." Connection failed!");
+ 		exit;
+ 	} else {
+ 		Proto("API ".$shopware6_url." Connection successful!");
+ 	}
  	
  	$articles = new Shopware6Articles($shopwareApi);
  	
@@ -66,6 +77,12 @@
  	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
  	
  	$articles = new Shopware6Articles($shopwareApi);
+ 	if (!$shopwareApi) {
+ 		Proto("API ".$shopware6_url." Connection failed!");
+ 		exit;
+ 	} else {
+ 		Proto("API ".$shopware6_url." Connection successful!");
+ 	}
  	
  	$result = $articles->setArticlesOnline();
  	if (php_sapi_name() != 'cli') {
@@ -94,6 +111,12 @@
  		$noUpload = NULL;
  	}
  	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+ 	if (!$shopwareApi) {
+ 		Proto("API ".$shopware6_url." Connection failed!");
+ 		exit;
+ 	} else {
+ 		Proto("API ".$shopware6_url." Connection successful!");
+ 	}
  	
  	$articles = new Shopware6Articles();
  	
@@ -126,6 +149,12 @@
 	}
 	
 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+	if (!$shopwareApi) {
+		Proto("API ".$shopware6_url." Connection failed!");
+		exit;
+	} else {
+		Proto("API ".$shopware6_url." Connection successful!");
+	}
 	
 	$articles = new Shopware6Articles();
 	
@@ -146,7 +175,13 @@
  if (isset($_POST["getOrders"]) or (isset($argv) and in_array("/getOrders", $argv))) {
 	print "<pre>";
 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
- 	$starttime = time();
+	if (!$shopwareApi) {
+		Proto("API ".$shopware6_url." Connection failed!");
+		exit;
+	} else {
+		Proto("API ".$shopware6_url." Connection successful!");
+	}
+	$starttime = time();
  	
  	if (! is_array($shopware6IdWebshop) ) {
  		$salesChannels = [ $shopware6IdWebshop ];

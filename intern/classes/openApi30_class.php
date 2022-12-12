@@ -52,7 +52,7 @@ class OpenApi3Client {
 	
 	private function initToken() {
 		
-		$this->tokenExpires = time() + 100; 
+		$this->tokenExpires = time() + 120; 
 		
 		if ($this->apiType == "client_credentials") {
 			$body = [
@@ -97,7 +97,7 @@ class OpenApi3Client {
 
 	private function refreshToken() {
 
-		$this->tokenExpires = time() + $this->tokenExpiresTimer;
+		$this->tokenExpires = time() + 120;
 		return $this->initToken();
 		/*
 		$body = [
