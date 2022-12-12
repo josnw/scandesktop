@@ -23,6 +23,9 @@
          $noUpload = NULL;
      }
      $shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+     if (!$shopwareApi) {
+     	die("API Connection failed!\n");
+     }
      
      $articles = new Shopware6Articles();
      

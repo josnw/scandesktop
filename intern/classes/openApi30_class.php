@@ -51,6 +51,9 @@ class OpenApi3Client {
     }
 	
 	private function initToken() {
+		
+		$this->tokenExpires = time() + 100; 
+		
 		if ($this->apiType == "client_credentials") {
 			$body = [
 					"grant_type" => "client_credentials",
