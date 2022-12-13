@@ -33,7 +33,7 @@ class OpenApi3Client {
         $this->cURL = curl_init();
         $this->username = $username;
         $this->apiKey = $apiKey;
-        $this->apiType = $type;
+       	$this->apiType = $type;
         
        curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
        curl_setopt($this->cURL, CURLOPT_FOLLOWLOCATION, false);
@@ -75,8 +75,8 @@ class OpenApi3Client {
                 $body
             );
 		
-		if(!empty($response["error"])) {
-			print $response["error"][0]["title"];
+		if( !empty($response["errors"]) ){
+			print $response["errors"][0]["title"];
 			return false;
 		}
 		
