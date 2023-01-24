@@ -100,7 +100,8 @@
   } 
 
  // select last update date for every allianz company
- $sql_fil = "select ifnr, qlnr, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qlnr::integer where ifnr > 1 and qlnr > 0 group by ifnr, qlnr";
+ $sql_fil = "select ifnr, qlnr, qbnr, max(b.qedt) as date from fil_0 f left join cond_ek b on b.linr = f.qlnr::integer where ifnr > 1 and qlnr > 0 
+               group by ifnr, qlnr, qbnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die($fil_qry->errorInfo()[2]);
 /*
@@ -109,7 +110,7 @@
   while ($filrow = $fil_qry->fetch( PDO::FETCH_ASSOC )) {
 	//get updatedata for single price
 
-	$pricelist = $allianzdata->getPrice($filrow['ifnr'], $filrow['date']);
+	$pricelist = $allianzdata->getPrice($filrow['qbnr'], $filrow['date']);
 
 	foreach ($pricelist["data"] as $priceData) {
 
