@@ -804,7 +804,7 @@ class Shopware6Articles {
 	            }
 	        } else {
 	            print "<pre>";
-	            print_r($this->generateSW6Product($frow["arnr"]));
+	            print_r($this->generateSW6Product($frow["arnr"], "update"));
 	            print "</pre>";
 	        }
 	        if ($test and ($cnt > 5)) { break; }
