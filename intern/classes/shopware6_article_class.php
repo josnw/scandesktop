@@ -457,9 +457,14 @@ class Shopware6Articles {
 					        				"id" => md5($artData["qgrp"]),
 					        				"name" => $artData["gqsbz"],
 					        				"type" => "page",
-					        				"cmsPageId" => $this->shopwareCategoryCmsPageId
+					        				"cmsPageId" => $this->shopwareCategoryCmsPageId,
 					        		]
 					        	  ];
+	        if (!empty($shopware6CategoryMatchingFieldName)) {
+	        	$restdata["categories"][0]["customFields"] = [
+	        													$shopware6CategoryMatchingFieldName =>  $artData['qgrp']
+	        												 ];
+	        }
         }
         
         // new uploads only
@@ -600,6 +605,8 @@ class Shopware6Articles {
                     "id" => md5($pictureUrl),
                     "media" => [
                         "id" => md5($pictureUrl),
+                    	"alt" => $artData["lqsbz"].' '.$artData["abz1"].' '.$artData["abz2"] ,
+                    	"title" => $artData["abz1"],	
 //                        "url" => $pictureUrl,
                         "mediaFolder" => [
                             "id" => md5($artData["qgrp"]),
@@ -984,5 +991,7 @@ class Shopware6Articles {
 		
 		
 	}
+
+	
 }
 ?>

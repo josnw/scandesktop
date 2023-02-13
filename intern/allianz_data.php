@@ -12,7 +12,7 @@
  // check for new local product data and correct temporary stock 
  $correctsql = "update art_best b set amge = aimg * (select case when amgn > 0 then amgz/amgn else 1 end from art_0 a where a.arnr = b.arnr),
 								   aimg = null 
-			 where aimg > 0 and arnr in (select arnr from art_0 a2 where a2.arnr = b.arnr )";
+			 where aimg > 0 and arnr in (select arnr from art_0 a2 where a2.arnr = b.arnr ) and aivn is null and aisp is null";
  $correct_qry = $my_pdo->prepare($correctsql);
  $correct_qry->execute() or die($correct_qry->errorInfo()[2]);
 

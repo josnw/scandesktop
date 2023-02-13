@@ -92,6 +92,27 @@
  	}
  }
  
+ if (isset($_POST["updateVisibility"]) or (isset($argv) and in_array("/updateVisibility", $argv))) {
+ 	$starttime = time();
+ 	
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+ 	
+ 	$articles = new Shopware6Articles($shopwareApi);
+ 	if (!$shopwareApi) {
+ 		Proto("API ".$shopware6_url." Connection failed!");
+ 		exit;
+ 	} else {
+ 		Proto("API ".$shopware6_url." Connection successful!");
+ 	}
+ 	
+ 	$result = $articles->updateVisibility();
+ 	if (php_sapi_name() != 'cli') {
+ 		include("./intern/views/shopware_result_view.php");
+ 	} else {
+ 		print_r($result);
+ 	}
+ }
+ 
  
  if (isset($_POST["updateArticles"]) or (isset($argv) and in_array("/updateArticles", $argv))) {
  	if ($shopware6NoBaseData) {
