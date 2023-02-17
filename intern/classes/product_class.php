@@ -173,23 +173,29 @@ class product {
 			return $this->productParameter;
 	}	
 	
-	private function getPricesFromDB( $withStdPrice = false) {
+	private function getPricesFromDB( $withStdPrice = false, $netPrice = false) {
 
 		$this->productPrices = [] ;
 		$standardPrice = null;
 		
 		// sql check pricekey list
-		$priceqry  = "select qbez from mand_prsbas where mprb >= 6 and qbez not like 'VK-Preis %'";	
+		$priceqry  = "select mprb, qbez from mand_prsbas where (mprb >= 6 and qbez not like 'VK-Preis %') ";	
+		if (!empty($netPrice)) { $priceqry  .= " or qbez = :netPrice";	}
 		$price_qry = $this->pg_pdo->prepare($priceqry);
+		if (!empty($netPrice)) { $price_qry->bindValue(':netPrice',$netPrice);	}
 		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
+		
+		$mprbList = "";
 		while ($row = $price_qry->fetch( PDO::FETCH_ASSOC ) ) {
 			$this->productPrices[$row["qbez"]] = null;
+			$mprbList .= $row["mprb"].",";
 		}
+		$mprbList = substr($mprbList, 0, -1);
 		
 		// select prices
 		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
 					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
-		          where arnr = :aamr and cbez = 'PR01' and mprb >= 6 and qvon <= current_date and qbis > current_date 
+		          where arnr = :aamr and cbez = 'PR01' and mprb in (".$mprbList.") and qvon <= current_date and qbis > current_date 
 					and pb.qbez not like 'VK-Preis %'
                     and cprs <> 0
                     order by case when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm";
@@ -217,16 +223,16 @@ class product {
 		
 		// fill zero price with standard price
 		foreach($this->productPrices as $key => $value) {
-			if ($value == null) {
+			if (($value == null) and ($key != $netPrice)) {
 				$this->productPrices[$key] = $standardPrice;
 			}
 		}
 		
 	}
 		
-	public function getPrices($withStdPrice = false) {
+	public function getPrices($withStdPrice = false, $netPrice = false) {
 			if (! isset($this->productPrices) or $this->productPrices == NULL ) {
-					$this->getPricesFromDB( $withStdPrice );
+				$this->getPricesFromDB( $withStdPrice, $netPrice );
 			}
 			return $this->productPrices;
 	}	

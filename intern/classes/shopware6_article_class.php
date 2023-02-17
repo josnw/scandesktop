@@ -23,6 +23,7 @@ class Shopware6Articles {
 	private $shopware6DefaultVisibilities;
 	private $shopware6Visibilities;
 	private $shopware6NoPrices;
+	private $shopware6NetPriceBase;
 	private $shopware6AlternateProductname;
 	private $shopware6ManufactureCustomField;
 	private $shopware6DiscountTag;
@@ -56,6 +57,7 @@ class Shopware6Articles {
 		$this->shopware6UseHsnr = $shopware6UseHsnr;
 		$this->shopware6ManufactureCustomField = $shopware6ManufactureCustomField;
 		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
+		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -268,7 +270,8 @@ class Shopware6Articles {
 	            Proto($frow["arnr"]." Stock Sum ".$stockSum." ME");
 	            
 	        }
-	        $prices = $article->getPrices( true );
+	        
+	        $prices = $article->getPrices( true , $this->shopware6NetPriceBase);
 	        
 	        $this->debugData('PriceBase:'.$frow["arnr"], $prices);
 	        
@@ -294,6 +297,11 @@ class Shopware6Articles {
 	        // other prices
 	        if ($this->shopware6AlternatePrices) {
 	        	foreach($prices as $priceTyp => $price) {
+	        		
+	        		if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+	        			$price *= (1+$article->productData[0]["mmss"]/100);
+	        		}
+	        		
 	       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
 	       				$restdata["prices"][] = [
 	       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
@@ -393,7 +401,7 @@ class Shopware6Articles {
         $artData = $article->getResultList()[0];
         
         //get article price data
-        $prices = $article->getPrices( true );
+        $prices = $article->getPrices( true , $this->shopware6NetPriceBase);
 
         $this->debugData('PriceBase:', ['PriceBase'=> $this->ShopwarePriceBase, 'Prices' => $prices]);
         
@@ -448,15 +456,15 @@ class Shopware6Articles {
         	}
         }
         
-  /*      if (!empty($discountGroup)) {
+        if (!empty($discountGroup)) {
         	$restdata['tags'] = [ 
 						[
-							"id" => md5("tag".$discountGroup["id"]),
-							"name" => $discountGroup["name"],
+							"id" => md5("ptag".$discountGroup["id"]),
+							"name" => 'ARG-'.$discountGroup["name"],
 			        	]
 					];
         }
-*/
+
         $restdata["categories"] = [];
         		
         if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
@@ -524,8 +532,14 @@ class Shopware6Articles {
         }
         // other prices
         // TODO: $frow["arnr"] not definined -> change to $article -> tets in Shopware
+        
         if ($this->shopware6AlternatePrices) {
 	        foreach($prices as $priceTyp => $price) {
+	        	
+	        	if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+	        		$price *= (1+$article->productData[0]["mmss"]/100);
+	        	}
+	        	
 	        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
 	        		$restdata["prices"][] = [
 	        				"id" => md5("WWS ".$priceTyp. $artData["arnr"]),

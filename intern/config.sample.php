@@ -46,6 +46,7 @@ $channelFacData['shopware']['formId'] = '0001';
 // Shopware 6 Config
 $shopware6WebshopNumber = 2;
 $shopware6PriceBase = 'Bruttopreis 1';
+$shopware6NetPriceBase = false;  // define PriceBaseName or false
 $shopware6IdWebshop = [
 	// ChannelID for order download
 ];

@@ -71,6 +71,33 @@
  	}
  }
  
+ if (isset($_POST["exportKRG"]) or (isset($argv) and in_array("/exportKRG", $argv))) {
+ 	$starttime = time();
+ 	
+ 	$shopwareApi = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+ 	if (!$shopwareApi) {
+ 		Proto("API ".$shopware6_url." Connection failed!");
+ 		exit;
+ 	} else {
+ 		Proto("API ".$shopware6_url." Connection successful!");
+ 	} 	
+ 	
+ 	if (isset($_POST["noUpload"]) or (isset($argv) and in_array("/noUpload", $argv))) {
+ 		$upload = false;
+ 	} else {
+ 		$upload = true;
+ 	}
+
+ 	$swcustomer = new Shopware6Customer($shopwareApi);
+ 	$result = $swcustomer->uploadDiscountGroups($upload);
+ 	
+ 	if (php_sapi_name() != 'cli') {
+ 		include("./intern/views/shopware_result_view.php");
+ 	} else {
+ 		print_r($result);
+ 	}
+ }
+ 
  if (isset($_POST["setArticleOnline"]) or (isset($argv) and in_array("/setArticleOnline", $argv))) {
  	$starttime = time();
  	
@@ -141,7 +168,7 @@
  	
  	$articles = new Shopware6Articles();
  	
- 	$result = $articles->exportAllUpdates($shopwareApi, $noUpload , 1);
+ 	$result = $articles->exportAllUpdates($shopwareApi, $noUpload , 0);
  	
  	$rowCount = $result['count'];
  	$errorList = $result['errors'];
