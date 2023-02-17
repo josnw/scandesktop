@@ -81,6 +81,10 @@ $shopware6NoPrices = true;
 $shopware6AlternateProductname= true;
 // load hsnr no linr
 $shopware6UseHsnr=true;
+// wws discount group as tag 
+$shopware6setDiscountTag=false;
+
+
 
 $shopware6_url = 'https://host/api';
 $shopware6_user = 'apiuser';

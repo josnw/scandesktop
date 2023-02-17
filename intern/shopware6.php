@@ -141,7 +141,7 @@
  	
  	$articles = new Shopware6Articles();
  	
- 	$result = $articles->exportAllUpdates($shopwareApi, $noUpload , 0);
+ 	$result = $articles->exportAllUpdates($shopwareApi, $noUpload , 1);
  	
  	$rowCount = $result['count'];
  	$errorList = $result['errors'];

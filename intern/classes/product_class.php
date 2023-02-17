@@ -588,6 +588,44 @@ class product {
 		$row = $f_qry->fetch( PDO::FETCH_ASSOC );
 		return $row;
 	}
+	
+	public function getDiscountGroup() {
+		
+		$fqry  = "select qgrp as qhgr, argv, s.qbez, 9 as qgrl  from art_0 a 
+					inner join art_matrix m on a.arnr = m.arnr and m.xxak = '' and m.xyak = ''
+					left join status_id s on s.qskz = 31 and s.zxtp = m.argv 
+					where a.arnr = :aamr";
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->bindValue(':aamr',$this->productId);
+
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		$row = $f_qry->fetch( PDO::FETCH_ASSOC ); 
+
+		if (!empty($row['argv'])) {
+			return [ 'id' => $row['argv'], 'name' => $row['qbez'] ];
+		} else {
+			
+			while (!empty($row['qgrl'])) {
+
+				$fqry  = "select qhgr, qgrl, argv, s.qbez  from art_grp g 
+							left join status_id s on s.qskz = 31 and s.zxtp = g.argv
+							where qgrp = :qgrp";
+				$f_qry = $this->pg_pdo->prepare($fqry);
+				$f_qry->bindValue(':qgrp',$row['qhgr']);
+				
+				$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+				$row = $f_qry->fetch( PDO::FETCH_ASSOC );
+				
+				if (!empty($row['argv'])) {
+					return [ 'id' => $row['argv'], 'name' => $row['qbez'] ];
+				}
+			
+			}
+		}
+		
+		return false;
+		
+	}
 }
 
 ?>

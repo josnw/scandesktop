@@ -24,6 +24,8 @@ class Shopware6Articles {
 	private $shopware6Visibilities;
 	private $shopware6NoPrices;
 	private $shopware6AlternateProductname;
+	private $shopware6ManufactureCustomField;
+	private $shopware6DiscountTag;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -52,6 +54,8 @@ class Shopware6Articles {
 		$this->shopware6NoPrices = $shopware6NoPrices;
 		$this->shopware6AlternateProductname = $shopware6AlternateProductname;
 		$this->shopware6UseHsnr = $shopware6UseHsnr;
+		$this->shopware6ManufactureCustomField = $shopware6ManufactureCustomField;
+		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -405,6 +409,9 @@ class Shopware6Articles {
         } else {
         	$clpData = null;
         }
+        // get discount group
+        
+        $discountGroup = $article->getDiscountGroup();
         
         //generate shopware formated array
 
@@ -426,21 +433,30 @@ class Shopware6Articles {
         if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0)) {
         	$restdata["manufacturer"] = [
         			"id" =>  md5($artData['hsnr']),
-        			"name" =>  $artData['hqsbz'],
-        			"customFields" => [
-        					"id_manufacturer" =>  $artData['hsnr']
-        			]
+        			"name" =>  $artData['hqsbz']
         	];
+        	if (!empty($this->shopware6ManufactureCustomField)) {
+        		$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['hsnr'];
+        	}
         } else {
         	$restdata["manufacturer"] = [
         			"id" =>  md5($artData['linr']),
         			"name" =>  $artData['lqsbz'],
-        			"customFields" => [
-        				"id_manufacturer" =>  $artData['linr']
-        			]
         	];
+        	if (!empty($this->shopware6ManufactureCustomField)) {
+        		$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['linr'];
+        	}
         }
-
+        
+  /*      if (!empty($discountGroup)) {
+        	$restdata['tags'] = [ 
+						[
+							"id" => md5("tag".$discountGroup["id"]),
+							"name" => $discountGroup["name"],
+			        	]
+					];
+        }
+*/
         $restdata["categories"] = [];
         		
         if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
@@ -717,7 +733,7 @@ class Shopware6Articles {
 	    if (! empty($result["success"])) {
 	        $this->setUpdateTime($restdata["productNumber"],1);
 	    } else {
-	    	$returnError = "Error StockPriceUpload ".$restdata["productNumber"];
+	    	$returnError = "Error Upload ".$restdata["productNumber"];
 	        foreach ($result["errors"] as $error) {
 	        	$returnError = "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
@@ -728,7 +744,6 @@ class Shopware6Articles {
 	        }
 	        Proto($restdata["productNumber"]." Upload Failed ".$returnError);
 	        $returnError .= "\n";
-	        
 	        return ( $returnError );
 	    }
 	}
@@ -804,6 +819,7 @@ class Shopware6Articles {
 	            }
 	        } else {
 	            print "<pre>";
+	            print "Export ARNR ".$frow["arnr"]."\n";
 	            print_r($this->generateSW6Product($frow["arnr"], "update"));
 	            print "</pre>";
 	        }
@@ -859,8 +875,9 @@ class Shopware6Articles {
 	
 	private function debugData($title, $values) {
 	    if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
-	        print "<br/>\n".$title."<br/>";
+	        print "<pre>\n".$title."\n";
 	        print_r($values);
+	        print "\n</pre>";
 	    }
 	}
 
