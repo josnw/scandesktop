@@ -831,6 +831,14 @@ class Shopware6Articles {
 	            if (!empty($productData["clpData"])) {
 	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"], "update");
 	            }
+	            if (php_sapi_name() == 'cli') {
+	            	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
+	            	if (strlen($response) > 1) {
+	            		print substr($response, 0, 100)."\n";
+	            	} else {
+	            		print "OK!\n";
+	            	}
+	            }
 	        } else {
 	            print "<pre>";
 	            print "Export ARNR ".$frow["arnr"]."\n";
@@ -838,17 +846,11 @@ class Shopware6Articles {
 	            print "</pre>";
 	        }
 	        if ($test and ($cnt > 5)) { break; }
+	        
+	        
 	    }
-	    if (! $this->shopware6NoPrices) {
+	    if ($this->shopware6NoPrices == false) {
 	    	$this->updateSW6StockPrice($api, $noUpload);
-	    }
-	    if (php_sapi_name() == 'cli') {
-	    	print  date("Y-m-d H:i:s ")."Upload ".$cnt.": ".$frow["arnr"]."  ";
-	    	if (strlen($response) > 1) {
-	    		print substr($response, 0, 100)."\n";
-	    	} else {
-	    		print "OK!\n";
-	    	}
 	    }
 	    
 	    return ["count" => $cnt, "errors" => $errorList];
