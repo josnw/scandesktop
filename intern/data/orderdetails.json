@@ -52,7 +52,8 @@
 			"email",
 			"firstName",
 			"lastName",
-			"customerNumber"
+			"customerNumber",
+			"customFields"
 		],
 		"order": [
 			"id",

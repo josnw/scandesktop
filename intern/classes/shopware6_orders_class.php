@@ -93,10 +93,17 @@ class Shopware6Orders {
 		$customerData["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
 		
 		$FacArray = [];
+		
+		if ( (!empty($this->channelFacData['shopware6']['CustomerMappingField']))
+				and (!empty($customerData["order_customer"]["attributes"]["customFields"][$this->channelFacData['shopware6']['CustomerMappingField']])) ) {
+					$wwsCustomerNumber = $customerData["order_customer"]["attributes"]["customFields"][$this->channelFacData['shopware6']['CustomerMappingField']];
+		} 
+		
 		if (! $this->channelFacData['shopware6']['GroupCustomer'] ) { 
 			$FacArray["Customer"] = $this->getFacCustomerData($customerData);
 		}
 		$orderData["billingAddress"] = $customerData;
+		$orderData["wwsCustomerNumber"] = $wwsCustomerNumber;
 		$orderData["orderAddress"] = $orderData["order_address"][ reset($orderData["order_delivery"])["attributes"]["shippingOrderAddressId"] ];
 		$orderData["orderAddress"]["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
 		$orderData["payment"] = $orderData["state_machine_state"][ reset($orderData["order_transaction"])["relationships"]["stateMachineState"]["data"]["id"]];
@@ -115,7 +122,7 @@ class Shopware6Orders {
 			$item["orderId"] = $orderData["orderId"];
 			$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
 			$item["paymentId"] = $orderData["paymentId"];
-			
+			$item["wwsCustomerNumber"] = $wwsCustomerNumber;
 			$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
 			
 		}
@@ -187,6 +194,11 @@ class Shopware6Orders {
 	
 	private function getFacCustomerData($data) {
 
+		if ( (!empty($this->channelFacData['shopware6']['CustomerMappingField']))
+				and (!empty($customerData["order_customer"]["attributes"]["customFields"][$this->channelFacData['shopware6']['CustomerMappingField']])) ) {
+			return [];
+		}
+					
 		$customerNumber = $this->GetRealCustomerNumber($data["order_customer"]["attributes"]["customerNumber"]);
 		
 		$facCustomer = [
@@ -210,8 +222,12 @@ class Shopware6Orders {
 	}
 	
 	private function getFacHeadData($data) {
-
-		$customerNumber = $this->GetRealCustomerNumber($data["billingAddress"]["order_customer"]["attributes"]["customerNumber"]);
+		
+		if (!empty($data["wwsCustomerNumber"])) {
+			$customerNumber = $data["wwsCustomerNumber"];
+		} else {
+			$customerNumber = $this->GetRealCustomerNumber($data["billingAddress"]["order_customer"]["attributes"]["customerNumber"]);
+		}
 		
 		$facHead = [
 				'FXNR' => $customerNumber,
@@ -303,7 +319,8 @@ class Shopware6Orders {
 	}	
 	
 	private function getFacPosData($data) {
-
+		print $this->channelFacData['shopware6']['CustomerMappingField'];
+		print_r($data);
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
 		
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
@@ -324,7 +341,11 @@ class Shopware6Orders {
 			$posApkz = $article->productData[0]['apkz'];
 		}
 		
-		$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
+		if (!empty($data["wwsCustomerNumber"])) {
+			$customerNumber = $data["wwsCustomerNumber"];
+		} else {
+			$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
+		}
 		
 		if ($article->productData[0]['aart'] == 2) {
 			$fakt = 3153923;
@@ -420,7 +441,11 @@ class Shopware6Orders {
 		$posApjs = $article->productData[0]['apjs'];
 		$posApkz = $article->productData[0]['apkz'];
 		
-		$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
+		if (!empty($data["wwsCustomerNumber"])) {
+			$customerNumber = $data["wwsCustomerNumber"];
+		} else {
+			$customerNumber = $this->GetRealCustomerNumber($data["customernumber"]);
+		}
 
 		$facPos = [
 				'FXNR' => $customerNumber ,
