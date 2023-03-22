@@ -438,24 +438,6 @@ class Shopware6Articles {
                ]
         ];
         
-        if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0)) {
-        	$restdata["manufacturer"] = [
-        			"id" =>  md5($artData['hsnr']),
-        			"name" =>  $artData['hqsbz']
-        	];
-        	if (!empty($this->shopware6ManufactureCustomField)) {
-        		$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['hsnr'];
-        	}
-        } else {
-        	$restdata["manufacturer"] = [
-        			"id" =>  md5($artData['linr']),
-        			"name" =>  $artData['lqsbz'],
-        	];
-        	if (!empty($this->shopware6ManufactureCustomField)) {
-        		$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['linr'];
-        	}
-        }
-        
         if (!empty($discountGroup)) {
         	$restdata['tags'] = [ 
 						[
@@ -493,6 +475,25 @@ class Shopware6Articles {
         
         // new uploads only
         if ($type == "new") {
+        	
+        	if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0)) {
+        		$restdata["manufacturer"] = [
+        				"id" =>  md5($artData['hsnr']),
+        				"name" =>  $artData['hqsbz']
+        		];
+        		if (!empty($this->shopware6ManufactureCustomField)) {
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['hsnr'];
+        		}
+        	} else {
+        		$restdata["manufacturer"] = [
+        				"id" =>  md5($artData['linr']),
+        				"name" =>  $artData['lqsbz'],
+        		];
+        		if (!empty($this->shopware6ManufactureCustomField)) {
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['linr'];
+        		}
+        	}
+        	
         	if (($this->shopware6AlternateProductname) and (strlen($artData['abz4']) > 5)) {
         		$restdata["name"] = $artData['abz4'];
         	} else {
