@@ -62,7 +62,8 @@ class Shopware6Articles {
 		
 		if (file_exists($sw6GroupMatching)) {
 			$this->shopware6CategoryMatching = json_decode(file_get_contents($sw6GroupMatching),true);
-			
+		} else {
+			$this->shopware6CategoryMatching = null; 
 		}
 		
 		return true;
@@ -77,7 +78,7 @@ class Shopware6Articles {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
 						left join auftr_pos ap on ap.arnr = a.arnr and ftyp = 2 and ap.qadt > ( current_timestamp - interval '1 hour')  
@@ -93,7 +94,7 @@ class Shopware6Articles {
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
 			
 		} else {
-			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
 						left join cond_vk c on c.arnr = w.arnr and w.wsnr = :wsnr and (c.qvon > :wsdt or c.qedt > :wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( wson = 1 or (wson = 0 and wsdt is not null ))
@@ -332,9 +333,9 @@ class Shopware6Articles {
 	            
 	            $this->SingleUpload($api, $restdata, "patch");
 	            if ($stockSum <= 0) {
-	            	$this->setVisibility($api, $frow["arnr"],false);
+	            	$this->setVisibility($api, $frow["arnr"],false, $frow["qgrp"]);
 	            } else {
-	            	$this->setVisibility($api, $frow["arnr"],true);
+	            	$this->setVisibility($api, $frow["arnr"],true, $frow["qgrp"]);
 	            }
 	        } else {
 	        	$result = [ "success" => 0, "put" => 'articles/'.$restdata["id"], "restdata" => $restdata, "json" => json_encode($restdata)];
@@ -451,7 +452,7 @@ class Shopware6Articles {
         		
         if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
         	 //$restdata["categoryIds"] =  $this->shopware6CategoryMatching[$artData["qgrp"]]	;
-        	foreach($this->shopware6CategoryMatching[$artData["qgrp"]] as $cat) {
+        	foreach($this->shopware6CategoryMatching[$artData["qgrp"]]["categories"] as $cat) {
         		$restdata["categories"][] =  [
         										"id" =>  $cat
         									 ];
@@ -863,19 +864,32 @@ class Shopware6Articles {
 	public function exportSW6Stock($api, $noupload = null) {
 	}
 
-	public function setVisibility($api, $articleId, $visibility = true) {
+	public function setVisibility($api, $articleId, $visibility, $wwsGroup) {
+		
+		//visible only if category in channel category tree
+		if (!empty($this->shopware6CategoryMatching[$wwsGroup])) {
+			$visibilityWish =  $this->shopware6CategoryMatching[$wwsGroup]["visibility"];
+		} elseif (is_array($this->shopware6CategoryMatching)) {
+			$visibilityWish = [];
+		} else {
+			$visibilityWish =  $this->shopware6Visibilities;
+		}
+		
+		
 		$visibilities = $api->get('product/'.md5($articleId).'/visibilities');
 		
 		$isVisibilities = [];
+		
 		foreach($visibilities["data"] as $checkvisbility) {
-			if ( in_array($checkvisbility["attributes"]["salesChannelId"], $this->shopware6Visibilities)  and (! $visibility )) {
+			if ( in_array($checkvisbility["attributes"]["salesChannelId"], $this->shopware6Visibilities)  
+					and ((!$visibility) or (!in_array($checkvisbility["attributes"]["salesChannelId"], $visibilityWish))) ) {
 				$api->delete('product-visibility/'.$checkvisbility["id"] );
-			} elseif ( in_array($checkvisbility["attributes"]["salesChannelId"], $this->shopware6Visibilities)  and ( $visibility )) {
+			} elseif ( in_array($checkvisbility["attributes"]["salesChannelId"], $visibilityWish)  and ( $visibility )) {
 				$isVisibilities[] = $checkvisbility["attributes"]["salesChannelId"];
 			}
 		}
 		
-		foreach($this->shopware6Visibilities as $setVisibility) {
+		foreach($visibilityWish as $setVisibility) {
 			if ( ! in_array($setVisibility, $isVisibilities) ) {
 				
 				$payload = [
@@ -989,13 +1003,36 @@ class Shopware6Articles {
 	}
 	
 	public function getCategoryWWsMatch() {
-		
-		$result = $this->api->get('category');
+		//get sales channels
+		$channels = [];
+		$result = $this->api->get('sales-channel');
+		foreach ($result["data"] as $channel) {
+			$channels[$channel["attributes"]["navigationCategoryId"]] = $channel["id"]; 
+		}
+		//search first level categories
+		$params = [
+				'filter' => [
+						[
+								'type' => 'equals',
+								'field' => 'level',
+								'value' => '1'
+						]
+				]
+		];
+		$result = $this->api->get('category', $params);
+		//map saleschannel - firstCat Name
+		$breadcrumb = [];
+		foreach ($result["data"] as $cat) {
+			if (array_key_exists($cat["id"], $channels)) {
+				$breadcrumb[$cat["attributes"]["name"] ] = $channels[$cat["id"]]; 
+			}
+		}
 		
 		$catMapping = [];
 		foreach ($result["data"] as $cat) {
 			if (!empty($cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName])) {
-				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]][] = $cat["id"];
+				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]]["categories"][] = $cat["id"];
+				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]]["visibility"][] = $breadcrumb[$cat["attributes"]["breadcrumb"][0]];
 			}
 		}
 		if (!empty($catMapping)) {
