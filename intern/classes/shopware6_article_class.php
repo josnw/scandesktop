@@ -1028,6 +1028,7 @@ class Shopware6Articles {
 			}
 		}
 		
+		$result = $this->api->get('category');
 		$catMapping = [];
 		foreach ($result["data"] as $cat) {
 			if (!empty($cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName])) {
