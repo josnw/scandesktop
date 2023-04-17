@@ -62,7 +62,7 @@
  	
  	$result = $articles->getCategoryWWsMatch();
  	$rowCount = count($result);
- 	file_put_contents($sw6GroupMatching, $result);
+
  	$errorList = json_encode($result);
  	if (php_sapi_name() != 'cli') {
  		include("./intern/views/shopware_result_view.php");
