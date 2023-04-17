@@ -1007,7 +1007,8 @@ class Shopware6Articles {
 		$channels = [];
 		$result = $this->api->get('sales-channel');
 		foreach ($result["data"] as $channel) {
-			$channels[$channel["attributes"]["navigationCategoryId"]] = $channel["id"]; 
+		//	$channels[$channel["attributes"]["navigationCategoryId"]] = $channel["id"]; 
+			$channels[$channel["id"]] = $channel["attributes"]["navigationCategoryId"];
 		}
 		//search first level categories
 		$params = [
@@ -1023,8 +1024,13 @@ class Shopware6Articles {
 		//map saleschannel - firstCat Name
 		$breadcrumb = [];
 		foreach ($result["data"] as $cat) {
-			if (array_key_exists($cat["id"], $channels)) {
-				$breadcrumb[$cat["attributes"]["name"] ] = $channels[$cat["id"]]; 
+			if (in_array($cat["id"], $channels)) {
+				foreach($channels as $channel => $navCat) {
+					if ($navCat == $cat["id"]) {
+						$breadcrumb[$cat["attributes"]["name"]][] = $channel;
+					}
+				}
+					 
 			}
 		}
 		
@@ -1032,8 +1038,13 @@ class Shopware6Articles {
 		$catMapping = [];
 		foreach ($result["data"] as $cat) {
 			if (!empty($cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName])) {
-				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]]["categories"][] = $cat["id"];
-				$catMapping[$cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName]]["visibility"][] = $breadcrumb[$cat["attributes"]["breadcrumb"][0]];
+				$category = $cat["attributes"]["customFields"][$this->shopware6CategoryMatchingFieldName];
+				//add shopware categories to wwws category
+				$catMapping[$category]["categories"][] = $cat["id"];
+				//add shopware channelID to wwws category for visibility check
+				foreach($breadcrumb[$cat["attributes"]["breadcrumb"][0]] as $channelId) {
+					$catMapping[$category]["visibility"][] = $channelId;
+				}
 			}
 		}
 		if (!empty($catMapping)) {
