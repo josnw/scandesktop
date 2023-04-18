@@ -745,7 +745,6 @@ class Shopware6Articles {
 	        }
 	        
 	        $this->debugData($type." product/".$restdata["id"], ["UploadArray" => $restdata, "Result" => $result]);
-	        exit;
 	    } catch (Exception $e) {
 	        return $restdata["productNumber"]."\t".$result["message"]."\n";
 	    }
