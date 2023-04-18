@@ -23,7 +23,18 @@
 				?>
 			</select>		
 		</div>
-
+		<div class="DSFeld2">StandardWerte Pickliste:<br> 
+			min.Artikelgewicht: <input name="COOKIE[minPickListWeight]" value="31" pattern="[0-9]+"><br/>
+			max.Artikelgewicht: <input name="COOKIE[maxPickListWeight]" value="31" pattern="[0-9]+"><br/>
+			Anzahl der Bestellungen: <input name="COOKIE[pickListCount]" value="31" pattern="[0-9]+"><br/>
+			Filter Verkaufsfach: 	<select name="COOKIE[pickListPlacePattern]">
+				<?php 
+				   foreach($configStorePlace as $name => $regex) {
+						print "<option value='".$name."' >".$name."</option>\n";
+					};
+				?>
+			</select><br/>
+		</div>
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="setPrinter" value="Speichern"></div>
 	</div>
 </form>

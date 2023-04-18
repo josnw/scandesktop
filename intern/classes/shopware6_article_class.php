@@ -624,7 +624,10 @@ class Shopware6Articles {
                 "shortCode" => $basePriceUnit,
                 "name" => $basePriceUnit
                 ];
-        } 
+        } else {
+        	$restdata["purchaseUnit"] = 1;
+        	$restdata["unit"] = null;
+        }
 
         // Add Artikelbilder 
        
@@ -741,7 +744,8 @@ class Shopware6Articles {
 	            $result = $api->delete('product/'.$restdata["id"], $restdata );
 	        }
 	        
-	        $this->debugData("Upload  product/".$restdata["id"], ["UploadArray" => $restdata, "Result" => $result]);
+	        $this->debugData($type." product/".$restdata["id"], ["UploadArray" => $restdata, "Result" => $result]);
+	        exit;
 	    } catch (Exception $e) {
 	        return $restdata["productNumber"]."\t".$result["message"]."\n";
 	    }
