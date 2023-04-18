@@ -626,7 +626,7 @@ class Shopware6Articles {
                 ];
         } else {
         	$restdata["purchaseUnit"] = 1;
-        	$restdata["unit"] = null;
+        	$restdata["unitId"] = null;
         }
 
         // Add Artikelbilder 
@@ -808,6 +808,7 @@ class Shopware6Articles {
 	        	}
 	        }
 	        if ($test and ($cnt > 2)) { break; }
+
 	    }
 	    return ["count" => $cnt, "errors" => $errorList, "articleList" => $articleList];  
 	}
