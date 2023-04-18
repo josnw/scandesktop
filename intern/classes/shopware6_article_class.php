@@ -624,6 +624,9 @@ class Shopware6Articles {
                 "shortCode" => $basePriceUnit,
                 "name" => $basePriceUnit
                 ];
+        } else {
+        	$restdata["purchaseUnit"] = 1;                      // GP Umrechnung unitID-Preis = referenceUnit-Preis / purchaseUnit
+        	$restdata["unit"] = null;
         }
 
         // Add Artikelbilder 
