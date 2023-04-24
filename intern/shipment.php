@@ -6,8 +6,13 @@
  	$printer = unserialize(base64_decode($_COOKIE['packstation']));
 	$_SESSION["printerLabel"] = $printer["printerLabel"];
 	$_SESSION["printerA4"] = $printer["printerA4"];
+	$_SESSION["minPickListWeight"] = $printer["minPickListWeight"];
+	$_SESSION["maxPickListWeight"] = $printer["maxPickListWeight"];
+	$_SESSION["pickListCount"] = $printer["pickListCount"];
+	$_SESSION["pickListPlacePattern"] = $printer["pickListPlacePattern"];
 	$_SESSION["infobox"] = "Etiketten Drucker: ".$configPrinter['label'][$_SESSION["printerLabel"]]."<br>Picklisten Drucker: ".$configPrinter['a4'][$_SESSION["printerA4"]];
  }
+ 
  if (empty($_SESSION["printerLabel"])) {
  	
  	include "./intern/settings.php";

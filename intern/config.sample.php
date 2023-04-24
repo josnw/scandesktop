@@ -84,7 +84,8 @@ $shopware6AlternateProductname= true;
 $shopware6UseHsnr=true;
 // wws discount group as tag 
 $shopware6setDiscountTag=false;
-
+// ProtertyFile for filter
+$sw6PropertyFile = "./intern/data/sw6PropertyFile.json";
 
 
 $shopware6_url = 'https://host/api';

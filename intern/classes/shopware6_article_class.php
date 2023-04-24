@@ -27,6 +27,7 @@ class Shopware6Articles {
 	private $shopware6AlternateProductname;
 	private $shopware6ManufactureCustomField;
 	private $shopware6DiscountTag;
+	private $filterArray;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -64,6 +65,12 @@ class Shopware6Articles {
 			$this->shopware6CategoryMatching = json_decode(file_get_contents($sw6GroupMatching),true);
 		} else {
 			$this->shopware6CategoryMatching = null; 
+		}
+		
+		if (file_exists($this->shopware6PropertyFile)) {
+			$this->filterArray = json_decode(file_get_contents($this->shopware6PropertyFile),true);
+		} else {
+			$this->filterArray = [];
 		}
 		
 		return true;
@@ -581,6 +588,12 @@ class Shopware6Articles {
                 $value  = 'Nein';
             }
             
+            if (!empty($this->filterArray[$key]["filter"])) {
+            	$filterable = true;
+            } else {
+            	$filterable = false;
+            }
+            
             if (strlen($value) > 255) {
                 if ($type == "new") {
                     $restdata["description"] .= "\n".$value;
@@ -592,7 +605,7 @@ class Shopware6Articles {
                     "group" => [
                         "id" => md5($key),
                         "name" => $key,
-                    	"filterable" => false
+                    	"filterable" => $filterable
                     ],
                 ];
             }
@@ -1079,6 +1092,19 @@ class Shopware6Articles {
 		
 	}
 
-	
+	public function setPropertyGroup($key,$filter) {
+		
+		$restdata = [
+				"id" => md5($key),
+				"name" => $key,
+				"filterable" => $filter
+		];
+		$result = $this->api->patch('property-group/'.$restdata["id"], $restdata );
+		if (! empty($result["success"])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 ?>

@@ -10,6 +10,10 @@
  	$printer = unserialize(base64_decode($_COOKIE['packstation']));
  	$_SESSION["printerLabel"] = $printer["printerLabel"];
  	$_SESSION["printerA4"] = $printer["printerA4"];
+ 	$_SESSION["minPickListWeight"] = $printer["minPickListWeight"];
+ 	$_SESSION["maxPickListWeight"] = $printer["maxPickListWeight"];
+ 	$_SESSION["pickListCount"] = $printer["pickListCount"];
+ 	$_SESSION["pickListPlacePattern"] = $printer["pickListPlacePattern"];
  	
  }
  

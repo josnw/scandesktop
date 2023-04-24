@@ -833,3 +833,11 @@ visibility: hidden;
 	overflow-y:scroll;
 	text-align: left;
 }
+
+.green {
+	background: #22FF22;
+}
+
+.red {
+	background: #FF2222;
+}
