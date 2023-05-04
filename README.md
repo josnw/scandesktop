@@ -1,4 +1,4 @@
-# scandesktop 0.01devel
-Connector between local erp and internet platforms
+# scandesktop 0.9beta
+Connector between local erp facto 5.3 and shopware 6
 Scandesktop for picklist and packing
 
