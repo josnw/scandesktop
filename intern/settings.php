@@ -6,7 +6,7 @@
  include ("./intern/config.php");
  
  if (isset($_COOKIE['packstation'])) {
- 	//print "Cookie found ...";
+ 	print "Cookie found ...";
  	$printer = unserialize(base64_decode($_COOKIE['packstation']));
  	$_SESSION["printerLabel"] = $printer["printerLabel"];
  	$_SESSION["printerA4"] = $printer["printerA4"];

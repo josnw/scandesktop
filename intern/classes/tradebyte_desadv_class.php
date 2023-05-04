@@ -23,7 +23,7 @@ class tradebyteDesAdv {
 		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->importHandle = new myfile($filename);
-		$this->importKeyList = $this->importHandle->readCSV();
+		$this->importKeyList = $this->importHandle->readCSV("\t");
 
 		$this->channel = $channelFacData;
 		$this->facFiliale = $FacFiliale;
@@ -43,7 +43,7 @@ class tradebyteDesAdv {
 		
 		$oldOrderId = 0;
 		
-		while ( $line = $this->importHandle->readCSV() ) {
+		while ( $line = $this->importHandle->readCSV("\t") ) {
 			
 
 			//combine line with head	
