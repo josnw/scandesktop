@@ -15,6 +15,7 @@ class tradebyteDesAdv {
 	private $channel;
 	private $facFiliale;
 	private $isPaidPaymentTypes;
+	private $csvSep = ";";
 	
 	public function __construct($filename) {
 		
@@ -23,8 +24,12 @@ class tradebyteDesAdv {
 		$this->TradebyteWebshopNumber = $TradebyteWebshopNumber;
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->importHandle = new myfile($filename);
-		$this->importKeyList = $this->importHandle->readCSV("\t");
-
+		$firstLine = $this->importHandle->readLn($this->csvSep);
+		if (substr_count($firstLine, $this->csvSep) < 5) {
+			$this->csvSep = "\t";
+		}
+		$this->importKeyList = explode($this->csvSep, $firstLine);
+		
 		$this->channel = $channelFacData;
 		$this->facFiliale = $FacFiliale;
 		
@@ -43,7 +48,7 @@ class tradebyteDesAdv {
 		
 		$oldOrderId = 0;
 		
-		while ( $line = $this->importHandle->readCSV("\t") ) {
+		while ( $line = $this->importHandle->readCSV($this->csvSep) ) {
 			
 
 			//combine line with head	
