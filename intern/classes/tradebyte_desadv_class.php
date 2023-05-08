@@ -26,10 +26,11 @@ class tradebyteDesAdv {
 		$this->importHandle = new myfile($filename);
 		$firstLine = $this->importHandle->readLn();
 		if (substr_count($firstLine, $this->csvSep) < 5) {
-			Proto("Switch Seperator to Tab");
+			if (DEBUG) { print("Switch Seperator to Tab"); }
 			$this->csvSep = "\t";
 		}
-		$this->importKeyList = explode($this->csvSep, $firstLine);
+		$this->importKeyList = str_getcsv($firstLine, $this->csvSep);
+		if (DEBUG) { print_r($this->importKeyList); }
 		
 		$this->channel = $channelFacData;
 		$this->facFiliale = $FacFiliale;
@@ -54,7 +55,8 @@ class tradebyteDesAdv {
 
 			//combine line with head	
 			$row = array_combine($this->importKeyList, $line);
-
+			if (DEBUG) { print_r($row); }
+			
 			if ($oldOrderId <> $row["Auftrag-ID"]) {
 				$cnt = 0;		
 				$oldOrderId = $row["Auftrag-ID"];
