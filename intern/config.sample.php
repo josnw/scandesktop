@@ -54,6 +54,12 @@ $shopware6Visibilities = [
 		// ChannelID for visibilities
 		
 ];
+
+$shopware6DeliveryTimeIds = [
+		'now' => '', // sofort
+		'never' => '', // nicht Lieferbar
+];
+
 $shopware6StockList = [0,36];
 $shopware6StockCheckOrders = true;
 $shopware6DynamicStock = [1];

@@ -84,7 +84,8 @@
 			"quantity",
 			"unitPrice",
 			"productId",
-			"product"
+			"product",
+			"price"
 		],
 		"country": [
 			"name"

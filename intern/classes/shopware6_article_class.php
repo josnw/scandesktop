@@ -27,6 +27,7 @@ class Shopware6Articles {
 	private $shopware6AlternateProductname;
 	private $shopware6ManufactureCustomField;
 	private $shopware6DiscountTag;
+	private $shopware6DeliveryTimeIds;
 	private $filterArray;
 	private $api; 
 	
@@ -59,6 +60,7 @@ class Shopware6Articles {
 		$this->shopware6ManufactureCustomField = $shopware6ManufactureCustomField;
 		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
 		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
+		$this->shopware6DeliveryTimeIds = $shopware6DeliveryTimeIds;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -300,6 +302,13 @@ class Shopware6Articles {
 	        
 	        if ($this->shopware6SetMaxPurchaseToStock) {
 	        	$restdata["maxPurchase"] = $stockSum;
+	        }
+	        
+	        if ((!empty($this->shopware6DeliveryTimeIds["now"])) and ($stockSum > 0)) {
+	        	$restdata["deliveryTimeId"] = $this->shopware6DeliveryTimeIds["now"];
+	        }
+	        if ((!empty($this->shopware6DeliveryTimeIds["later"])) and ($stockSum <= 0)) {
+	        	$restdata["deliveryTimeId"] = $this->shopware6DeliveryTimeIds["later"];
 	        }
 	        
 	        // other prices

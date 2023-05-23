@@ -87,7 +87,7 @@ class Shopware6Orders {
 	public function getOrderFacData($orderId) {
 		
 		$orderData = $this->getOrderData($orderId);
-		// print_r($orderData); //exit;
+		// print_r($orderData); exit;
 		$customerData = $orderData["order_address"][$orderData["billingAddressId"]];
 		$customerData["order_customer"] =  reset($orderData["order_customer"]);
 		$customerData["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
@@ -320,7 +320,6 @@ class Shopware6Orders {
 	
 	private function getFacPosData($data) {
 		print $this->channelFacData['shopware6']['CustomerMappingField'];
-		print_r($data);
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
 		
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
@@ -384,7 +383,8 @@ class Shopware6Orders {
 			'XYAK' => '',
 			'QNVE' => $data["paymentId"],
 			'ALGO' => 'HL',
-			'APKZ' => $article->productData[0]['apkz'],
+//			'APKZ' => $article->productData[0]['apkz'],
+			'FSKZ' => $data["attributes"]["price"]["calculatedTaxes"][0]["taxRate"],
 			'ASMN' => 1,
 			'QPRA' => 0,
 			'ASMZ' => 1,
