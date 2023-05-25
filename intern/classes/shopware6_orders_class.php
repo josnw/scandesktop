@@ -284,6 +284,7 @@ class Shopware6Orders {
 //				'Payment ID: '.$data["transactionId"],
 //				'Versand: '.$data["dispatch"]["name"],
 		];
+		if (!empty($data["payment"]["type"]["attributes"]["name"]))
 		
 		foreach($customerComment as $commentLine) {
 			if (strlen($commentLine) > 0) {
@@ -383,8 +384,7 @@ class Shopware6Orders {
 			'XYAK' => '',
 			'QNVE' => $data["paymentId"],
 			'ALGO' => 'HL',
-//			'APKZ' => $article->productData[0]['apkz'],
-			'FSKZ' => $data["attributes"]["price"]["calculatedTaxes"][0]["taxRate"],
+			'APKZ' => $article->productData[0]['apkz'],
 			'ASMN' => 1,
 			'QPRA' => 0,
 			'ASMZ' => 1,
@@ -407,6 +407,15 @@ class Shopware6Orders {
 			'FAKT' => $fakt,
 			'FAKX' => $fakx,
 		];	
+		if ($data["attributes"]["price"]["calculatedTaxes"][0]["taxRate"] != $article->productData[0]['mmss']) {
+			print $data["attributes"]["price"]["calculatedTaxes"][0]["taxRate"]." ist nicht ".$article->productData[0]['mmid']."<br>";
+			foreach($article->getApkz() as $tax) {
+				if ($tax['mmss'] == $data["attributes"]["price"]["calculatedTaxes"][0]["taxRate"]) {
+					$facPos[$this->fpos]['APKZ'] = $tax['mmid'];
+					break;
+				}
+			}
+		}
 
 		$facPos[$this->fpos]['FABL'] = [
 				'SW_PAYMENT_TRANSACTION_ID='. $data["transactionId"],

@@ -76,7 +76,8 @@
 			"shippingCosts",
 			"customerComment",
 			"customFields",
-			"stateMachineState"
+			"stateMachineState",
+			"payload"
 		],
 		"order_line_item": [
 			"id",
@@ -85,7 +86,8 @@
 			"unitPrice",
 			"productId",
 			"product",
-			"price"
+			"price",
+			"payload"
 		],
 		"country": [
 			"name"

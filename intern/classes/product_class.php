@@ -632,6 +632,19 @@ class product {
 		return false;
 		
 	}
+
+	public function getApkz() {
+		
+		$fqry  = "select mmid, mmss, case when mmid = apkz then 1 else 0 end from mand_mwst s inner join art_0 a on  a.arnr = :arnr order by mmid";
+		
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->bindValue(':arnr',$this->productId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		
+		$row = $f_qry->fetchall( PDO::FETCH_ASSOC );
+		return $row;
+	}
+
 }
 
 ?>
