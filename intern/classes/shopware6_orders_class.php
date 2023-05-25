@@ -80,7 +80,7 @@ class Shopware6Orders {
 			}
 		}
 		$order["paymentId"] = $this->getPaymentId($orderId);
-		//print_r($order); exit;
+		// print_r($order); exit;
 		return $order;
 	}
 
@@ -284,7 +284,20 @@ class Shopware6Orders {
 //				'Payment ID: '.$data["transactionId"],
 //				'Versand: '.$data["dispatch"]["name"],
 		];
-		if (!empty($data["payment"]["type"]["attributes"]["name"]))
+		
+		$tax_pv = 0;
+		foreach($data["order_line_item"] as $pvpos) {
+			if (!empty($pvpos["attributes"]["payload"]["customFields"]["netzp_tax_pv"])
+					and ($pvpos["attributes"]["price"]["calculatedTaxes"][0]["taxRate"] == 0) ) {
+			  $tax_pv = 1;
+			}
+		}
+		if ($tax_pv == 1) {
+			$facHead['QTXK'][] = 'Der Käufer bestätigte im Onlineshop '.date("d.m.Y h:i",strtotime($data["createdAt"])).'Uhr im Bestellvorgang,'; 
+			$facHead['QTXK'][] = 'dass er die Voraussetzungen nach § 12 Abs. 3 UStG erfüllt. ';
+			$facHead['QTXK'][] = 'Die Produkte sind für die Neuerrichtung einer PV-Anlage mit unter 30kWp für die eigene privater Nutzung im Wohnumfeld.';
+			$facHead['QTXK'][] = 'Der Anlagenstandort ist in Deutschland.';
+		}
 		
 		foreach($customerComment as $commentLine) {
 			if (strlen($commentLine) > 0) {
