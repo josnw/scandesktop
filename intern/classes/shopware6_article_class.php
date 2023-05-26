@@ -29,6 +29,7 @@ class Shopware6Articles {
 	private $shopware6DiscountTag;
 	private $shopware6DeliveryTimeIds;
 	private $filterArray;
+	private $shopware6UpdateLinr;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -61,6 +62,7 @@ class Shopware6Articles {
 		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
 		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
 		$this->shopware6DeliveryTimeIds = $shopware6DeliveryTimeIds;
+		$this->shopware6UpdateLinr = $shopware6UpdateLinr;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -453,7 +455,7 @@ class Shopware6Articles {
                 "taxRate" => $artData["mmss"],
                 "name" => $artData["mmss"]."% Mwst"
                ],
-        		"manufacturerNumber" => $artData["ahnr"]
+        	"manufacturerNumber" => $artData["ahnr"]
         ];
         
         if (!empty($discountGroup)) {
@@ -491,10 +493,9 @@ class Shopware6Articles {
 	        }
         }
         
-        // new uploads only
-        if ($type == "new") {
+        if (!empty($this->shopware6UpdateLinr) or ($type == "new")) {
         	
-        	if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0)) {
+        	if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0) and (!empty($artData['hqsbz']))) {
         		$restdata["manufacturer"] = [
         				"id" =>  md5($artData['hsnr']),
         				"name" =>  $artData['hqsbz']
@@ -511,6 +512,11 @@ class Shopware6Articles {
         			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['linr'];
         		}
         	}
+        	
+        }
+        
+        // new uploads only
+        if ($type == "new") {
         	
         	if (($this->shopware6AlternateProductname) and (strlen($artData['abz4']) > 5)) {
         		$restdata["name"] = $artData['abz4'];
