@@ -859,6 +859,10 @@ class Shopware6Articles {
 	        if (! $noUpload) {
 	            $productData = $this->generateSW6Product($frow["arnr"], "update");
 	            $response .= $this->SingleUpload($api, $productData["product"], "patch");
+	            if (substr($response, 0, 36) == 'Expected command for "product" to be') {
+	            	$productData = $this->generateSW6Product($frow["arnr"], "new");
+	            	$response .= $this->SingleUpload($api, $productData["product"], "new");
+	            }
 	            $errorList .= $response;
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
 	                $this->uploadSW6Media($api, $pictureUrl);
