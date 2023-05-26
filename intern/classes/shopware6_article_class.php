@@ -387,7 +387,7 @@ class Shopware6Articles {
 	}
 	
 	public function newArticleList() {
-	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
+	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is null )
 					  order by arnr
 					";
@@ -397,7 +397,7 @@ class Shopware6Articles {
 	}
 
 	public function articleUpdateListBaseData() {
-	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson from art_0 a inner join web_art w using (arnr)
+	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is not null )
                       and a.qedt > w.wsdt
 					  order by arnr
