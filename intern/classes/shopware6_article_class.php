@@ -452,7 +452,8 @@ class Shopware6Articles {
                 "id" => md5($artData["mmss"]),
                 "taxRate" => $artData["mmss"],
                 "name" => $artData["mmss"]."% Mwst"
-               ]
+               ],
+        		"manufacturerNumber" => $artData["ahnr"]
         ];
         
         if (!empty($discountGroup)) {
@@ -483,9 +484,9 @@ class Shopware6Articles {
 					        				"cmsPageId" => $this->shopwareCategoryCmsPageId,
 					        		]
 					        	  ];
-	        if (!empty($shopware6CategoryMatchingFieldName)) {
+	        if (!empty($this->shopware6CategoryMatchingFieldName)) {
 	        	$restdata["categories"][0]["customFields"] = [
-	        													$shopware6CategoryMatchingFieldName =>  $artData['qgrp']
+	        						$this->shopware6CategoryMatchingFieldName =>  $artData['qgrp']
 	        												 ];
 	        }
         }

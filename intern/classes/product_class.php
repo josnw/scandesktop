@@ -33,7 +33,7 @@ class product {
 		
 		if ($level == 'basic') {
 			$this->indexvalue = $indexvalue;
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss,   
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, apjs, linr, asco, a.apkz, a.amgz, a.amgn,  m.mmss, a.ahnr,  
 			          case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
                       i.askz, a.agew, a.avsd
 					  from art_index i inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''
@@ -49,7 +49,7 @@ class product {
  			//		             ( select qurl from art_liefdok ld where ld.arnr = a.arnr and adtp = 91701 order by qvon desc limit 1 ) ) as qurl
 			$this->indexvalue = $indexvalue;
 			
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz,
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz, a.ahnr,
 						case when adgz > 0 then cast( (adgn/adgz) as decimal(18,8)) else null end as agpf, a.aart, ag.qsbz as gqsbz,
                         case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
