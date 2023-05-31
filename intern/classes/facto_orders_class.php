@@ -190,13 +190,13 @@ class factoOrders {
 			    ( preg_match($idlist, $this->positions[$i]["fabl"])) ) {
 				$switch = 1;
 				print "Duplicate to fnum ".$this->newFnum.": article in list".$this->positions[$i]["arnr"]."\n";
-				if ((array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
+				if (is_array($overrides["positions"]) and (array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
 					$factor = $overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] / $this->positions[$i]["fmge"];
 					print "\nFaktor: ".$factor."\n";
 				} else {
 					$factor = null;
 				}
-				if (array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $overrides["positions"]) and 
+				if (is_array($overrides["positions"]) and array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $overrides["positions"]) and 
 				    !array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmge'], $overrides["positions"]) ) {
 					$overrides["positions"][$this->positions[$i]["arnr"]]['fmge'] = $overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'] * $this->positions[$i]["amgn"] / $this->positions[$i]["amgz"];
 				}
