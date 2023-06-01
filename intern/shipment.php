@@ -106,6 +106,7 @@
  	Proto("Shipment: ReLabel ".$_POST["orderId"]);
  	$errorList = "lableReprint!";
  	$packOrder = new order($_POST["orderId"]);
+ 	$shippingId = $packOrder->getShipmentId();
  	exec('lp -d '.$_SESSION["printerLabel"].' "'.$_POST["filename"].'"');
  	include("./intern/views/order_finished_view.php");
  	

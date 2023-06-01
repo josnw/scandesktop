@@ -601,6 +601,14 @@ class order {
 		return $tracklist;
 	}
 	
+	public function getShipmentId() {
+	    include ("./intern/config.php");
+	    $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);
+	    $this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+	    $response = $api->get('order/'.$this->shopwareOrderId.'/pickwareShippingShipments');
+	    return $response["data"][0]["id"];
+	}
+	
 	public function getShippingDocuments() {
 		
 		$documentlist = [];
