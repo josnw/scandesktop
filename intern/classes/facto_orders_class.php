@@ -25,6 +25,7 @@ class factoOrders {
 		$this->Shipping = $Shipping;
 		$fqry = "select distinct(mdnr) from mand_0";
 		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		$mdnr = $f_qry->fetch( PDO::FETCH_ASSOC );
 		$this->mdnr = $mdnr['mdnr'];
 		if ($this->ifnr == null) {
@@ -190,13 +191,13 @@ class factoOrders {
 			    ( preg_match($idlist, $this->positions[$i]["fabl"])) ) {
 				$switch = 1;
 				print "Duplicate to fnum ".$this->newFnum.": article in list".$this->positions[$i]["arnr"]."\n";
-				if (is_array($overrides["positions"]) and (array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
+				if (!empty($overrides["positions"]) and (array_key_exists($this->positions[$i]["arnr"], $overrides["positions"])) and (isset($overrides["positions"][$this->positions[$i]["arnr"]]["fmge"])))  {
 					$factor = $overrides["positions"][$this->positions[$i]["arnr"]]["fmge"] / $this->positions[$i]["fmge"];
 					print "\nFaktor: ".$factor."\n";
 				} else {
 					$factor = null;
 				}
-				if (is_array($overrides["positions"]) and array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $overrides["positions"]) and 
+				if (!empty($overrides["positions"]) and array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'], $overrides["positions"]) and 
 				    !array_key_exists($overrides["positions"][$this->positions[$i]["arnr"]]['fmge'], $overrides["positions"]) ) {
 					$overrides["positions"][$this->positions[$i]["arnr"]]['fmge'] = $overrides["positions"][$this->positions[$i]["arnr"]]['fmgb'] * $this->positions[$i]["amgn"] / $this->positions[$i]["amgz"];
 				}
@@ -267,7 +268,9 @@ class factoOrders {
 	}
 	
 	private function overideData($overrides) {
-		
+		if (empty($overrides["head"])) {
+			return null;
+		}
 		if (count($overrides["head"]) > 0) {
 			// Modify new order head data 
 			$sql = "update auftr_kopf set ";
