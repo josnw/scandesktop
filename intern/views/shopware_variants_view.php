@@ -8,7 +8,7 @@
 </form>
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit">
-		<div class="DSFeld2 " >Produktnummer des Hauptartikels:<br/><input type="text" name="mainArticle" value=""  required "></div>
+		<div class="DSFeld2 " >Shopware-ID des Hauptartikels:<br/><input type="text" name="mainArticle" value=""  required "></div>
 		<div class="DSFeld2" >Merkmal 1:<br/><input type="text" name="optionkey1" value=""  required ></div>
 		<?php if ($doubleKeys) {
 			print '<div class="DSFeld2" >Merkmal 2:<br/><input type="text" name="optionkey2" value=""  required ></div>';

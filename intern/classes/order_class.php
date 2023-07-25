@@ -248,12 +248,15 @@ class order {
 	}
 
 	public function getPackedState() {
-		$coqry  = "select coalesce(ktos,0), count(*) as cnt from auftr_kopf k inner join auftr_pos p using (fblg)
+		$coqry  = "select coalesce(ktos,0) ktos, count(*) as cnt from auftr_kopf k inner join auftr_pos p using (fblg)
 					inner join art_0 a using (arnr)
 					inner join const.positionflagx c on qnum = 'FAKX_VersandArt' and (coalesce(p.fakx,0) & c.fakx) = 0
                     where coalesce(fmgl,0) < fmge and fblg = :BelegID group by ktos";
 		$co_qry = $this->pg_pdo->prepare($coqry);
-		
+		if (DEBUG) {
+			print $coqry;
+			print $this->belegId;
+		}
 		// Prüfen ob Beleg vollständig gepackt
 		$co_qry->bindValue(':BelegID', $this->belegId);
 		$co_qry->execute() or die (print_r($co_qry->errorInfo()));

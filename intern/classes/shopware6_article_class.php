@@ -955,14 +955,14 @@ class Shopware6Articles {
 		
 		foreach($variants as $varArticle ) {
 			$vrestdata = [
-					"parentId" => md5($mainArticle),
+					"parentId" => $mainArticle,
 			];
 
 			foreach( $relationships[$varArticle] as $key => $value) {
 
 				$configuratorSettings[] = [
 						"id" => md5($mainArticle.$varArticle.$value),
-						"productId" => md5($mainArticle),
+						"productId" => $mainArticle,
 						"optionId" => md5($key."-".$value)
 				];
 				
@@ -994,7 +994,7 @@ class Shopware6Articles {
 				"configuratorSettings" => $configuratorSettings
 		];
 		
-		$result = $api->patch('product/'.md5($mainArticle), $restdata );
+		$result = $api->patch('product/'.$mainArticle, $restdata );
 		if ($result["success"] != 1) {
 			foreach($result["errors"] as $error) {
 				$errorList .= $mainArticle." ".$error["detail"]."\n";
