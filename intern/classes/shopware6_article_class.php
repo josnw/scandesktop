@@ -783,7 +783,7 @@ class Shopware6Articles {
 	    } else {
 	    	$returnError = "Error Upload ".$restdata["productNumber"];
 	        foreach ($result["errors"] as $error) {
-	        	$returnError = "\t".$error["detail"];
+	        	$returnError .= "\t".$error["detail"];
 	        	if (!empty($error["source"]["pointer"])) {
 	        		$returnError .= " (".$error["source"]["pointer"].") ";
 	        	} else if (preg_match('/Expected command.*ProductDefinition/', $returnError)) {
