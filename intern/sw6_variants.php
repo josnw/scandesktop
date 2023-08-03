@@ -8,13 +8,17 @@
  	$relationships = [];
  	for($i = 0; $i < count($_POST["subArticle"]); $i++)  {
  		print "Variante M1: ".$_POST["subArticle"][$i].": ".$_POST["optionkey1"]." ".$_POST["optionvalue1"][$i].LR;
- 		$relationships[$_POST["subArticle"][$i]] =  [ $_POST["optionkey1"] =>  $_POST["optionvalue1"][$i] ];
+ 		$relationships[$_POST["subArticle"][$i]] [$_POST["optionkey1"]] =  $_POST["optionvalue1"][$i];
  		if(!empty($_POST["optionkey2"])) {
  			print "Variante M2: ".$_POST["subArticle"][$i].": ".$_POST["optionkey2"]." ".$_POST["optionvalue2"][$i].LR;
- 			$relationships[$_POST["subArticle"][$i]][$_POST["optionkey2"] =  $_POST["optionvalue2"][$i]];
+ 			$relationships[ $_POST["subArticle"][$i]] [$_POST["optionkey2"]] =  $_POST["optionvalue2"][$i];
  		}
  	}
- 	
+ 	if (($_SESSION["debug"] ==1) and ($_SESSION["level"] == 9)) {
+ 		print "<pre>";
+ 		print_r($relationships);
+ 		print "</pre>";
+ 	}
  	$article = new Shopware6Articles($shopwareApi);
  	$result = $article->setVariants($shopwareApi, $_POST["mainArticle"], $_POST["subArticle"], $relationships);
  	if ($result["status"]) {

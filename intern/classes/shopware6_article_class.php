@@ -995,6 +995,11 @@ class Shopware6Articles {
 		];
 		
 		$result = $api->patch('product/'.$mainArticle, $restdata );
+		if (($_SESSION["debug"] ==1) and ($_SESSION["level"] == 9)) {
+			print "<pre>";
+			print_r($restdata);
+			print "</pre>";
+		}
 		if ($result["success"] != 1) {
 			foreach($result["errors"] as $error) {
 				$errorList .= $mainArticle." ".$error["detail"]."\n";
