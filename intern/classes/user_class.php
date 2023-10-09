@@ -109,7 +109,11 @@ class user {
 	    $fetch = $pickList_qry->fetch( PDO::FETCH_ASSOC );
 	    $info['doneToday'] = $fetch["cntdoneday"];
 	    
-	    $info['quoteToday'] = $info['doneToday'] / $info['allToday'];
+	    if ($info['allToday'] > 0) {
+	    	$info['quoteToday'] = $info['doneToday'] / $info['allToday'];
+	    } else {
+	    	$info['quoteToday'] = 0;
+	    }
 	    $info['openToday'] = $info['allToday'] - $info['doneToday'];
 	    
 /*	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
