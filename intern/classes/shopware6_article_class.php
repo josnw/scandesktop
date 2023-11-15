@@ -30,6 +30,7 @@ class Shopware6Articles {
 	private $shopware6DeliveryTimeIds;
 	private $filterArray;
 	private $shopware6UpdateLinr;
+	private $shopware6NoCatUpdate;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -63,6 +64,7 @@ class Shopware6Articles {
 		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
 		$this->shopware6DeliveryTimeIds = $shopware6DeliveryTimeIds;
 		$this->shopware6UpdateLinr = $shopware6UpdateLinr;
+		$this->shopware6NoCatUpdate = $shopware6NoCatUpdate;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -467,29 +469,31 @@ class Shopware6Articles {
 					];
         }
 
-        $restdata["categories"] = [];
-        		
-        if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
-        	 //$restdata["categoryIds"] =  $this->shopware6CategoryMatching[$artData["qgrp"]]	;
-        	foreach($this->shopware6CategoryMatching[$artData["qgrp"]]["categories"] as $cat) {
-        		$restdata["categories"][] =  [
-        										"id" =>  $cat
-        									 ];
-        	}
-        	
-        } else {
-	        $restdata["categories"] = [
-					        		[
-					        				"id" => md5($artData["qgrp"]),
-					        				"name" => $artData["gqsbz"],
-					        				"type" => "page",
-					        				"cmsPageId" => $this->shopwareCategoryCmsPageId,
-					        		]
-					        	  ];
-	        if (!empty($this->shopware6CategoryMatchingFieldName)) {
-	        	$restdata["categories"][0]["customFields"] = [
-	        						$this->shopware6CategoryMatchingFieldName =>  $artData['qgrp']
-	        												 ];
+        if (empty($this->shopware6NoCatUpdate) or ($type == "new")) {
+	        $restdata["categories"] = [];
+	        		
+	        if (!empty($this->shopware6CategoryMatching[$artData["qgrp"]])) {
+	        	 //$restdata["categoryIds"] =  $this->shopware6CategoryMatching[$artData["qgrp"]]	;
+	        	foreach($this->shopware6CategoryMatching[$artData["qgrp"]]["categories"] as $cat) {
+	        		$restdata["categories"][] =  [
+	        										"id" =>  $cat
+	        									 ];
+	        	}
+	        	
+	        } else {
+		        $restdata["categories"] = [
+						        		[
+						        				"id" => md5($artData["qgrp"]),
+						        				"name" => $artData["gqsbz"],
+						        				"type" => "page",
+						        				"cmsPageId" => $this->shopwareCategoryCmsPageId,
+						        		]
+						        	  ];
+		        if (!empty($this->shopware6CategoryMatchingFieldName)) {
+		        	$restdata["categories"][0]["customFields"] = [
+		        						$this->shopware6CategoryMatchingFieldName =>  $artData['qgrp']
+		        												 ];
+		        }
 	        }
         }
         
