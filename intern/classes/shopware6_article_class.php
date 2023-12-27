@@ -31,6 +31,7 @@ class Shopware6Articles {
 	private $filterArray;
 	private $shopware6UpdateLinr;
 	private $shopware6NoCatUpdate;
+	private $shopware6NoVisibilityUpdate;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -65,6 +66,7 @@ class Shopware6Articles {
 		$this->shopware6DeliveryTimeIds = $shopware6DeliveryTimeIds;
 		$this->shopware6UpdateLinr = $shopware6UpdateLinr;
 		$this->shopware6NoCatUpdate = $shopware6NoCatUpdate;
+		$this->shopware6NoVisibilityUpdate = $shopware6NoVisibilityUpdate;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -352,10 +354,12 @@ class Shopware6Articles {
 	        if ( ! $noupload ) {
 	            
 	            $this->SingleUpload($api, $restdata, "patch");
-	            if ($stockSum <= 0) {
-	            	$this->setVisibility($api, $frow["arnr"],false, $frow["qgrp"]);
-	            } else {
-	            	$this->setVisibility($api, $frow["arnr"],true, $frow["qgrp"]);
+	            if (empty($this->shopware6NoVisibilityUpdate)) {
+		            if ($stockSum <= 0) {
+		            	$this->setVisibility($api, $frow["arnr"],false, $frow["qgrp"]);
+		            } else {
+		            	$this->setVisibility($api, $frow["arnr"],true, $frow["qgrp"]);
+		            }
 	            }
 	        } else {
 	        	$result = [ "success" => 0, "put" => 'articles/'.$restdata["id"], "restdata" => $restdata, "json" => json_encode($restdata)];

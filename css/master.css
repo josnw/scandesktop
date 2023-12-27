@@ -483,7 +483,7 @@ footer p {
 #infobox {
 	display: block;
 	height: 30px;
-	width:  700px;
+	width:  100%;
 	background: #FFFFFF;
 	position: relative;
 	top:0px;
