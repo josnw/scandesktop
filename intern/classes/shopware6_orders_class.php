@@ -91,7 +91,6 @@ class Shopware6Orders {
 		$customerData = $orderData["order_address"][$orderData["billingAddressId"]];
 		$customerData["order_customer"] =  reset($orderData["order_customer"]);
 		$customerData["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
-		
 		$FacArray = [];
 		
 		if ( (!empty($this->channelFacData['shopware6']['CustomerMappingField']))
