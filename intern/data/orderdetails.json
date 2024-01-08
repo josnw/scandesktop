@@ -13,6 +13,9 @@
 			}
 		},
 		"orderCustomer": {
+			"associations": {
+       			"customFields": []
+   			}
 		},
 		"addresses": {
 			"associations": {
