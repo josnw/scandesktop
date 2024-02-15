@@ -173,7 +173,7 @@ class Shopware6Articles {
 					"prices" => [ 
 						0 => [	
 							"customerGroupKey" => $this->ShopwarePriceGroup,
-							"price" => $prices[$this->ShopwarePriceBase],
+							"price" => $prices[$this->ShopwarePriceBase][0]["price"],
 							"pseudoprice" => null
 						]
 					],
@@ -299,8 +299,8 @@ class Shopware6Articles {
 			        "price" => [
 			        		[
 			        				"currencyId" => $this->ShopwareCurrencyId,
-			        				"net"	=> $prices[$this->ShopwarePriceBase]/(1+$article->productData[0]["mmss"]/100),
-			        				"gross" => $prices[$this->ShopwarePriceBase],
+			        				"net"	=> $prices[$this->ShopwarePriceBase][0]["price"]/(1+$article->productData[0]["mmss"]/100),
+			        				"gross" => $prices[$this->ShopwarePriceBase][0]["price"],
 			        				"linked" => false
 			        		]
 			        ]
@@ -319,41 +319,48 @@ class Shopware6Articles {
 	        
 	        // other prices
 	        if ($this->shopware6AlternatePrices) {
-	        	foreach($prices as $priceTyp => $price) {
-	        		
-	        		if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
-	        			$price *= (1+$article->productData[0]["mmss"]/100);
+	        	foreach($prices as $priceTyp => $sprice) {
+	        		$scnt = 0;
+	        		foreach($sprice as $xprice) {
+						$price = $xprice["price"];
+						if (empty($xprice["from"])) {  $stafvon = 1;} else { $stafvon = $xprice["from"];}
+						if (empty($xprice["to"])) {  $stafbis = null;} else { $stafbis = $xprice["to"];}
+		        		if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+		        			$price *= (1+$article->productData[0]["mmss"]/100);
+		        		}
+		        		
+		       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
+		       				if ($scnt++ > 0 ) { $sid = "_".$scnt;	} else { $sid = "";}
+		       				$restdata["prices"][] = [
+		       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"].$sid),
+		       						"productid" => md5($frow["arnr"]),
+		       						"rule" => [
+		       								"id" => md5("WWS ".$priceTyp),
+		       								"name" => "WWS ".$priceTyp,
+		       								"priority" => 900
+		       						],
+		#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
+		#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
+		       						//     						"ruleId" => md5("WWS ".$priceTyp),
+		       						"quantityStart" => $stafvon,
+		       						"quantityEnd" => $stafbis,
+		       						"price" => [[
+		#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
+		       								"currencyId" => $this->ShopwareCurrencyId,
+		       								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
+		       								"gross" => $price,
+		       								"linked" => true,
+		       						]]
+		       				];	
+		       			}
 	        		}
-	        		
-	       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
-	       				$restdata["prices"][] = [
-	       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"]),
-	       						"productid" => md5($frow["arnr"]),
-	       						"rule" => [
-	       								"id" => md5("WWS ".$priceTyp),
-	       								"name" => "WWS ".$priceTyp,
-	       								"priority" => 900
-	       						],
-	#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-	#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
-	       						//     						"ruleId" => md5("WWS ".$priceTyp),
-	       						"quantityStart" => 1,
-	       						"price" => [[
-	#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
-	       								"currencyId" => $this->ShopwareCurrencyId,
-	       								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
-	       								"gross" => $price,
-	       								"linked" => true,
-	       						]]
-	       				];
-	        				
-	       			}
 	        	}
 	        }
 
 	        if ( ! $noupload ) {
 	            
-	            $this->SingleUpload($api, $restdata, "patch");
+	            $response = $this->SingleUpload($api, $restdata, "patch");
+	            $errorlist .= $response;
 	            if (empty($this->shopware6NoVisibilityUpdate)) {
 		            if ($stockSum <= 0) {
 		            	$this->setVisibility($api, $frow["arnr"],false, $frow["qgrp"]);
@@ -557,8 +564,8 @@ class Shopware6Articles {
 	        $restdata["price"] = [
 					        		[
 					        				"currencyId" => $this->ShopwareCurrencyId,
-					        				"net"	=> $prices[$this->ShopwarePriceBase]/(1+$artData["mmss"]/100),
-					        				"gross" => $prices[$this->ShopwarePriceBase],
+					        				"net"	=> $prices[$this->ShopwarePriceBase][0]["price"]/(1+$artData["mmss"]/100),
+					        				"gross" => $prices[$this->ShopwarePriceBase][0]["price"],
 					        				"linked" => false
 					        		]
 						        ];
@@ -567,33 +574,37 @@ class Shopware6Articles {
         // TODO: $frow["arnr"] not definined -> change to $article -> tets in Shopware
         
         if ($this->shopware6AlternatePrices) {
-	        foreach($prices as $priceTyp => $price) {
-	        	
-	        	if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
-	        		$price *= (1+$article->productData[0]["mmss"]/100);
-	        	}
-	        	
-	        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
-	        		$restdata["prices"][] = [
-	        				"id" => md5("WWS ".$priceTyp. $artData["arnr"]),
-	        				"productid" => md5( $artData["arnr"]),
-	        				"rule" => [
-	        						"id" => md5("WWS ".$priceTyp),
-	        						"name" => "WWS ".$priceTyp,
-	        						"priority" => 900
-	        				],
-	        				// "ruleId" => md5("WWS ".$priceTyp),
-	        				"quantityStart" => 1,
-	        				"price" => [[
-	        						"id" => md5("price".$priceTyp. $artData["arnr"]),
-	        						"currencyId" => $this->ShopwareCurrencyId,
-	        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
-	        						"gross" => $price,
-	        						"linked" => true,
-	        				]]
-	        		];
-	        		
-	        	}
+        	foreach($prices as $priceTyp => $sprice) {
+        		$scnt = 0;
+        		foreach($sprice as $xprice) {
+        			$price = $xprice["price"];
+		        	if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+		        		$price *= (1+$article->productData[0]["mmss"]/100);
+		        	}
+		        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
+		        		if ($scnt++ > 0 ) { $sid = "_".$scnt;	} else { $sid = "";}
+		        		$restdata["prices"][] = [
+		        				"id" => md5("WWS ".$priceTyp. $artData["arnr"].$sid),
+		        				"productid" => md5( $artData["arnr"]),
+		        				"rule" => [
+		        						"id" => md5("WWS ".$priceTyp),
+		        						"name" => "WWS ".$priceTyp,
+		        						"priority" => 900
+		        				],
+		        				// "ruleId" => md5("WWS ".$priceTyp),
+		        				"quantityStart" => $xprice["from"],
+		        				"quantityEnd" => $xprice["to"],
+		        				"price" => [[
+		        						"id" => md5("price".$priceTyp. $artData["arnr"]),
+		        						"currencyId" => $this->ShopwareCurrencyId,
+		        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
+		        						"gross" => $price,
+		        						"linked" => true,
+		        				]]
+		        		];
+		        		
+		        	}
+        		}
 	        }
         }
         

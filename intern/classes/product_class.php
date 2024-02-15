@@ -193,7 +193,7 @@ class product {
 		$mprbList = substr($mprbList, 0, -1);
 		
 		// select prices
-		$fqry  = "select mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
+		$fqry  = "select conr, mprb, pb.qbez as mprn, cprs, c.apjs , case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm
 					from cond_vk c inner join mand_prsbas pb using (mprb)  inner join art_0 a using (arnr,ameh) 
 		          where arnr = :aamr and cbez = 'PR01' and mprb in (".$mprbList.") and qvon <= current_date and qbis > current_date 
 					and pb.qbez not like 'VK-Preis %'
@@ -204,27 +204,50 @@ class product {
 
 		$f_qry->bindValue(':aamr',$this->productId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
-		
+		$pcnt = 0;
 		// calulate price for one
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
+			
 				if (isset($row["apjs"]) and ($row["apjs"] > 0)) { 
-					$this->productPrices[$row["mprn"]] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
+					$this->productPrices[$row["mprn"]][$pcnt]["price"] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
 				} else {
-					$this->productPrices[$row["mprn"]] = round(($row["cprs"]*$row["amgm"]),2);
+					$this->productPrices[$row["mprn"]][$pcnt]["price"] = round(($row["cprs"]*$row["amgm"]),2);
 				}
+				$this->productPrices[$row["mprn"]][$pcnt]["from"] = 1;
+				$this->productPrices[$row["mprn"]][$pcnt]["to"] = null;
 				if ($row["mprb"] == 6) {
-					$standardPrice = $this->productPrices[$row["mprn"]];
+					$standardPrice = $this->productPrices[$row["mprn"]][$pcnt]["price"];
 					//default no export for standard price
 					if (! $withStdPrice ) {
 						unset($this->productPrices[$row["mprn"]]);
 					}
 				}
+				//prüfe auf staffelpreise
+				$sqry = "select * from cond_staf where conr = :conr order by cbqu";
+				$s_qry = $this->pg_pdo->prepare($sqry);
+				$s_qry->bindValue(':conr',$row["conr"]);
+				$s_qry->execute() or die (print_r($s_qry->errorInfo()));
+
+				while ($srow = $s_qry->fetch( PDO::FETCH_ASSOC ) ) {
+					$pcnt++;
+					if (isset($row["apjs"]) and ($row["apjs"] > 0)) {
+						$this->productPrices[$row["mprn"]][$pcnt]["price"] = round(($srow["cprs"]/$row["apjs"]*$row["amgm"]),2);
+					} else {
+						$this->productPrices[$row["mprn"]][$pcnt]["price"] = round(($srow["cprs"]*$row["amgm"]),2);
+					}
+					$this->productPrices[$row["mprn"]][$pcnt]["from"] = round($srow["cbqu"]*$row["amgm"]);
+					$this->productPrices[$row["mprn"]][$pcnt]["to"] = null;
+					$this->productPrices[$row["mprn"]][($pcnt-1)]["to"] = $this->productPrices[$row["mprn"]][$pcnt]["from"]-1;
+				}
+				
 		}
 		
 		// fill zero price with standard price
 		foreach($this->productPrices as $key => $value) {
 			if (($value == null) and ($key != $netPrice)) {
-				$this->productPrices[$key] = $standardPrice;
+				$this->productPrices[$key][0]["price"] = $standardPrice;
+				$this->productPrices[$key][0]["from"] = 1;
+				$this->productPrices[$key][0]["to"] = null;
 			}
 		}
 		
