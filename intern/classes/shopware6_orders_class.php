@@ -113,18 +113,23 @@ class Shopware6Orders {
 		$this->fpos = 0;
 		$FacArray["Pos"] = [];
 		$orderItems = $orderData["order_line_item"];
+		$discount = 0;
 		foreach ($orderItems as $item) {
-			print "Produkte";
-			$item["product"] = $orderData["product"][ $item["attributes"]["productId"]] ;
-			$item["orderNumber"]  = $orderData["orderNumber"];
-			$item["customernumber"] = $orderData["billingAddress"]["order_customer"]["attributes"]["customerNumber"];
-			$item["orderId"] = $orderData["orderId"];
-			$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
-			$item["paymentId"] = $orderData["paymentId"];
-			$item["wwsCustomerNumber"] = $wwsCustomerNumber;
-			$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
-			
+			if (!empty($item["attributes"]["productId"])) {
+				print "Produkt ".$item["attributes"]["productId"]."<br/>";
+				$item["product"] = $orderData["product"][ $item["attributes"]["productId"]] ;
+				$item["orderNumber"]  = $orderData["orderNumber"];
+				$item["customernumber"] = $orderData["billingAddress"]["order_customer"]["attributes"]["customerNumber"];
+				$item["orderId"] = $orderData["orderId"];
+				$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
+				$item["paymentId"] = $orderData["paymentId"];
+				$item["wwsCustomerNumber"] = $wwsCustomerNumber;
+				$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
+			} elseif (!empty($item["attributes"]["payload"]["discountType"]) and ($item["attributes"]["payload"]["discountType"] == "percentage")) {
+				$discount +=  $item["attributes"]["payload"]["value"];
+			}
 		}
+		$FacArray["Head"]["FRAB"] = $discount;
 		//print_r($orderData);
 		//if ($orderData["shippingTotal"] > 0) {
 			
@@ -341,7 +346,7 @@ class Shopware6Orders {
 		}
 		
 		if ($article->getProductId() == NULL) {
-			print "Article ".data['product']["attributes"]["productNumber"]." ".$data['product']["attributes"]["name"]." not found!</br>";
+			print "Article ".$data['product']["attributes"]["productNumber"]." ".$data['product']["attributes"]["name"]." not found!</br>";
 			$posFmge = $data["attributes"]["quantity"] ; 
 			$posPrice = $data["attributes"]["unitPrice"];				
 			$posApjs = 1;
