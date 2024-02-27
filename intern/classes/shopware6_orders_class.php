@@ -125,11 +125,13 @@ class Shopware6Orders {
 				$item["paymentId"] = $orderData["paymentId"];
 				$item["wwsCustomerNumber"] = $wwsCustomerNumber;
 				$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
-			} elseif (!empty($item["attributes"]["payload"]["discountType"]) and ($item["attributes"]["payload"]["discountType"] == "percentage")) {
+			} elseif (!empty($item["attributes"]["payload"]["discountType"])
+						and ($item["attributes"]["payload"]["discountType"] == "percentage")
+						and ($item["attributes"]["payload"]["promotionCodeType"] == "global")) {
 				$discount +=  $item["attributes"]["payload"]["value"];
 			}
 		}
-		$FacArray["Head"]["FRAB"] = $discount;
+		$FacArray["Head"]["QRAB"] = $discount;
 		//print_r($orderData);
 		//if ($orderData["shippingTotal"] > 0) {
 			
