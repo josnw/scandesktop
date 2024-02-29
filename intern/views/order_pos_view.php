@@ -2,6 +2,7 @@
 
 $instkliste = 0;
 $orderPacked = 2;
+// print "<pre>"; print_r($item); print "</pre>";
 foreach($item as $itemrow) {
 
 	 if (($instkliste == 1) and ($itemrow["astl"] != 2)) { print "</div>"; }

@@ -59,7 +59,7 @@ class order {
 		$this->MainItemCount = 0;
 		$this->ItemCount = 0;
 		$this->OrderWeight = 0;
-		$mainidx = 0;
+		$mainidx = -1;
 		while ($row = $r_qry->fetch( PDO::FETCH_ASSOC )) {
 		    
 		    if (empty($row["agew"])) {
@@ -89,20 +89,20 @@ class order {
 				}
 				
 			} else {
-				$mainidx = $row["fpos"];
-				$this->orderItems[$idx] = $row;
-				$this->orderItems[$idx]["astl"] = null;
+				//$mainidx = $row["fpos"];
+				$mainidx++;
+				$this->orderItems[$mainidx] = $row;
+				$this->orderItems[$mainidx]["astl"] = null;
 				$this->MainItemCount++;
-				
 			}
 		}
 		
 		$this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
 		
+		//print "<pre>"; print_r($this->orderItems); print "</pre>";
 		
 		$this->itemPointer = 0;
 		return $this->MainItemCount;
-
 	}
 
 	public function checkItemQuantity($Artikel) {
