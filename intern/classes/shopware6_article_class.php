@@ -261,7 +261,7 @@ class Shopware6Articles {
 	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." OrderCnt:".$orderCnt." StockSum:".$stockSum);
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
 	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and 
-	            			( ( ($orderCnt > 0) and (($stockSum+$orderSum) > 0)  ) or (in_array( $article->productData[0]["arnr"] , $this->fullExternalStockGroup)) ) ) {
+	            			( ( ($orderCnt > 0) and (($stockSum+$orderSum) > 0)  ) or (in_array( $article->productData[0]["qgrp"] , $this->fullExternalStockGroup)) ) ) {
 	            			Proto($frow["arnr"]." Check dynamic external stock amount");
             				$supplierData = $article->getDBFields("ablz,abln,abeh");
             				if (($supplierData["abln"] > 0) and ($supplierData["ablz"] > 1) and ($supplierData["abeh"] == 'Pal')){
