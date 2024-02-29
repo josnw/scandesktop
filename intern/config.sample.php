@@ -94,6 +94,8 @@ $shopware6setDiscountTag=false;
 $sw6PropertyFile = "./intern/data/sw6PropertyFile.json";
 // No Category Upload on updates
 $shopware6NoCatUpdate = false;
+// full External Stock Amount for this ArticleGroups is online 
+$fullExternalStockGroup = [];
 
 $shopware6_url = 'https://host/api';
 $shopware6_user = 'apiuser';

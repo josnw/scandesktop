@@ -32,6 +32,7 @@ class Shopware6Articles {
 	private $shopware6UpdateLinr;
 	private $shopware6NoCatUpdate;
 	private $shopware6NoVisibilityUpdate;
+	private $fullExternalStockGroup;
 	private $api; 
 	
 	public function __construct($api = null) {
@@ -67,6 +68,7 @@ class Shopware6Articles {
 		$this->shopware6UpdateLinr = $shopware6UpdateLinr;
 		$this->shopware6NoCatUpdate = $shopware6NoCatUpdate;
 		$this->shopware6NoVisibilityUpdate = $shopware6NoVisibilityUpdate;
+		$this->fullExternalStockGroup = $fullExternalStockGroup;
 		$this->api = $api;
 		
 		if (file_exists($sw6GroupMatching)) {
@@ -258,7 +260,8 @@ class Shopware6Articles {
 	            foreach($stocks as $stockNumber => $stockAmount ) {
 	            	Proto($frow["arnr"]."Check Extern: Stock ".$stockNumber.": ".$stockAmount." OrderSum:".$orderSum." OrderCnt:".$orderCnt." StockSum:".$stockSum);
 	            	if ((in_array( $stockNumber , $this->ShopwareDynamicExternalStock)) and
-	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and ($orderCnt > 0) and (($stockSum+$orderSum) > 0)  ) {
+	            			(! in_array( $stockNumber , $this->ShopwareStockList)) and 
+	            			( ( ($orderCnt > 0) and (($stockSum+$orderSum) > 0)  ) or (in_array( $article->productData[0]["arnr"] , $this->fullExternalStockGroup)) ) ) {
 	            			Proto($frow["arnr"]." Check dynamic external stock amount");
             				$supplierData = $article->getDBFields("ablz,abln,abeh");
             				if (($supplierData["abln"] > 0) and ($supplierData["ablz"] > 1) and ($supplierData["abeh"] == 'Pal')){
