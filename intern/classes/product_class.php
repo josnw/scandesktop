@@ -204,10 +204,10 @@ class product {
 
 		$f_qry->bindValue(':aamr',$this->productId);
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
-		$pcnt = 0;
 		// calulate price for one
 		while ($row = $f_qry->fetch( PDO::FETCH_ASSOC ) ) {
-			
+				$pcnt = 0;
+				$this->productPrices[$row["mprn"]] = [];
 				if (isset($row["apjs"]) and ($row["apjs"] > 0)) { 
 					$this->productPrices[$row["mprn"]][$pcnt]["price"] = round(($row["cprs"]/$row["apjs"]*$row["amgm"]),2);
 				} else {
