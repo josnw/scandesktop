@@ -24,6 +24,7 @@ class Shopware6Articles {
 	private $shopware6Visibilities;
 	private $shopware6NoPrices;
 	private $shopware6NetPriceBase;
+	private $shopware6WGDisMatrix;
 	private $shopware6AlternateProductname;
 	private $shopware6ManufactureCustomField;
 	private $shopware6DiscountTag;
@@ -64,6 +65,7 @@ class Shopware6Articles {
 		$this->shopware6ManufactureCustomField = $shopware6ManufactureCustomField;
 		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
 		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
+		$this->shopware6WGDisMatrix = $shopware6WGDisMatrix;
 		$this->shopware6DeliveryTimeIds = $shopware6DeliveryTimeIds;
 		$this->shopware6UpdateLinr = $shopware6UpdateLinr;
 		$this->shopware6NoCatUpdate = $shopware6NoCatUpdate;
@@ -326,9 +328,16 @@ class Shopware6Articles {
 	        		$scnt = 0;
 	        		foreach($sprice as $xprice) {
 						$price = $xprice["price"];
+						
+					
 						if (empty($xprice["from"])) {  $stafvon = 1;} else { $stafvon = $xprice["from"];}
 						if (empty($xprice["to"])) {  $stafbis = null;} else { $stafbis = $xprice["to"];}
 		        		if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+		        			//WWS group discount
+		        			if (!empty($this->shopware6WGDisMatrix[$frow["qgrp"]])) {
+		        				$price = $price * (1-$this->shopware6WGDisMatrix[$frow["qgrp"]]/100);
+		        			}
+		        			// incl tax
 		        			$price *= (1+$article->productData[0]["mmss"]/100);
 		        		}
 		        		
@@ -581,7 +590,13 @@ class Shopware6Articles {
         		$scnt = 0;
         		foreach($sprice as $xprice) {
         			$price = $xprice["price"];
+        			
 		        	if (($priceTyp == $this->shopware6NetPriceBase) and (! empty($price))) {
+		        		//WWS group discount
+		        		if (!empty($this->shopware6WGDisMatrix[$article->productData[0]["qgrp"]])) {
+		        			$price = $price * (1-$this->shopware6WGDisMatrix[$article->productData[0]["qgrp"]]/100);
+		        		}
+		        		// incl tax
 		        		$price *= (1+$article->productData[0]["mmss"]/100);
 		        	}
 		        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
