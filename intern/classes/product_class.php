@@ -499,7 +499,7 @@ class product {
 			
 			foreach($parameter as $key => $value) {
 				if  ($arrayName == "a_vk") {
-					$TbParam[$arrayName."[".$key."]"] = $value[0];
+					$TbParam[$arrayName."[".$key."]"] = $value[0]["price"];
 				} elseif (is_array($value )) {
 					foreach($value as $subkey => $subvalue) {
 						$TbParam[$arrayName."[".$key."]{".$subkey."}"] = $subvalue;
