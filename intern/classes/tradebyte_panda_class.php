@@ -294,7 +294,7 @@ class tradebytePanda {
 				$temp_array = array_merge($index,$exportarray, $media);
 
 			} 
-
+			
 			
 			// print table header in first line
 			if ($cnt++ == 0) {
@@ -302,16 +302,18 @@ class tradebytePanda {
 			}
 			
 			// print data line
-			foreach($temp_array as $key=>$value) {
-				$temp_array[$key] = trim($value);
-				if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z���]{1,5}/",$value))) {
-					$temp_array[$key] = str_replace(".",",",$value);
-				} 
-				if ($value = null) {
-				  $value = '';	
+			if (strlen($temp_array["a_nr"]) > 0) {
+				foreach($temp_array as $key=>$value) {
+					$temp_array[$key] = trim($value);
+					if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z���]{1,5}/",$value))) {
+						$temp_array[$key] = str_replace(".",",",$value);
+					} 
+					if ($value = null) {
+					  $value = '';	
+					}
 				}
+				$panda->writeCSV($temp_array);
 			}
-			$panda->writeCSV($temp_array);
 			
 		}
 		$exportname =  $panda->getCheckedName();
