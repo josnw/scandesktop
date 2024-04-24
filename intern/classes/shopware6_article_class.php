@@ -413,7 +413,7 @@ class Shopware6Articles {
 	}
 	
 	public function newArticleList() {
-	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson from art_0 a inner join web_art w using (arnr)
+	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson,qgid from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is null )
 					  order by arnr
 					";
@@ -858,12 +858,18 @@ class Shopware6Articles {
 	        if ($frow["qgid"] == null) {
 	        	$webIdBase = $frow["arnr"];
 	        } else {
+	        	print "QGID";
 	        	$webIdBase =  $frow["qgid"];
 	        }
 	        if (! $noUpload) {
-	           $productData = $this->generateSW6Product($frow["arnr"]);
+	           $productData = $this->generateSW6Product($frow["arnr"], "new", $webIdBase);
 	           $articleList .= $productData["product"]["productNumber"]." ".$productData["product"]["name"]."\n";
 	           $response = $this->SingleUpload($api, $productData["product"] );
+	           if ((strpos($response,'already exists') > 0 ) 
+	           		or (strpos($response,'UpdateCommand') > 0 )) {
+	           	$productData = $this->generateSW6Product($frow["arnr"], "update", $webIdBase);
+	           	$response = $this->SingleUpload($api, $productData["product"], "patch");
+	           }
 	           $errorList .= $response;
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
 	                $this->uploadSW6Media($api, $pictureUrl);
@@ -913,9 +919,9 @@ class Shopware6Articles {
 	        if (! $noUpload) {
 	            $productData = $this->generateSW6Product($frow["arnr"], "update", $webIdBase);
 	            $response = $this->SingleUpload($api, $productData["product"], "patch");
-	            if (substr($response, 0, 36) == 'Expected command for "product" to be') {
-	            	$productData = $this->generateSW6Product($frow["arnr"], "new");
-	            	$response = $this->SingleUpload($api, $productData["product"], "new");
+	            if (strpos($response,'InsertCommand') > 0 ) {
+	            	$productData = $this->generateSW6Product($frow["arnr"], "new", $webIdBase);
+	            	$response = $this->SingleUpload($api, $productData["product"], "post");
 	            }
 	            $errorList .= $response;
 	            foreach ($productData["mediaUrls"] as $pictureUrl) {
