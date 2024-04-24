@@ -97,13 +97,13 @@ class Shopware6Articles {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp, qgid from art_0 a inner join web_art w on a.arnr = w.arnr and w.wsnr = :wsnr
 						left join art_best b on b.arnr = w.arnr and (b.qedt > w.wsdt)
 						left join cond_vk c on c.arnr = w.arnr and (c.qvon > w.wsdt or c.qedt > w.wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
 						left join auftr_pos ap on ap.arnr = a.arnr and ftyp = 2 and ap.qadt > ( current_timestamp - interval '1 hour')  
 					   where  ( wsnr = :wsnr and wsdt is not null ) 
 					    and ( b.qedt is not null or c.qbis is not null or ap.fmge > 0) 
- 	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson, a2.qgrp from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
+ 	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson, a2.qgrp, qgid from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
 						inner join art_stl sl on sl.arnr = w.arnr 	
 						inner join art_best b2 on b2.arnr = sl.astl and (b2.qedt > w.wsdt) 	
 					   where  wsnr = :wsnr and ( wsdt is not null )
@@ -113,11 +113,11 @@ class Shopware6Articles {
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry, $options);
 			
 		} else {
-			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp from art_0 a inner join web_art w using (arnr)
+			$fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, wson, a.qgrp, qgid from art_0 a inner join web_art w using (arnr)
 						left join art_best b on b.arnr = w.arnr and w.wsnr = :wsnr and b.qedt > :wsdt 
 						left join cond_vk c on c.arnr = w.arnr and w.wsnr = :wsnr and (c.qvon > :wsdt or c.qedt > :wsdt) and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01'
 					  where  wsnr = :wsnr and ( and wsdt is not null )
-	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson, a2.qgrp from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
+	  				  union select distinct sl.arnr, coalesce(aenr,a2.arnr) as aenr, wson, a2.qgrp, qgid from art_0 a2 inner join web_art w on a2.arnr = w.arnr and w.wsnr = :wsnr
 						inner join art_stl sl on sl.arnr = w.arnr 	
 						inner join art_best b2 on b2.arnr = sl.astl and (b2.qedt > :wsdt or wsdt is null) 	
 					   where  wsnr = :wsnr and ( wsdt is not null ) 
@@ -228,6 +228,11 @@ class Shopware6Articles {
 	    // fill array and write to file
 	    $first = true; 
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC, $first ? PDO::FETCH_ORI_FIRST : PDO::FETCH_ORI_NEXT )) {
+	    	if ($frow["qgid"] == null) {
+	    		$webIdBase = $frow["arnr"];
+	    	} else {
+	    		$webIdBase =  $frow["qgid"];
+	    	}
 	    	Proto($frow["arnr"]." Start StockPriceUpdate");
 	    	$first = false;
 	        $cnt++;
@@ -297,7 +302,7 @@ class Shopware6Articles {
 	        $this->debugData('PriceBase:'.$frow["arnr"], $prices);
 	        
 	        $restdata = [ 
-	        		"id" => md5($frow["arnr"]),
+	        		"id" => md5($webIdBase),
 	        		"productNumber" => $frow["arnr"],
 	        		"stock" => $stockSum,
 	        		"weight" => $artData["agew"],
@@ -344,20 +349,16 @@ class Shopware6Articles {
 		       			if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
 		       				if ($scnt++ > 0 ) { $sid = "_".$scnt;	} else { $sid = "";}
 		       				$restdata["prices"][] = [
-		       				        "id" => md5("WWS ".$priceTyp.$frow["arnr"].$sid),
-		       						"productid" => md5($frow["arnr"]),
+		       				        "id" => md5("WWS ".$priceTyp.$webIdBase.$sid),
+		       						"productid" => md5($webIdBase),
 		       						"rule" => [
 		       								"id" => md5("WWS ".$priceTyp),
 		       								"name" => "WWS ".$priceTyp,
 		       								"priority" => 900
 		       						],
-		#       						"versionId" => md5("version".$priceTyp.$frow["arnr"]),
-		#       						"productVersionId" => md5("productVersion".$priceTyp.$frow["arnr"]),
-		       						//     						"ruleId" => md5("WWS ".$priceTyp),
 		       						"quantityStart" => $stafvon,
 		       						"quantityEnd" => $stafbis,
 		       						"price" => [[
-		#      								"id" => md5("price".$priceTyp.$frow["arnr"]),
 		       								"currencyId" => $this->ShopwareCurrencyId,
 		       								"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
 		       								"gross" => $price,
@@ -422,7 +423,7 @@ class Shopware6Articles {
 	}
 
 	public function articleUpdateListBaseData() {
-	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson from art_0 a inner join web_art w using (arnr)
+	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson, qgid from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is not null )
                       and a.qedt > w.wsdt
 					  order by arnr
@@ -436,8 +437,10 @@ class Shopware6Articles {
 	/*
 	 * Shopware6 ready
 	 */
-	public function generateSW6Product($articleNumber, $type = "new") {
-	    
+	public function generateSW6Product($articleNumber, $type = "new", $webIdBase = null) {
+		if (empty($webIdBase)) {
+			$webIdBase = $articleNumber;
+		}
         //get article base data
 	    $article = new product($articleNumber, 'tradebyte');
 
@@ -468,7 +471,7 @@ class Shopware6Articles {
         //generate shopware formated array
 
         $restdata = [ 
-            "id" => md5($artData['arnr']),
+        	"id" => md5($webIdBase),
             "productNumber" => $artData["arnr"],
             "ean" => $artData["asco"],
        	    "packUnit" => $artData["ageh"],  				        // SW Verpackungseinheit = ISO Verkaufsgebinde -> Facto Status Table id 9102
@@ -564,7 +567,7 @@ class Shopware6Articles {
             $restdata["visibilities"] = [];
             foreach ($this->shopware6DefaultVisibilities as $channelId) {
             	$restdata["visibilities"][] = [
-            			"id" => md5($channelId.$artData["arnr"]),
+            			"id" => md5($channelId.$webIdBase),
             			"salesChannelId" => $channelId,
             			"visibility" => 30
             	];
@@ -602,8 +605,8 @@ class Shopware6Articles {
 		        	if (($priceTyp != $this->ShopwarePriceBase) and (! empty($price))) {
 		        		if ($scnt++ > 0 ) { $sid = "_".$scnt;	} else { $sid = "";}
 		        		$restdata["prices"][] = [
-		        				"id" => md5("WWS ".$priceTyp. $artData["arnr"].$sid),
-		        				"productid" => md5( $artData["arnr"]),
+		        				"id" => md5("WWS ".$priceTyp. $webIdBase.$sid),
+		        				"productid" => md5( $webIdBase),
 		        				"rule" => [
 		        						"id" => md5("WWS ".$priceTyp),
 		        						"name" => "WWS ".$priceTyp,
@@ -613,7 +616,7 @@ class Shopware6Articles {
 		        				"quantityStart" => $xprice["from"],
 		        				"quantityEnd" => $xprice["to"],
 		        				"price" => [[
-		        						"id" => md5("price".$priceTyp. $artData["arnr"]),
+		        						"id" => md5("price".$priceTyp. $webIdBase),
 		        						"currencyId" => $this->ShopwareCurrencyId,
 		        						"net"	=> $price/(1+$article->productData[0]["mmss"]/100),
 		        						"gross" => $price,
@@ -764,7 +767,11 @@ class Shopware6Articles {
 		}
 	}
 	
-	public function uploadSW6CLPData($api, $article, $clpData, $type = "new") {
+	public function uploadSW6CLPData($api, $article, $clpData, $type = "new", $webIdBase = null) {
+		
+		if (empty($webIdBase)) {
+			$webIdBase = $article;
+		} 
 		
 		if (empty($this->shopware6LenzCLP)) {
 			return FALSE;
@@ -776,14 +783,14 @@ class Shopware6Articles {
 		
 		$productClps = [];
 		if ($type != "new") {
-			$response = $api->get('product/'.md5($article).'/extensions/lenzPlatformClp');  // Artikelzuordnung
+			$response = $api->get('product/'.md5($webIdBase).'/extensions/lenzPlatformClp');  // Artikelzuordnung
 			foreach($response["data"] as $productClp) {
 				$productClps[] = $productClp["attributes"]["slug"];
 			}
 	
 			foreach($productClps as $productClp ) {
 				if (! in_array($productClp, $clpData)) {
-					$response = $api->DELETE('product/'.md5($article).'/extensions/lenzPlatformClp/'.$this->shopClpList[$productClp]["id"]);
+					$response = $api->DELETE('product/'.md5($webIdBase).'/extensions/lenzPlatformClp/'.$this->shopClpList[$productClp]["id"]);
 				}
 			}
 		}
@@ -791,7 +798,7 @@ class Shopware6Articles {
 		foreach($clpData as $clp ) {
 			if (! in_array($clp, $productClps)) {
 				$payload = [ "id" =>  $this->shopClpList[$clp]["id"] ];
-				$response = $api->POST('product/'.md5($article).'/extensions/lenzPlatformClp/', $payload);
+				$response = $api->POST('product/'.md5($webIdBase).'/extensions/lenzPlatformClp/', $payload);
 			}
 		}
 	}
@@ -848,6 +855,11 @@ class Shopware6Articles {
 	    $cnt = 0;
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 	        $cnt++;
+	        if ($frow["qgid"] == null) {
+	        	$webIdBase = $frow["arnr"];
+	        } else {
+	        	$webIdBase =  $frow["qgid"];
+	        }
 	        if (! $noUpload) {
 	           $productData = $this->generateSW6Product($frow["arnr"]);
 	           $articleList .= $productData["product"]["productNumber"]." ".$productData["product"]["name"]."\n";
@@ -857,7 +869,7 @@ class Shopware6Articles {
 	                $this->uploadSW6Media($api, $pictureUrl);
 	            }
 	            if (!empty($productData["clpData"])) {
-	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"], "new");
+	            	$this->uploadSW6CLPData($api, $frow["arnr"], $productData["clpData"], "new", $webIdBase);
 	            }
 	            
 	        } else {
@@ -893,8 +905,13 @@ class Shopware6Articles {
 	    $cnt = 0;
 	    while ($frow = $this->articleList_qry->fetch(PDO::FETCH_ASSOC )) {
 	        $cnt++;
+	        if ($frow["qgid"] == null) {
+	        	$webIdBase = $frow["arnr"];
+	        } else {
+	        	$webIdBase =  $frow["qgid"];
+	        }
 	        if (! $noUpload) {
-	            $productData = $this->generateSW6Product($frow["arnr"], "update");
+	            $productData = $this->generateSW6Product($frow["arnr"], "update", $webIdBase);
 	            $response = $this->SingleUpload($api, $productData["product"], "patch");
 	            if (substr($response, 0, 36) == 'Expected command for "product" to be') {
 	            	$productData = $this->generateSW6Product($frow["arnr"], "new");
@@ -918,7 +935,7 @@ class Shopware6Articles {
 	        } else {
 	            print "<pre>";
 	            print "Export ARNR ".$frow["arnr"]."\n";
-	            print_r($this->generateSW6Product($frow["arnr"], "update"));
+	            print_r($this->generateSW6Product($frow["arnr"], "update", $webIdBase));
 	            print "</pre>";
 	        }
 	        if ($test and ($cnt > 5)) { break; }
@@ -938,8 +955,10 @@ class Shopware6Articles {
 	public function exportSW6Stock($api, $noupload = null) {
 	}
 
-	public function setVisibility($api, $articleId, $visibility, $wwsGroup) {
-		
+	public function setVisibility($api, $articleId, $visibility, $wwsGroup, $webIdBase = null) {
+		if (empty($webIdBase)) {
+			$webIdBase = $articleId;
+		} 
 		//visible only if category in channel category tree
 		if (!empty($this->shopware6CategoryMatching[$wwsGroup])) {
 			$visibilityWish =  $this->shopware6CategoryMatching[$wwsGroup]["visibility"];
@@ -950,7 +969,7 @@ class Shopware6Articles {
 		}
 		
 		
-		$visibilities = $api->get('product/'.md5($articleId).'/visibilities');
+		$visibilities = $api->get('product/'.md5($webIdBase).'/visibilities');
 		
 		$isVisibilities = [];
 		
@@ -967,8 +986,8 @@ class Shopware6Articles {
 			if ( ! in_array($setVisibility, $isVisibilities) ) {
 				
 				$payload = [
-						"id" => md5($setVisibility.$articleId),
-						"productId" => md5($articleId),
+						"id" => md5($setVisibility.$webIdBase),
+						"productId" => md5($webIdBase),
 						"salesChannelId" => $setVisibility,
 						"visibility" => 30
 				];
