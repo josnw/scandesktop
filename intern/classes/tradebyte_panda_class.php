@@ -303,16 +303,20 @@ class tradebytePanda {
 			
 			// print data line
 			if (strlen($temp_array["a_nr"]) > 0) {
+				$emptyField = 0;
 				foreach($temp_array as $key=>$value) {
 					$temp_array[$key] = trim($value);
 					if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z���]{1,5}/",$value))) {
 						$temp_array[$key] = str_replace(".",",",$value);
 					} 
 					if ($value = null) {
-					  $value = '';	
+					  $value = '';
+					  $emptyField++;
 					}
 				}
-				$panda->writeCSV($temp_array);
+				if (($type != 'price') or ($emptyField == 0)) {
+					$panda->writeCSV($temp_array);
+				}
 			}
 			
 		}
