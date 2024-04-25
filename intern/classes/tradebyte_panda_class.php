@@ -309,8 +309,7 @@ class tradebytePanda {
 					if ((is_numeric($value)) or (preg_match("/[0-9]+\.[0-9]+[ a-z-A-Z���]{1,5}/",$value))) {
 						$temp_array[$key] = str_replace(".",",",$value);
 					} 
-					if ($value = null) {
-					  $value = '';
+					if (empty($value)) {
 					  $emptyField++;
 					}
 				}
