@@ -25,7 +25,7 @@ class tradebyteDesAdv {
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->importHandle = new myfile($filename);
 		$firstLine = $this->importHandle->readLn();
-		if (substr_count($firstLine, $this->csvSep) < 5) {
+		if (substr_count($firstLine, $this->csvSep) < 2) {
 			if (DEBUG) { print("Switch Seperator to Tab"); }
 			$this->csvSep = "\t";
 		}

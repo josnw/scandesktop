@@ -89,12 +89,18 @@
 		print $exportfile."\n";
 	}
 } elseif (isset($_POST["desadv"]) or (isset($argv) and in_array("/desadv", $argv))) {
-	
+	$orderFil = 918;
 	if (php_sapi_name() != 'cli') {
 		$fname = $docpath."/DESADV_".uniqid().".csv";
 		move_uploaded_file( $_FILES["csvdesadv"]["tmp_name"], $fname );
+		if (isset($_POST["daFil"])) {
+			$orderFil = $_POST["daFil"];
+		}
 	} else {
 		$fname = $argv[ array_search("/desadv",$argv) + 1 ];
+		if ( in_array("/daFil", $argv)) {
+			$orderFil = $argv[ array_search("/daFil",$argv) + 1 ];
+		}
 	}
 	print $fname;
 	//$facfile = new myfile($docpath."/DESADV_".time().".FAC","new");
@@ -106,7 +112,7 @@
 		print $orderid."<br>";
 		$override = [];
 		$articleList = [];
-		$desadv = new factoOrders(918, $orderid);
+		$desadv = new factoOrders($orderFil, $orderid);
 		if  ($desadv->getOrderId() == null) {
 			print "Order $orderid not found!<br>\n";
 			continue;
