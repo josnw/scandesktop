@@ -65,6 +65,10 @@
 	$facfile = new myfile($docpath."/ORDERS_".time().".FAC","new");
 	$orders = new tradebyteorders($fname);		
 	
+	if ((!empty($tradebyte_charset)) and ($tradebyte_charset == "utf8")) {
+		$facfile->writeUTF8BOM();
+	}
+	
 	$orders->readFullData();
 	$rowCount = 0;
 	foreach ($orders->getOrderIds() as $orderId) {

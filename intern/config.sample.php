@@ -10,16 +10,13 @@ $allianz_stock_url = 'apiurl';
 // Tradebyte Config
 $TradebyteWebshopNumber = 1;
 
-$isPaidPaymentTypes = ['otdm' ];
+$isPaidPaymentTypes = ['otdm' , 'DEFAULT'];
 
-$channelFacData['ebde']['CustomerNumber'] = 200001;
-$channelFacData['ebde']['Filiale'] = 918;
-$channelFacData['ebde']['formId'] = '0090';
+$channelFacData['DEFAULT']['CustomerNumber'] = 200002;
+$channelFacData['DEFAULT']['Filiale'] = 918;
+$channelFacData['DEFAULT']['formId'] = '0091';
 
-$channelFacData['otdm']['CustomerNumber'] = 200002;
-$channelFacData['otdm']['Filiale'] = 918;
-$channelFacData['otdm']['formId'] = '0091';
-
+$tradebyte_charset = "latin1";
 
 // Shopware 5 Config
 $ShopwareWebshopNumber = 2;

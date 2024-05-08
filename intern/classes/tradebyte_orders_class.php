@@ -44,6 +44,11 @@ class tradebyteOrders {
 			
 			//split head data and pos data
 			foreach($row as $key=>$value) {
+				
+				if (($key == 'CHANNEL_KEY') and empty($this->channel[$value]['CustomerNumber'])) {
+					$this->channel[$value] = $this->channel['DEFAULT']; 
+				}
+					
 				if (substr($key,0,4) == 'POS_') {
 					$this->OrdersData[$row['TB_ORDER_ID']]['pos'][$row['POS_LFDNR']][$key] = $value;
 				} else {
@@ -102,7 +107,8 @@ class tradebyteOrders {
 		
 		// automatic flag if payed
 		if ((strlen($this->OrdersData[$orderId]['head']['PAYMENT_TRANSACTION_ID']) > 0 )
-		     or ( in_array( $this->OrdersData[$orderId]['head']['PAYMENT_TYPE'] , $this->isPaidPaymentTypes) )) {
+		     or ( in_array( $this->OrdersData[$orderId]['head']['PAYMENT_TYPE'] , $this->isPaidPaymentTypes) )
+			 or ( !empty($this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['isPaid']) ) ) {
 			$facHead['FFKT'] = 0;
 		} else {
 			$facHead['FFKT'] = 1;
