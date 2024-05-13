@@ -52,12 +52,12 @@ class tradebyteDesAdv {
 		
 		while ( $line = $this->importHandle->readCSV($this->csvSep) ) {
 			
+			//combine line with head	
+			$row = array_combine($this->importKeyList, $line);
+
 			if (empty($row["Auftrag-ID"])) {
 				$row["Auftrag-ID"] = $row["Auftrag-Nr"];
 			}
-			//combine line with head	
-			$row = array_combine($this->importKeyList, $line);
-			
 			
 			if ($oldOrderId <> $row["Auftrag-ID"]) {
 				$cnt = 0;		
