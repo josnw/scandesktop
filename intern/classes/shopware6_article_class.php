@@ -259,7 +259,7 @@ class Shopware6Articles {
 	                
 	            }
 
-	            if (!empty($this->dynamic_stock_upload["divisor"]) ) {
+	            if ((!empty($this->dynamic_stock_upload["divisor"])) and (! in_array( $article->productData[0]["qgrp"] , $this->fullExternalStockGroup))) {
 	            	$stockSum = floor($stockSum / $this->dynamic_stock_upload["divisor"]);
 	            }
 	            
@@ -290,7 +290,8 @@ class Shopware6Articles {
 	            }
 	            
 	            //Verfügbarer Bestand in Shopware ist Bestand - offene Aufträge, deshalb Limit erhöhen, falls Bestand vorhanden 
-	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > ($this->dynamic_stock_upload["max"] + $orderSum) )) {
+	            if ( (!empty($this->dynamic_stock_upload["max"])) and ($stockSum > ($this->dynamic_stock_upload["max"] + $orderSum)) 
+	            	and !(in_array( $article->productData[0]["qgrp"] , $this->fullExternalStockGroup))) {
 	            	$stockSum = $this->dynamic_stock_upload["max"] + $orderSum;
 	            }
 	            Proto($frow["arnr"]." Stock Sum ".$stockSum." ME");
