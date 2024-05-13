@@ -314,9 +314,6 @@ class tradebyteOrders {
 	}
 
 	public function getChannel($orderId) {
-		if (empty($this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']])) {
-			return 'DEFAULT';
-		}
 		return $this->OrdersData[$orderId]['head']['CHANNEL_KEY'];
 	}
 

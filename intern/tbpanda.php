@@ -72,6 +72,9 @@
 	$orders->readFullData();
 	$rowCount = 0;
 	foreach ($orders->getOrderIds() as $orderId) {
+		if (empty( $channelFacData[$orders->getChannel($orderId)]['Filiale'])) {
+			$channelFacData[$orders->getChannel($orderId)] = $channelFacData["DEFAULT"];
+		}
 		$facfile->facHead("AUFST_KOPF", $channelFacData[$orders->getChannel($orderId)]['Filiale']);
 		$facfile->facData($orders->getFacHeadData($orderId));
 		$rowCount++;
