@@ -241,7 +241,6 @@ class tradebyteOrders {
 			}
 		}
 		
-		
 		if ($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'] > 0) {
 			
 			if (isset($this->Shipping['article'])) {
@@ -250,6 +249,7 @@ class tradebyteOrders {
 				$article = new product($this->OrdersData[$orderId]['head']['SHIPPING_COSTS'],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
 			}
 			$shippingArticle = $article->getProductId();
+			$fpid = $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['Filiale'] * 1000000000 + 900000000 + $orderId;
 			
 			$facPos[$cnt] = [
 				'FXNR' => $this->channel[$this->OrdersData[$orderId]['head']['CHANNEL_KEY']]['CustomerNumber'],
@@ -267,6 +267,7 @@ class tradebyteOrders {
 				'FLDT' => date("d.m.Y", time()+(60*60*18)),
 				'FPOS' => $cnt,
 				'FPNZ' => '',
+				'FPID' => $fpid,
 				'AAMR' => $shippingArticle,
 				'ARNR' => $shippingArticle,
 				'QGRP' => $article->productData[0]['qgrp'],
