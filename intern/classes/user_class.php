@@ -4,6 +4,7 @@ class user {
 
 	private $pg_pdo;
 	private $pickBelegKz;
+	private $fbkzlist;
 	
 	public $pickUser;
 	
@@ -22,7 +23,10 @@ class user {
 		
 		$pickInit_qry->execute() or die (print_r($pickInit_qry->errorInfo()));
 		
-		
+		$this->fbkzlist = [$wwsPickBelegKz];
+		foreach ( $wwsPickBelegChannelKz as $kz) {
+			$this->fbkzlist[] = $kz;
+		}
 	}
 	
 	public function getPickLists($status = '0') {
@@ -95,16 +99,14 @@ class user {
 	public function getAllStat() {
 	    $info = [];
 	    
-	    $pickList_sql = 'select count(fblg) as cntAllDay from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 and fdtm <= current_date '; 
+	    $pickList_sql = 'select count(fblg) as cntAllDay from auftr_kopf where fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 and fdtm <= current_date '; 
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $fetch = $pickList_qry->fetch( PDO::FETCH_ASSOC );
 	    $info['allToday'] = $fetch["cntallday"];
 	    
-	    $pickList_sql = 'select count(fblg) as cntDoneDay from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 and fdtm <= current_date and ktos = 2 ';
+	    $pickList_sql = 'select count(fblg) as cntDoneDay from auftr_kopf where  fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 and fdtm <= current_date and ktos = 2 ';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $fetch = $pickList_qry->fetch( PDO::FETCH_ASSOC );
 	    $info['doneToday'] = $fetch["cntdoneday"];
@@ -121,24 +123,32 @@ class user {
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 	    */
-	    $pickList_sql = 'select ktos,count(fblg) as cnt from auftr_kopf where  fbkz = :fbkz  and ftyp = 2 group by ktos';
+	    $pickList_sql = 'select ktos,count(fblg) as cnt from auftr_kopf where  fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 group by ktos';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 
 	    $pickList_sql = 'select fenr, p.qna1,count(fblg) as cnt, min(fprn) as minpickid from auftr_kopf k
                          inner join per_0 p on p.penr = k.fenr 
-                         where  fbkz = :fbkz  and ftyp = 2 and coalesce(ktos,0) < 2 and fenr > 0 and fprn > 0 group by fenr, p.qna1';
+                         where  fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 and coalesce(ktos,0) < 2 and fenr > 0 and fprn > 0 group by fenr, p.qna1';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byUser'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 
-	    $pickList_sql = 'select fdtm::date,count(fblg) as cnt from auftr_kopf 
-                         where  fbkz = :fbkz  and ftyp = 2 and coalesce(ktos,0) < 2 group by fdtm';
+	    
+	    
+	    $pickList_sql = 'select k.fbkz, s.qbez, fdtm::date, count(fblg) as cnt from auftr_kopf k
+                         inner join status_id s on k.fbkz = s.zxtp and s.qskz = 3
+                         where  fbkz in ('.implode(",",$this->fbkzlist).')  and ftyp = 2 and coalesce(ktos,0) < 2 
+						 group by k.fbkz,s.qbez, fdtm::date order by fbkz, fdtm';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
-	    $pickList_qry->bindValue(":fbkz",$this->pickBelegKz);
+	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
+	    $info['byWwsKz'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
+	    
+	    
+	    $pickList_sql = 'select fdtm::date,count(fblg) as cnt from auftr_kopf 
+                         where  fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 and coalesce(ktos,0) < 2 group by fdtm';
+	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byDate'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 	    

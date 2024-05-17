@@ -18,6 +18,8 @@ class Shopware6Orders {
 	private $isPaidPaymentTypes;
 	private $facFiliale;
 	private $scanDeskFacFiliale;
+	private $wwsPickBelegKz;
+	private $wwsPickBelegChannelKz;
 	
 	
 	public function __construct($api, $salesChannelId = null) {
@@ -38,7 +40,8 @@ class Shopware6Orders {
 		$this->isPaidPaymentTypes = $isPaidPaymentTypes;
 		$this->facFiliale = $FacFiliale;
 		$this->scanDeskFacFiliale = $scanDeskFacFiliale;
-		
+		$this->wwsPickBelegKz = $wwsPickBelegKz;
+		$this->wwsPickBelegChannelKz = $wwsPickBelegChannelKz;
 		$this->ShopwareApiClient = $api;
 
 		$payload = json_decode(file_get_contents('intern/data/orderlist.json'), true);
@@ -65,7 +68,8 @@ class Shopware6Orders {
 
 		$order = $response["data"][0]["attributes"];
 		$order["orderId"] = $response["data"][0]["id"];
-		foreach ($response["data"][0]["relationships"] as $type => $data) {
+		//foreach ($response["data"][0]["relationships"] as $type => $data) {
+		foreach ($response["data"][0]["relationships"] as $typ => $data) {
 			if (!empty($typ)) {
 				$order["rel_".$typ] = $data;
 			} else {
@@ -106,7 +110,10 @@ class Shopware6Orders {
 		$orderData["orderAddress"] = $orderData["order_address"][ reset($orderData["order_delivery"])["attributes"]["shippingOrderAddressId"] ];
 		$orderData["orderAddress"]["country"] =  $orderData["country"][$orderData["order_address"][$orderData["billingAddressId"]]["attributes"]["countryId"]];
 		$orderData["payment"] = $orderData["state_machine_state"][ reset($orderData["order_transaction"])["relationships"]["stateMachineState"]["data"]["id"]];
-		$orderData["payment"]["type"] = $orderData["payment_method"][ reset($orderData["sales_channel"])["relationships"]["paymentMethods"]["data"][0]["id"]];
+		$orderData["payment"]["type"] = $orderData["payment_method"][ reset($orderData["order_transaction"])["relationships"]["paymentMethod"]["data"]["id"]];
+		$orderData["delivery"] = $orderData["order_delivery"][$orderData["rel_deliveries"]["data"][0]["id"]];
+		$orderData["shipping"] = $orderData["shipping_method"][$orderData["delivery"]["relationships"]["shippingMethod"]["data"]["id"]];
+		$orderData["channel"] = $orderData["sales_channel"][$orderData["salesChannelId"]];
 		
 		$FacArray["Head"] = $this->getFacHeadData($orderData);
 
@@ -132,24 +139,27 @@ class Shopware6Orders {
 			}
 		}
 		$FacArray["Head"]["QRAB"] = $discount;
-		//print_r($orderData);
-		//if ($orderData["shippingTotal"] > 0) {
-			
-		if (isset($this->Shipping['article'])) {
+		
+		if (isset($this->Shipping[$orderData["salesChannelId"]]['article'])) {
+			if (!empty($this->Shipping[$orderData["salesChannelId"]]['article'])) {
+				$shipment = new product( $this->Shipping[$orderData["salesChannelId"]]['article']);
+			} else {
+				$shipment = null;
+			}
+		} elseif (isset($this->Shipping['article'])) {
 			$shipment = new product( $this->Shipping["article"]);
 		} else {
 			$shipment = new product($orderData["shippingTotal"],'searchPrice', ['fromArticle' => $this->Shipping['fromArticle'], 'toArticle' => $this->Shipping['toArticle'] ] );
 		}
-
-		$item['product']["attributes"]["productNumber"] = $shipment->getProductId();
-		//$item["taxRate"] =  $shipment->productData[0]['mmss'];
-		$item['product']["attributes"]["name"] = $shipment->productData[0]['abz1'];
-		$item["attributes"]["quantity"] = 1;
-		$item["attributes"]["unitPrice"] = $orderData["shippingTotal"];
-		 
-		$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
-		
-		//} 
+		if (!empty($shipment)) {
+			$item['product']["attributes"]["productNumber"] = $shipment->getProductId();
+			//$item["taxRate"] =  $shipment->productData[0]['mmss'];
+			$item['product']["attributes"]["name"] = $shipment->productData[0]['abz1'];
+			$item["attributes"]["quantity"] = 1;
+			$item["attributes"]["unitPrice"] = $orderData["shippingTotal"];
+			 
+			$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
+		}
 		return $FacArray;
 	}
 	
@@ -229,10 +239,20 @@ class Shopware6Orders {
 	
 	private function getFacHeadData($data) {
 		
+		if (DEBUG == 1) { print_r($data); }
+		
 		if (!empty($data["wwsCustomerNumber"])) {
 			$customerNumber = $data["wwsCustomerNumber"];
 		} else {
 			$customerNumber = $this->GetRealCustomerNumber($data["billingAddress"]["order_customer"]["attributes"]["customerNumber"]);
+		}
+		
+		if ($data["price"]["taxStatus"] == "net") {	$qpra = 1;	} else { $qpra = 0;	}
+		
+		if (!empty($this->wwsPickBelegChannelKz[$data["salesChannelId"]])) { 
+			$wwwPickKz = $this->wwsPickBelegChannelKz[$data["salesChannelId"]];
+		} else {
+			$wwwPickKz = $this->wwsPickBelegKz;
 		}
 		
 		$facHead = [
@@ -265,9 +285,9 @@ class Shopware6Orders {
 				'QEMA' => $data["billingAddress"]["order_customer"]["attributes"]["email"],
 		        'QSBZ' => $data["orderId"],
 				'QUSS' => 1,
-				'QPRA' => 0,
+				'QPRA' => $qpra,
 				'KPRP' => 6,
-				'FBKZ' => 60,
+				'FBKZ' => $wwwPickKz,
 				'KZBE' => 6,
 				'QFRM' => $this->channelFacData['shopware6']['formId'],
 	            'QHWG' => 'EUR',
@@ -286,9 +306,9 @@ class Shopware6Orders {
 		
 
 		$facHead['QTXK'] = [
-				'Zahlung per '.$data["payment"]["type"]["attributes"]["name"],
-//				'Payment ID: '.$data["transactionId"],
-//				'Versand: '.$data["dispatch"]["name"],
+				'Zahlung: '.$data["payment"]["type"]["attributes"]["name"]." | ".
+				'Versand: '.$data["shipping"]["attributes"]["name"]." | ".
+				'Channel: '.$data["channel"]["attributes"]["name"]
 		];
 		
 		$tax_pv = 0;
@@ -342,6 +362,8 @@ class Shopware6Orders {
 		print $this->channelFacData['shopware6']['CustomerMappingField'];
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
 		
+		if ($data["price"][0]["taxStatus"] == "net") {	$qpra = 1;	} else { $qpra = 0;	}
+				
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
 		if (empty($article->productData[0]['arnr'])) {
 			$article = new product($data['product']["attributes"]["productNumber"]);
@@ -405,7 +427,7 @@ class Shopware6Orders {
 			'ALGO' => 'HL',
 			'APKZ' => $article->productData[0]['apkz'],
 			'ASMN' => 1,
-			'QPRA' => 0,
+			'QPRA' => $qpra,
 			'ASMZ' => 1,
 			'ABZ1' => $posText[0],
 			'ABZ2' => $posText[1],

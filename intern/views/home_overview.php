@@ -78,6 +78,26 @@
 </div>
 
 <div class="DSEdit">
+    <h3>Shopaufträge nach Channel</h3>
+    <div class="DSEdit">
+     <div class=DSFeld2><b>Channel</b></div>
+     <div class=DSFeld2><b>Bezeichnung</b></div>
+     <div class=DSFeld2><b>Datum</b></div>
+     <div class=DSFeld1><b>Anzahl</b></div>
+      
+     <?php 
+         foreach($info["byWwsKz"] as $stat) {
+             print "<div class=DSFeld2>".$stat["fbkz"]."</div>";
+             print "<div class=DSFeld2>".$stat["qbez"]."</div>";
+             print "<div class=DSFeld2>".$stat["fdtm"]."</div>";
+             print "<div class=DSFeld1>".$stat["cnt"]."</div>";
+         }
+     
+     ?> 
+    </div>
+</div>
+
+<div class="DSEdit">
     <h3>Shopaufträge nach Datum</h3>
     <div class="DSEdit">
      <div class=DSFeld2><b>Importdatum</b></div>
