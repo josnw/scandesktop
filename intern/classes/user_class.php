@@ -123,7 +123,9 @@ class user {
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
 	    */
-	    $pickList_sql = 'select ktos,count(fblg) as cnt from auftr_kopf where  fbkz in ('.implode(",",$this->fbkzlist).')   and ftyp = 2 group by ktos';
+	    $pickList_sql = 'select case when spls = spos then 3 when spls > 0 then 2 else ktos end ktos,count(fblg) as cnt 
+                          from auftr_kopf where  fbkz in ('.implode(",",$this->fbkzlist).') and ftyp = 2 
+						  group by case when spls = spos then 3 when spls > 0 then 2 else ktos end ';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byPackStat'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
@@ -137,10 +139,10 @@ class user {
 
 	    
 	    
-	    $pickList_sql = 'select k.fbkz, s.qbez, fdtm::date, count(fblg) as cnt from auftr_kopf k
+	    $pickList_sql = 'select k.fbkz, s.qbez, count(fblg) as cnt from auftr_kopf k
                          inner join status_id s on k.fbkz = s.zxtp and s.qskz = 3
                          where  fbkz in ('.implode(",",$this->fbkzlist).')  and ftyp = 2 and coalesce(ktos,0) < 2 
-						 group by k.fbkz,s.qbez, fdtm::date order by fbkz, fdtm';
+						 group by k.fbkz,s.qbez order by fbkz';
 	    $pickList_qry = $this->pg_pdo->prepare($pickList_sql);
 	    $pickList_qry->execute() or die (print_r($pickList_qry->errorInfo()));
 	    $info['byWwsKz'] = $pickList_qry->fetchAll( PDO::FETCH_ASSOC );
