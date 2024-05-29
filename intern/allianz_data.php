@@ -58,7 +58,7 @@
 				//continue;			
 			}
 			
-			$aviableStock = round(($stockData['stock'] - $security_distance_abs) * (1 - $security_distance_rel),3);
+			$aviableStock = round(($stockData['stock'] - $security_distance_abs * 2 ) * (1 - $security_distance_rel),3);
 
 			// calculate aviable base stock
 			if ((array_key_exists(0,$article->productData)) and (array_key_exists('amgm',$article->productData[0])) and ($article->productData[0]['amgm'] > 0)) {
