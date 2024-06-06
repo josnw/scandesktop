@@ -363,7 +363,7 @@ class Shopware6Orders {
 		print $this->channelFacData['shopware6']['CustomerMappingField'];
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
 		
-		if ($data["price"][0]["taxStatus"] == "net") {	$qpra = 1;	} else { $qpra = 0;	}
+		if ($data["price"]["taxStatus"] == "net") {	$qpra = 1;	} else { $qpra = 0;	}
 				
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
 		if (empty($article->productData[0]['arnr'])) {
