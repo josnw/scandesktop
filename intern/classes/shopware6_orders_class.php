@@ -131,6 +131,7 @@ class Shopware6Orders {
 				$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
 				$item["paymentId"] = $orderData["paymentId"];
 				$item["wwsCustomerNumber"] = $wwsCustomerNumber;
+				$item["price"]["taxStatus"] = $FacArray["Head"]["price"]["taxStatus"];
 				$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
 			} elseif (!empty($item["attributes"]["payload"]["discountType"])
 						and ($item["attributes"]["payload"]["discountType"] == "percentage")
