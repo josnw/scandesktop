@@ -131,7 +131,7 @@ class Shopware6Orders {
 				$item["externalOrderId"] = $orderData["customFields"]["cbaxExternalOrderOrdernumber"];
 				$item["paymentId"] = $orderData["paymentId"];
 				$item["wwsCustomerNumber"] = $wwsCustomerNumber;
-				$item["price"]["taxStatus"] = $FacArray["Head"]["price"]["taxStatus"];
+				$item["price"]["taxStatus"] = $orderData["price"]["taxStatus"];
 				$FacArray["Pos"] = array_merge($FacArray["Pos"], $this->getFacPosData($item));
 			} elseif (!empty($item["attributes"]["payload"]["discountType"])
 						and ($item["attributes"]["payload"]["discountType"] == "percentage")
@@ -362,7 +362,6 @@ class Shopware6Orders {
 	private function getFacPosData($data) {
 		print $this->channelFacData['shopware6']['CustomerMappingField'];
 		$posText = $this->SplitABZ($data['product']["attributes"]["name"]);
-		
 		if ($data["price"]["taxStatus"] == "net") {	$qpra = 1;	} else { $qpra = 0;	}
 				
 		$article = new product(sprintf("%08d",$data['product']["attributes"]["productNumber"]));
