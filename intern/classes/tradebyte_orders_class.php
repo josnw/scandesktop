@@ -36,11 +36,22 @@ class tradebyteOrders {
 	
 		$this->OrdersData = [];
 		$this->OrdersIdList = [];
+		$oldorder = 0;
+		$oldpos = 0;
+		
 		//read line from Importfile
 		while ( $line = $this->importHandle->readCSV() ) {
 			
 			//combine line with head	
 			$row = array_combine($this->importKeyList, $line);
+			
+			if ($oldorder <> $row['TB_ORDER_ID']) {
+				$oldorder = $row['TB_ORDER_ID'];
+				$oldpos = 1;
+			}
+			if (empty($row['POS_LFDNR'])) {
+				$row['POS_LFDNR'] = $oldpos++;
+			}
 			
 			//split head data and pos data
 			foreach($row as $key=>$value) {

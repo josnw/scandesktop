@@ -170,8 +170,8 @@ class factoOrders {
 		}
 		//add SetSubArticle booking amount and transport costs
 		$switch = 0; $factor = 0;
-		$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList).')';
-		
+		$idlist = '(TB_POS_CHANNEL_ID='.implode('|TB_POS_CHANNEL_ID=',$articleList);
+		$idlist .= '|TB_POS_TB_ID='.implode('|TB_POS_TB_ID=',$articleList).')';
 		
 		for($i = 0; $i < count($this->positions); $i++) {
 			if (   ( isset($this->Shipping['article']) and  ( $this->positions[$i]["arnr"] == $this->Shipping['article'] ) )
