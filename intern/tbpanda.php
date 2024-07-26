@@ -115,6 +115,7 @@
 		print $orderid."<br>";
 		$override = [];
 		$articleList = [];
+		$orderid = $channelFacData['DEFAULT']['Filiale'] * 10000000 + $orderid;
 		$desadv = new factoOrders($orderFil, $orderid);
 		if  ($desadv->getOrderId() == null) {
 			print "Order $orderid not found!<br>\n";
