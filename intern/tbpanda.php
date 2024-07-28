@@ -115,10 +115,10 @@
 		print $orderid."<br>";
 		$override = [];
 		$articleList = [];
-		$orderid = $channelFacData['DEFAULT']['Filiale'] * 10000000 + $orderid;
-		$desadv = new factoOrders($orderFil, $orderid);
+		$facorderid = $channelFacData['DEFAULT']['Filiale'] * 10000000 + $orderid;
+		$desadv = new factoOrders($orderFil, $facorderid);
 		if  ($desadv->getOrderId() == null) {
-			print "Order $orderid not found!<br>\n";
+			print "Order $facorderid not found!<br>\n";
 			continue;
 		}
 
@@ -137,13 +137,13 @@
 				$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
 			}
 		}
-		if (DEBUG) {
+		if ( debug ) {
 			print "Order: ".$orderid."\n";
 			print "ArticleList:\n"; print_r($articleList);
 			print "Override:\n"; print_r($override);
 		}
 		$result = $desadv->duplicateOrder(4,$articleList, $override, false);
-		print $orderid." -> ".$result["fnum"]."</br>\n";
+		print $facorderid." -> ".$result["fnum"]."</br>\n";
 	}
 	
 }
