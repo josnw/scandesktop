@@ -137,6 +137,11 @@
 				$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
 			}
 		}
+		if (DEBUG) {
+			print "Order: ".$orderid."\n";
+			print "ArticleList:\n"; print_r($articleList);
+			print "Override:\n"; print_r($override);
+		}
 		$result = $desadv->duplicateOrder(4,$articleList, $override, false);
 		print $orderid." -> ".$result["fnum"]."</br>\n";
 	}

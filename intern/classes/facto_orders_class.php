@@ -206,9 +206,9 @@ class factoOrders {
 			}				
 		}
 		
-		$in = '';
+		$in = "''";
 		for($i = 0; $i < count($articleList); $i++) {
-			if ($i>0)  { $in .= ','; }
+			$in .= ','; 
 			$in .= ":arnr".$i;
 		}
 
@@ -239,7 +239,7 @@ class factoOrders {
 			}
 		}
 		$sql .= "\n from auftr_pos where fblg = :fblg";
-		$sql .= "\n and ( arnr in ( '',$in ) or (fabl ~ :idlist) )";
+		$sql .= "\n and ( arnr in ( $in ) or (fabl ~ :idlist) )";
 		$sql .= "\n order by fpos";
 		
 		// print $sql;
