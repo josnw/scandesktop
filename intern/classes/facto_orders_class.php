@@ -239,7 +239,7 @@ class factoOrders {
 			}
 		}
 		$sql .= "\n from auftr_pos where fblg = :fblg";
-		$sql .= "\n and ( arnr in ( $in ) or (fabl ~ :idlist) )";
+		$sql .= "\n and ( arnr in ( '',$in ) or (fabl ~ :idlist) )";
 		$sql .= "\n order by fpos";
 		
 		// print $sql;

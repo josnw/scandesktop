@@ -69,7 +69,7 @@ class tradebyteDesAdv {
 
 			$this->OrdersData[$row['Auftrag-ID']]['head']['TB_ORDER_ID'] = $row["Auftrag-ID"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CHANNEL_ORDER_ID'] = $row["Auftrag-Nr"];
-			$this->OrdersData[$row['Auftrag-ID']]['head']['PARCEL_TYPE'] = $row["Pakettyp"];
+/*			$this->OrdersData[$row['Auftrag-ID']]['head']['PARCEL_TYPE'] = $row["Pakettyp"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['SHIP_CODE'] = $row["Ship-Code"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_FIRSTNAME'] = $row["Vorname-Rechnung"];
 			$this->OrdersData[$row['Auftrag-ID']]['head']['CUST_SELL_SURNAME'] = $row["Nachname-Rechnung"];
@@ -80,15 +80,20 @@ class tradebyteDesAdv {
 				$this->OrdersData[$row['Auftrag-ID']]['head']['ORDER_DATE'] = $row["Erstelldatum"];
 			}
 			
-			
+*/			
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_ANR'] = $row["Artikel-Nr"];
-			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] = $row["Produktname"];
+/*			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] = $row["Produktname"];
 			if (strlen($row["Variante"]) > 0) {
 				$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TEXT'] .= ' Variante: '.$row["Variante"];
 			}
+*/
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['SHIP_QUANTITY'] = $row["Liefermenge"];
-			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_CHANNEL_ID'] = $row["Kanal Positionsreferenz"];
-			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TB_ID'] = $row["POS_TB_ID"];
+			if (!empty($row["Kanal Positionsreferenz"])) {
+				$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_CHANNEL_ID'] = $row["Kanal Positionsreferenz"];
+			}
+			if (!empty($row["Kanal Positionsreferenz"])) {
+				$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TB_ID'] = $row["POS_TB_ID"];
+			}
 			
 			$cnt++;
 		}
