@@ -88,6 +88,7 @@ class tradebyteDesAdv {
 			}
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['SHIP_QUANTITY'] = $row["Liefermenge"];
 			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_CHANNEL_ID'] = $row["Kanal Positionsreferenz"];
+			$this->OrdersData[$row['Auftrag-ID']]['pos'][$cnt]['POS_TB_ID'] = $row["POS_TB_ID"];
 			
 			$cnt++;
 		}

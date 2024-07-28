@@ -129,7 +129,10 @@
 			if (isset($pos['POS_CHANNEL_ID']) and strlen($pos['POS_CHANNEL_ID']) > 3) {
 				$articleList[] = $pos['POS_CHANNEL_ID'];
 				$override['positions'][$pos['POS_CHANNEL_ID']]['fmgb'] = $pos['SHIP_QUANTITY'];
-			} else {
+			} elseif (isset($pos['POS_TB_ID']) and strlen($pos['POS_TB_ID']) > 1) {
+				$articleList[] = $pos['POS_TB_ID'];
+				$override['positions'][$pos['POS_TB_ID']]['fmgb'] = $pos['SHIP_QUANTITY'];
+			} else{
 				$articleList[] = $pos['POS_ANR'];
 				$override['positions'][$pos['POS_ANR']]['fmgb'] = $pos['SHIP_QUANTITY'];
 			}
