@@ -297,7 +297,7 @@ class Shopware6Articles {
 	            Proto($frow["arnr"]." Stock Sum ".$stockSum." ME");
 	            
 	        }
-	        
+	        $stockSum = floor($stockSum);
 	        $prices = $article->getPrices( true , $this->shopware6NetPriceBase);
 	        
 	        $this->debugData('PriceBase:'.$frow["arnr"], $prices);
