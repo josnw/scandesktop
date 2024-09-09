@@ -61,9 +61,9 @@ class tradebyteOrders {
 				}
 					
 				if (substr($key,0,4) == 'POS_') {
-					$this->OrdersData[$row['TB_ORDER_ID']]['pos'][$row['POS_LFDNR']][$key] = preg_replace('/[\x00-\x1F\x80-\xFF]/u', '', $value);
+					$this->OrdersData[$row['TB_ORDER_ID']]['pos'][$row['POS_LFDNR']][$key] = preg_replace('/[\x00-\x1F\x80-\xA0]/u', '', $value);
 				} else {
-					$this->OrdersData[$row['TB_ORDER_ID']]['head'][$key] = preg_replace('/[\x00-\x1F\x80-\xFF]/u', '', $value);
+					$this->OrdersData[$row['TB_ORDER_ID']]['head'][$key] = preg_replace('/[\x00-\x1F\x80-\xA0]/u', '', $value);
 					if (!in_array($row['TB_ORDER_ID'], $this->OrdersIdList)) {
 						$this->OrdersIdList[] = $row['TB_ORDER_ID'];
 					}
