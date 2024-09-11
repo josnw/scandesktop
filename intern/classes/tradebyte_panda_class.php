@@ -38,7 +38,7 @@ class tradebytePanda {
 		$this->parameterTypeList = $para_qry->fetchall(PDO::FETCH_NUM );
 
 		// sql check pricekey list
-		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
+		$priceqry  = "select qbez from mand_prsbas where mprb >= 6";	
 		$price_qry = $this->pg_pdo->prepare($priceqry);
 		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
 		$this->priceTypeList = $price_qry->fetchall(PDO::FETCH_NUM );
@@ -177,7 +177,7 @@ class tradebytePanda {
 		}
 		
 		// sql check pricekey list
-		$priceqry  = "select qbez from mand_prsbas where mprb > 6";	
+		$priceqry  = "select qbez from mand_prsbas where mprb >= 6";	
 		$price_qry = $this->pg_pdo->prepare($priceqry);
 		$price_qry->execute() or die (print_r($price_qry->errorInfo()));
 		$this->priceTypeList = $price_qry->fetchall(PDO::FETCH_NUM );
@@ -186,7 +186,7 @@ class tradebytePanda {
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
 			$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
-						where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
+						where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >=6  and cbez = 'PR01' ";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
 			$fqry  = "select arnr from cond_vk c inner join web_art w using (arnr) 
