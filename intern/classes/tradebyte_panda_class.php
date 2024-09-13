@@ -315,6 +315,10 @@ class tradebytePanda {
 				}
 				if (($type != 'price') or ($emptyField == 0)) {
 					$panda->writeCSV($temp_array);
+				} else {
+					if (DEBUG) {
+						print "Emty Prices: ".json_encode($temp_array)."\n"; 
+					}
 				}
 			}
 			
