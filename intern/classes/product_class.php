@@ -485,7 +485,7 @@ class product {
 					$this->getParameterFromDB();
 					$parameter =  $this->productParameter;
 			} elseif ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "a_vk")) {
-					$this->getPricesFromDB();
+					$this->getPricesFromDB(true);
 					$parameter = $this->productPrices;
 			} elseif ((! isset($parameter) or $parameter == NULL ) and ($arrayName == "basedata")) {
 					return $this->productDataTradeByteFormat;
