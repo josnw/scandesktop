@@ -139,7 +139,7 @@ class order {
 		$pqry  = 'update auftr_pos set fmgl = coalesce(fmgl,0)+1 where fblg = :BelegID and arnr = :Artikel
                     and fpos = (select min(fpos) from auftr_pos where fblg = :BelegID and arnr = :Artikel and fart = 1)
                  ';
-		$psqry  = "update auftr_pos set fmgl = (case when ageh in ('m','kg','m²','l','lfm') then fmge else coalesce(fmgl,0)+1 end) 
+		$psqry  = "update auftr_pos set fmgl = (case when (ageh in 'm','kg','m²','l','lfm') then fmge else coalesce(fmgl,0)+1 end) 
 					where fblg = :BelegID and arnr = :Artikel
                     and fpos = (select min(fpos) from auftr_pos where fblg = :BelegID and arnr = :Artikel and fart = 6)
                    returning fpos
