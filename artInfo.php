@@ -24,6 +24,6 @@ if (!empty($_GET["ean"])) {
 ?>
 <form action="#" method="GET" enctype="multipart/form-data" >
 	<div class="DSEdit">
-			Scan: <input type="text" name="ean" value="" autofocus onchange="this.form.submit();" autocomplete="off"> 
+			Scan: <input type="text" name="ean" value="" autofocus onchange="this.form.submit();" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.form.submit(); }" autocomplete="off"> 
 	</div>
 </form>
