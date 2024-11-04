@@ -198,7 +198,7 @@ class product {
 		          where arnr = :aamr and cbez = 'PR01' and mprb in (".$mprbList.") and qvon <= current_date and qbis > current_date 
 					and pb.qbez not like 'VK-Preis %'
                     and cprs <> 0
-                    order by case when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm";
+                    order by case when csog like 'FA%' then 0  when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
 
@@ -279,7 +279,7 @@ class product {
 		          where arnr = :aamr and cbez = 'FPAK' and (mprb >= 6 or c.mprb = 0) and qvon <= current_date and qbis > current_date
 					and coalesce(pb.qbez,'ALL') not like 'VK-Preis %' 
                     and cprs <> 0
-                    order by case when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm
+                    order by case when csog like 'FA%' then 0  when csog like 'E%' then 1 when csog like 'R%' then 2 when csog ~ 'F[0-9]*' then 3 else 99 end, csog, qdtm
 				";
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
