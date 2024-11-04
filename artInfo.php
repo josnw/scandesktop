@@ -24,7 +24,7 @@ if (!empty($_GET["ean"])) {
 		print "".$info["abz2"]."<br/><hr/></td></tr>\n";
 		print "<tr><td>EAN</td><td>".$info["asco"]."</td></tr>\n";
 		print "<tr><td>Lieferant </td><td>".$info["linr"]."</td></tr>\n";
-		print "<tr><td>Privatpreis </td><td>".$preis["Privatpreis"][0]["price"]." / ".$apjs." ".$info["ameh"]."</td></tr>\n";
+		print "<tr><td>Privatpreis </td><td><b>".$preis["Privatpreis"][0]["price"]." / ".$apjs." ".$info["ameh"]."</b></td></tr>\n";
 		if($apreis["Privatpreis"] > 0) {
 			print "<tr><td> --> Aktion </td><td>".$apreis["Privatpreis"]." / ".$apjs." ".$info["ameh"]."</td></tr>\n";
 		}
