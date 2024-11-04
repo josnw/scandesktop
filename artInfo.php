@@ -12,6 +12,7 @@ if (!empty($_GET["ean"])) {
 	$info = $article->productData[0];
 	$preis = $article->getPrices(true);
 	$apreis = $article->getAdvertisingPrices(true);
+	$probe = $article->getProbeData();
 	if (ceil($info["apjs"]) <> 1) {
 		$apjs = ceil($info["apjs"]);
 	} else {
@@ -30,6 +31,14 @@ if (!empty($_GET["ean"])) {
 		}
 		if ($info["amgm"] <> 1) {
 			print "<tr><td>Verkauf als</td><td>".$info["ageh"]." á ".$info["amgm"]." ".$info["ameh"]."</td></tr>\n";
+		}
+		if (!empty($probe)) {
+			print "<tr><td colspan=2><hr/></td></tr>\n";
+			print "<tr><td>Verkaufsfach</td><td>".$probe[0]["alag"]."</td></tr>\n";
+			print "<tr><td>Spooler</td><td>".$probe[0]["qspl"];
+			if (!empty($probe[0]["qanz"])) {" (".$probe[0]["qanz"].") "; }
+			print "</td></tr>\n";
+			print "<tr><td>letzter Druck</td><td>".$probe[0]["aedt"]."</td></tr>\n";
 		}
 		print "</table>\n";
 	} else {

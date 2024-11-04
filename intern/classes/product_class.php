@@ -670,6 +670,18 @@ class product {
 		return $row;
 	}
 
+	public function getProbeData() {
+		
+		$fqry  = "select ifnr,alag,qspl,qanz,aedt::date from art_0fil where arnr = :aamr ";
+		
+		$f_qry = $this->pg_pdo->prepare($fqry);
+		$f_qry->bindValue(':aamr',$this->productId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		
+		$row = $f_qry->fetchall( PDO::FETCH_ASSOC );
+		return $row;
+	}
+	
 }
 
 ?>
