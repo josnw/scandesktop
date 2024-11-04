@@ -1,7 +1,7 @@
 <?php
 ini_set('session.gc_maxlifetime', 36000);
 session_set_cookie_params(36000);session_start();
-include_once './intern/auth.php';
+//include_once './intern/auth.php';
 include_once './intern/autoload.php';
 include_once './intern/views/header.php';
 print "<H1 style='padding:5px;'>Artikel Info</H1>";
