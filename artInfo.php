@@ -4,9 +4,9 @@ session_set_cookie_params(36000);session_start();
 //include_once './intern/auth.php';
 include_once './intern/autoload.php';
 include_once './intern/views/header.php';
-print "<H1 style='padding:5px;'>Artikel Info</H1>";
+print "<H2 style='padding:5px;'>Artikel Info</H2>";
 
-print '<div class="DSEdit" style="display: block; height:400px;"> ';
+print '<div class="DSEdit" style="display: block; width=100%; height:400px;"> ';
 if (!empty($_GET["ean"])) {
 	$article = new product($_GET["ean"]);
 	$info = $article->productData[0];
@@ -19,7 +19,7 @@ if (!empty($_GET["ean"])) {
 		$apjs = "";
 	}
 	if (!empty($info)) {
-		print "<table border=0 widht=100% style='font-size:1.4em; padding:5px;'>";
+		print "<table border=0 width=100% style='font-size:1.4em; padding:5px;'>";
 		print "<tr><td colspan=2>".$info["arnr"]."</td></tr>\n";
 		print "<tr><td colspan=2>".$info["abz1"]."</br>\n";
 		print "".$info["abz2"]."<br/><hr/></td></tr>\n";

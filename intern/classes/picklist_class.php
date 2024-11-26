@@ -213,7 +213,7 @@ class picklist {
                            inner join auftr_pos p using (fblg, fnum)
                           where k.fprn = :pickId and k.ktos <= 2 and k.ftyp = 2
                           group by fnum, fblg
-                          order by k.fdtm desc limit 1';
+                          order by k.fdtm limit 1';
 				break;
 				
 		}
