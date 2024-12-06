@@ -19,6 +19,7 @@ class product {
 	private $productStckListData;
 	private $productStocks;
 	private $productOrderSum;
+	private $productHsnr;
 	private $clpData = [];
 	private $wwsPickBelegKz;
 	
@@ -51,7 +52,7 @@ class product {
 			
 			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, abz4, a.qgrp, a.linr, asco, abst, l.qsbz as lqsbz, ameg,  m.mmss, a.apkz, a.ahnr,
 						case when adgz > 0 then cast( (adgn/adgz) as decimal(18,8)) else null end as agpf, a.aart, ag.qsbz as gqsbz,
-                        case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs,
+                        case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(18,8)) else null end as amgm, a.ameh, a.ageh, apjs, aggv,
 					  ( select qpvl from art_param p where p.arnr = a.arnr and qpky = 'Marke' limit 1 ) as amrk,
 					  ( select string_agg( qpvl , ' ') from art_param p where p.arnr = a.arnr and qpky like '%text%' ) as atxt,
                         0 as askz, a.agew, a.avsd, a.hsnr, h.qsbz as hqsbz
@@ -92,6 +93,7 @@ class product {
 		if (($this->resultCount == 1) or ($frow[0]["askz"] <= 2)){
 			$this->productId = $frow[0]["arnr"];
 			$this->productGtin = $frow[0]["asco"];
+			$this->productHsnr = $frow[0]["hsnr"];
 
 			// convert to TB Panda format
 			if ($level == 'tradebyte') {
@@ -679,6 +681,34 @@ class product {
 		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
 		
 		$row = $f_qry->fetchall( PDO::FETCH_ASSOC );
+		return $row;
+	}
+	
+	public function getHsnrData() {
+		
+		if (!empty($this->productHsnr)) {
+			$fqry  = "select * from her_0 h left join her_aspfil af using (hsnr) 
+						left join her_asp a on a.qinc = af.qinc and af.qkst = 1  where h.hsnr = :hsnr ";
+			
+			$f_qry = $this->pg_pdo->prepare($fqry);
+			$f_qry->bindValue(':hsnr',$this->productHsnr);
+			$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+			
+			$row = $f_qry->fetch( PDO::FETCH_ASSOC );
+			return $row;
+		} else {
+			return null;
+		}
+	}
+	
+	public function getGefahrgut() {
+			
+		$artclp = "select g.arnr, g.gpsa, g.ghsa, g.gghs, g.gsdl from art_ggv g
+				where arnr = :aamr and ( g.qbis is null or g.qbis > current_date ) order by qdtm desc";
+		$f_qry = $this->pg_pdo->prepare($artclp);
+		$f_qry->bindValue(':aamr',$this->productId);
+		$f_qry->execute() or die (print_r($f_qry->errorInfo()));
+		$row = $f_qry->fetch( PDO::FETCH_ASSOC );
 		return $row;
 	}
 	

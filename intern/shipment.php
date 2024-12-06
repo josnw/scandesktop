@@ -168,54 +168,61 @@
 				$pickListData->setPickStatus(3);
 				include("./intern/views/picklist_generate_view.php");
 			 } else {
-
-				include("./intern/views/order_head_view.php");
 				
-				$packs = $packOrder->calcPacks(30);
-
-				//$labeledPacks = 0; 
-				$labeledPacks = count($packOrder->getTrackingCodes(null, "orderId"));
-				if (!is_numeric($labeledPacks)) { $labeledPacks = 0; }
-				
-				$currentPack = -1;
-				//while ( $item = $packOrder->getNextItembyPack() ) {
-
-				while ( $item = $packOrder->getNextItem() ) {
-
-					if (isset($item[0]["packNumber"])) {
-						if ($item[0]["packNumber"] <> $currentPack) { 
-							if ($currentPack >= 0) { print"</div>"; }
-							$currentPack++; 
-							print '<div class="DSEdit"><h1>Paket Nr.'.($currentPack+1)."</h1>"; 
-						}
-					}	
-					include("./intern/views/order_pos_view.php");
-				}
-
-/*				if ($packOrder->orderHeader["HNummer"] == '') {
-					if (preg_match("( [0-9]*$)",$packOrder->orderHeader["Adresse1"],$match)) {
-						$packOrder->orderHeader["HNummer"] = trim($match[0]);
-						$packOrder->orderHeader["Adresse1"] = substr($packOrder->orderHeader["Adresse1"],0,strlen($match[0])*(-1));
+				if ($packOrder->orderState == "in_progress") {
+					
+					include("./intern/views/order_head_view.php");
+					
+					$packs = $packOrder->calcPacks(30);
+	
+					//$labeledPacks = 0; 
+					$labeledPacks = count($packOrder->getTrackingCodes(null, "orderId"));
+					if (!is_numeric($labeledPacks)) { $labeledPacks = 0; }
+					
+					$currentPack = -1;
+					//while ( $item = $packOrder->getNextItembyPack() ) {
+	
+					while ( $item = $packOrder->getNextItem() ) {
+	
+						if (isset($item[0]["packNumber"])) {
+							if ($item[0]["packNumber"] <> $currentPack) { 
+								if ($currentPack >= 0) { print"</div>"; }
+								$currentPack++; 
+								print '<div class="DSEdit"><h1>Paket Nr.'.($currentPack+1)."</h1>"; 
+							}
+						}	
+						include("./intern/views/order_pos_view.php");
 					}
-				}
-*/
-				$orderPacked = $packOrder->getPackedState();
-				
-				
-				$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
-				$shippingDocuments = $packOrder->getShippingDocuments();
-				if (DEBUG) { print_r( $_SESSION["shipBlueprint"]); }
-				
-				for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
+	
+	/*				if ($packOrder->orderHeader["HNummer"] == '') {
+						if (preg_match("( [0-9]*$)",$packOrder->orderHeader["Adresse1"],$match)) {
+							$packOrder->orderHeader["HNummer"] = trim($match[0]);
+							$packOrder->orderHeader["Adresse1"] = substr($packOrder->orderHeader["Adresse1"],0,strlen($match[0])*(-1));
+						}
+					}
+	*/
+					$orderPacked = $packOrder->getPackedState();
+					
+					
+					$_SESSION["shipBlueprint"] = $packOrder->getShippingBlueprint();
+					$shippingDocuments = $packOrder->getShippingDocuments();
+					if (DEBUG) { print_r( $_SESSION["shipBlueprint"]); }
+					
+					for($cnt = $labeledPacks; $cnt < count($packs); $cnt++) {
+	
+						$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
+						$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
+					}
+					if (DEBUG) { $errorList = "LableList:".print_r($shippingDocuments,1); }
+					Proto("Shipment: LabelCheck für ".$packOrder->orderHeader["fnum"]);
+					
+					include("./intern/views/order_labelcheck_view.php");
 
-					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["value"] = $packs[$cnt]["agew"];
-					$_SESSION["shipBlueprint"]["parcels"][$cnt]["weightOverwrite"]["unit"] = "kg";
+				} else {
+					
+					include("./intern/views/order_cancel_view.php");
+					
 				}
-				if (DEBUG) { $errorList = "LableList:".print_r($shippingDocuments,1); }
-				Proto("Shipment: LabelCheck für ".$packOrder->orderHeader["fnum"]);
-				
-				include("./intern/views/order_labelcheck_view.php");
-
 			 }
 
 

@@ -16,6 +16,7 @@ class order {
 	public $orderItems;
 	public $MainItemCount;
 	public $ItemCount;
+	public $orderSate;
 
 	public $orderWeight;
 	
@@ -46,58 +47,60 @@ class order {
 			$this->orderHeader["qstr"] = substr(trim($this->orderHeader["qstr"]),0,(-1)*strlen($hnMatches[0]));
 			$this->orderHeader["qstrNumber"] = $hnMatches[0]; 
 		}
-
-		// Belegpositionen einlesen
-		$iqry  = 'select p.*, a.aart, a.agew as gewicht from auftr_pos p left join art_0 a using (arnr) 
-                  where fblg = :BelegID and coalesce(avsd,0) = 0
-                  order by fpos';
-
-		$r_qry = $this->pg_pdo->prepare($iqry);
-		$r_qry->bindValue(':BelegID', $belegnummer);
-		$r_qry->execute() or die (print_r($r_qry->errorInfo()));
-
-		$this->MainItemCount = 0;
-		$this->ItemCount = 0;
-		$this->OrderWeight = 0;
-		$mainidx = -1;
-		while ($row = $r_qry->fetch( PDO::FETCH_ASSOC )) {
-		    
-		    if (empty($row["agew"])) {
-		        $row["agew"] = $row["gewicht"];
-		    }
-
-			$this->ItemCount++;
-			$this->OrderWeight += $row["agew"]*$row["fmge"];
-			$idx = $row["fpos"];
-			
-			if ($row["fart"] == 6 ) {
-				
-				$this->orderItems[$mainidx]["sliste"][$idx] = [ 
-						"arnr" => $row["arnr"], 
-						"abz1" => $row["abz1"], 
-						"abz2" => $row["abz2"],
-						"abz3" => $row["abz3"],
-						"fmge" => $row["fmge"],
-						"fmgl" => $row["fmgl"], 
-						"ameh" => $row["ameh"] ,  
-						"agew" => $row["agew"] 
-				];
-				$this->orderItems[$mainidx]["astl"] = 1;
-				
-				if ($this->orderItems[$mainidx]["agew"] == 0 ) {
-					$this->OrderWeight += $row["agew"]*$row["fmge"];
-				}
-				
-			} else {
-				//$mainidx = $row["fpos"];
-				$mainidx++;
-				$this->orderItems[$mainidx] = $row;
-				$this->orderItems[$mainidx]["astl"] = null;
-				$this->MainItemCount++;
-			}
-		}
 		
 		$this->shopwareOrderId = $this->checkShopwareOrderId($this->orderHeader["qsbz"]);
+		if (! empty($this->shopwareOrderId)) {
+	
+			// Belegpositionen einlesen
+			$iqry  = 'select p.*, a.aart, a.agew as gewicht from auftr_pos p left join art_0 a using (arnr) 
+	                  where fblg = :BelegID and coalesce(avsd,0) = 0
+	                  order by fpos';
+	
+			$r_qry = $this->pg_pdo->prepare($iqry);
+			$r_qry->bindValue(':BelegID', $belegnummer);
+			$r_qry->execute() or die (print_r($r_qry->errorInfo()));
+	
+			$this->MainItemCount = 0;
+			$this->ItemCount = 0;
+			$this->OrderWeight = 0;
+			$mainidx = -1;
+			while ($row = $r_qry->fetch( PDO::FETCH_ASSOC )) {
+			    
+			    if (empty($row["agew"])) {
+			        $row["agew"] = $row["gewicht"];
+			    }
+	
+				$this->ItemCount++;
+				$this->OrderWeight += $row["agew"]*$row["fmge"];
+				$idx = $row["fpos"];
+				
+				if ($row["fart"] == 6 ) {
+					
+					$this->orderItems[$mainidx]["sliste"][$idx] = [ 
+							"arnr" => $row["arnr"], 
+							"abz1" => $row["abz1"], 
+							"abz2" => $row["abz2"],
+							"abz3" => $row["abz3"],
+							"fmge" => $row["fmge"],
+							"fmgl" => $row["fmgl"], 
+							"ameh" => $row["ameh"] ,  
+							"agew" => $row["agew"] 
+					];
+					$this->orderItems[$mainidx]["astl"] = 1;
+					
+					if ($this->orderItems[$mainidx]["agew"] == 0 ) {
+						$this->OrderWeight += $row["agew"]*$row["fmge"];
+					}
+					
+				} else {
+					//$mainidx = $row["fpos"];
+					$mainidx++;
+					$this->orderItems[$mainidx] = $row;
+					$this->orderItems[$mainidx]["astl"] = null;
+					$this->MainItemCount++;
+				}
+			}
+		} 
 		
 		//print "<pre>"; print_r($this->orderItems); print "</pre>";
 		
@@ -680,7 +683,7 @@ class order {
 
 	private function checkShopwareOrderId($id) {
 	    
-	    if (! preg_match('/[a-z0-9]{32}/', $id)) {
+//	    if (! preg_match('/[a-z0-9]{32}/', $id)) {
 	        include ("./intern/config.php");
 	        $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);;
 	        $params = [
@@ -693,13 +696,26 @@ class order {
 	            ]
 	        ];
 	        $properties = $api->get('order',$params );
-
-	        $this->shopwareOrderId = $properties["data"][0]["id"];
-	        return $properties["data"][0]["id"];
 	        
-	    } else {
-	        return $id;
-	    }
+	        foreach($properties["included"] as $included) {
+	        	if ($included["type"] == "state_machine_state") {
+	        		$this->orderState = $included["attributes"]["technicalName"];
+					if ($included["attributes"]["technicalName"] == "in_progress") {
+	        			$this->shopwareOrderId = $properties["data"][0]["id"];
+	        			return $properties["data"][0]["id"];
+					} else {
+						return false;
+					}
+	        	} 
+	        }
+	        
+	        // if nostate in_progress found 
+	        return false;
+	        
+	        
+//	    } else {
+//	        return $id;
+//	    }
 	}
 
 	public function setOrderDeliveryState($trackingCode, $state) {

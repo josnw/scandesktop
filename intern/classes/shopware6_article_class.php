@@ -27,6 +27,8 @@ class Shopware6Articles {
 	private $shopware6WGDisMatrix;
 	private $shopware6AlternateProductname;
 	private $shopware6ManufactureCustomField;
+	private $shopware6ManufactureGPSR;
+	private $shopware6gefahrgut;
 	private $shopware6DiscountTag;
 	private $shopware6DeliveryTimeIds;
 	private $filterArray;
@@ -64,6 +66,8 @@ class Shopware6Articles {
 		$this->shopware6AlternateProductname = $shopware6AlternateProductname;
 		$this->shopware6UseHsnr = $shopware6UseHsnr;
 		$this->shopware6ManufactureCustomField = $shopware6ManufactureCustomField;
+		$this->shopware6ManufactureGPSR = $shopware6ManufactureGPSR;
+		$this->shopware6gefahrgut = $shopware6gefahrgut;
 		$this->shopware6setDiscountTag = $shopware6setDiscountTag;
 		$this->shopware6NetPriceBase = $shopware6NetPriceBase;
 		$this->shopware6WGDisMatrix = $shopware6WGDisMatrix;
@@ -428,9 +432,10 @@ class Shopware6Articles {
 	}
 
 	public function articleUpdateListBaseData() {
+// TODO arnr entfernen!
 	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson, qgid from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is not null )
-                      and a.qedt > w.wsdt
+                      and (a.qedt = w.wsdt) or arnr = '02145037'
 					  order by arnr
 					";
 	    $options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
@@ -491,6 +496,43 @@ class Shopware6Articles {
         	"manufacturerNumber" => $artData["ahnr"]
         ];
         
+        if ((!empty($this->shopware6gefahrgut)) and ($article->productData[0]["aggv"] == 1)) {
+        	
+        	if (!file_exists(__DIR__ . "/../../docs/hpstatements-de-latest.json")) {
+        		$hpsaetze = file_get_contents("https://mhchem.github.io/hpstatements/clp/hpstatements-de-latest.json");
+        		file_put_contents(__DIR__ . "/../../docs/hpstatements-de-latest.json", $hpsaetze);
+        	} else {
+        		$hpsaetze = file_get_contents(__DIR__ . "/../../docs/hpstatements-de-latest.json");
+        	}
+			$hps = json_decode($hpsaetze,true);
+        	$ghs = $article->getGefahrgut();
+
+        	$ghsa = explode(",",$ghs["ghsa"]);
+        	$restdata['customFields'][$this->shopware6gefahrgut["ghsa"]] = "";
+        	foreach ($ghsa as $txt) {
+        		$restdata['customFields'][$this->shopware6gefahrgut["ghsa"]] .= $txt.": ";
+        		$restdata['customFields'][$this->shopware6gefahrgut["ghsa"]] .= $hps["statements"]["latest/de/".str_replace(" ", "", $txt)]."\n";
+        	}
+        	$gpsa = explode(",",$ghs["gpsa"]);
+        	$restdata['customFields'][$this->shopware6gefahrgut["gpsa"]] = "";
+        	foreach ($gpsa as $txt) {
+        		$restdata['customFields'][$this->shopware6gefahrgut["gpsa"]] .= $txt.": ";
+        		$restdata['customFields'][$this->shopware6gefahrgut["gpsa"]] .= $hps["statements"]["latest/de/".str_replace(" ", "", $txt)]."\n";
+        	}
+        	
+        	$restdata['customFields'][$this->shopware6gefahrgut["gsdl"]] = $ghs["gsdl"];
+        	
+        	$gghs = explode(",",$ghs["gghs"]);
+        	$cnt = 0;
+        	foreach ($gghs as $symbol) {
+        		$restdata['customFields'][$this->shopware6gefahrgut["gghs"].++$cnt] = $this->shopware6gefahrgut[$symbol];
+        		if ($cnt == 5) break; 
+        	}
+        	while ($cnt < 5) {
+        		$restdata['customFields'][$this->shopware6gefahrgut["gghs"].++$cnt] = '';
+        	}
+        }
+        
         if (!empty($discountGroup)) {
         	$restdata['tags'] = [ 
 						[
@@ -529,7 +571,7 @@ class Shopware6Articles {
         }
         
         if (!empty($this->shopware6UpdateLinr) or ($type == "new")) {
-        	
+        	print $this->shopware6UseHsnr." ".$artData['hsnr']." ".$artData['hqsbz'];
         	if (($this->shopware6UseHsnr) and ($artData['hsnr'] > 0) and (!empty($artData['hqsbz']))) {
         		$restdata["manufacturer"] = [
         				"id" =>  md5($artData['hsnr']),
@@ -538,6 +580,17 @@ class Shopware6Articles {
         		if (!empty($this->shopware6ManufactureCustomField)) {
         			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureCustomField] = $artData['hsnr'];
         		}
+        		
+        		if (!empty($this->shopware6ManufactureGPSR)) {
+        			$hsnrData = $article->getHsnrData();
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qna1"]] = $hsnrData['qna1'];
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qstr"]] = $hsnrData['qstr'];
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qplz"]] = $hsnrData['qplz'];
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qort"]] = $hsnrData['qort'];
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qtel"]] = $hsnrData['qtel'];
+        			$restdata["manufacturer"]["customFields"][$this->shopware6ManufactureGPSR["qema"]] = $hsnrData['qema'];
+        		}
+        		
         	} else {
         		$restdata["manufacturer"] = [
         				"id" =>  md5($artData['linr']),
