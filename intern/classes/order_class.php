@@ -683,7 +683,7 @@ class order {
 
 	private function checkShopwareOrderId($id) {
 	    
-//	    if (! preg_match('/[a-z0-9]{32}/', $id)) {
+	    if (! preg_match('/[a-z0-9]{32}/', $id)) {
 	        include ("./intern/config.php");
 	        $api = new OpenApi3Client($shopware6_url, $shopware6_user, $shopware6_key, $shopware6_type);;
 	        $params = [
@@ -696,26 +696,18 @@ class order {
 	            ]
 	        ];
 	        $properties = $api->get('order',$params );
-	        
-	        foreach($properties["included"] as $included) {
-	        	if ($included["type"] == "state_machine_state") {
-	        		$this->orderState = $included["attributes"]["technicalName"];
-					if ($included["attributes"]["technicalName"] == "in_progress") {
-	        			$this->shopwareOrderId = $properties["data"][0]["id"];
-	        			return $properties["data"][0]["id"];
-					} else {
-						return false;
-					}
-	        	} 
-	        }
-	        
-	        // if nostate in_progress found 
-	        return false;
-	        
-	        
-//	    } else {
-//	        return $id;
-//	    }
+	        $id = $properties["data"][0]["id"];
+	    }
+	    
+        $properties = $api->get('order/'.$id.'/state-machine-state' );
+        $this->orderState = $properties["data"][0]["attributes"]["technicalName"];
+        if ($this->orderState == "in_progress") {
+       		$this->shopwareOrderId = $properties["data"][0]["id"];
+       		return $id;
+		} else {
+			return false;
+		}
+
 	}
 
 	public function setOrderDeliveryState($trackingCode, $state) {
