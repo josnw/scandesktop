@@ -16,7 +16,7 @@ class order {
 	public $orderItems;
 	public $MainItemCount;
 	public $ItemCount;
-	public $orderSate;
+	public $orderState;
 
 	public $orderWeight;
 	
