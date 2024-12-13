@@ -432,10 +432,10 @@ class Shopware6Articles {
 	}
 
 	public function articleUpdateListBaseData() {
-// TODO arnr entfernen!
+
 	    $fqry  = "select distinct a.arnr, coalesce(aenr,a.arnr) as aenr, a.qgrp, wson, qgid from art_0 a inner join web_art w using (arnr)
 					  where  wsnr = :wsnr and ( wson = 1 and wsdt is not null )
-                      and (a.qedt = w.wsdt) or arnr = '02145037'
+                      and a.qedt > w.wsdt
 					  order by arnr
 					";
 	    $options = [ PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL ];
