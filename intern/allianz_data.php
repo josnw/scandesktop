@@ -28,7 +28,7 @@
 
  
  // select last update date for every allianz stock
- $sql_fil = "select ifnr, qbnr, (max(b.qedt) - INTERVAL '2 days') as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 and coalesce(f.quse,0) < 3 group by ifnr, qbnr order by ifnr";
+ $sql_fil = "select ifnr, qbnr, (max(b.qedt) - INTERVAL '1 hour') as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 and coalesce(f.quse,0) < 3 group by ifnr, qbnr order by ifnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die($fil_qry->errorInfo()[2]);
 /* 
