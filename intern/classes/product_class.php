@@ -572,6 +572,7 @@ class product {
 			$cpog = 'F000';
 			$apjs = $this->productData[0]['apjs'];
 			$ameh = $this->productData[0]['ameh'];
+			$price = $price /(1+$this->productData[0]["mmss"]/100);
 		} elseif ($this->indexvalue != null) { 
 			$arnr = $this->indexvalue;
 			$cpog = 'X000';

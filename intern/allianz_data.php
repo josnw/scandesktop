@@ -17,7 +17,9 @@
  $correct_qry->execute() or die($correct_qry->errorInfo()[2]);
 
  // check for new local product data and correct temporary prices
- $correctsql = "update cond_ek b set cprs = cprs * (select case when amgz > 0 then amgn/amgz else 1 end from art_0 a where a.arnr = b.arnr),
+ $correctsql = "update cond_ek b set cprs = cprs * (select case when amgz > 0 then amgn/amgz else 1 end from art_0 a where a.arnr = b.arnr)
+											/coalesce((select (1+mmss/100) from  mand_mwst m inner join art_0 a on a.apkz = m.mmid where  a.arnr = b.arnr),1),
+
 								ameh = (select ameh from art_0 a where a.arnr = b.arnr),
 								cpog = 'F000'  
 				where cpog = 'X000' and arnr in (select arnr from art_0 a2 where a2.arnr = b.arnr )";
@@ -26,7 +28,7 @@
 
  
  // select last update date for every allianz stock
- $sql_fil = "select ifnr, qbnr, max(b.qedt) as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 and coalesce(f.quse,0) < 3 group by ifnr, qbnr order by ifnr";
+ $sql_fil = "select ifnr, qbnr, (max(b.qedt) - INTERVAL '2 days') as date from fil_0 f left join art_best b using (ifnr) where ifnr > 1 and coalesce(f.quse,0) < 3 group by ifnr, qbnr order by ifnr";
  $fil_qry = $my_pdo->prepare($sql_fil);
  $fil_qry->execute() or die($fil_qry->errorInfo()[2]);
 /* 
