@@ -435,6 +435,7 @@ class product {
 				print " get order data ..";
 			}
 			$affmge = $this->getOrderSum();
+			
 		}
 		if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 			print " get stock data ..";
@@ -444,13 +445,13 @@ class product {
 						from art_stl s left join art_0 a on s.astl = a.arnr
 							left join fil_0 f on coalesce(f.quse,0) < 2 
 							left join art_best b on s.astl = b.arnr and f.ifnr = b.ifnr
-						where s.arnr = :aamr
+						where s.arnr arnr || s.xxak || s.xyak  = :aamr
 						group by f.ifnr
 						order by f.ifnr
 					";
 		} else {
 			$fqry  = "select ifnr, case when a.amgz > 0 then cast((amge*a.amgn/a.amgz) as decimal(8,2)) else amge end as amgb 
-						from art_0 a inner join art_best b using (arnr) where arnr = :aamr order by ifnr";
+						from art_0 a inner join art_best b using (arnr) where arnr || xxak || xyak = :aamr order by ifnr";
 		}
 		
 		$f_qry = $this->pg_pdo->prepare($fqry);
@@ -468,6 +469,9 @@ class product {
 			} else {
 				$this->productStocks[$row["ifnr"]] = $row["amgb"];
 			}	
+			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+				print $row["ifnr"].": =>".$row["amgb"]." | ".$affmge[$row['ifnr']]["fmge"]." | ".$this->productStocks[$row["ifnr"]]. "# ";
+			}
 			
 		}
 		if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
@@ -479,6 +483,7 @@ class product {
 			if (! isset($this->productStocks) or $this->productStocks == NULL ) {
 				$this->getStocksFromDB($checkOrders);
 			}
+			
 			return $this->productStocks;
 	}	
 	
