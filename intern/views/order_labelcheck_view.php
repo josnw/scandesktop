@@ -31,6 +31,10 @@
 				<div class="DSFeld1">Land<br> <input name="qlnd" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["countryIso"]); ?>" pattern="[A-Za-zäöüß0-9\- /]+"  required></div>
 			</div>	
 			<div class="DSEdit smallBorder"> 
+				<div class="DSFeld1">Telefon<br> <input name="qtel" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["phone"]); ?>" pattern="[0-9\+ ]*" ></div>
+				<div class="DSFeld1">Telefon<br> <input name="qema" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["email"]); ?>" pattern="[0-9\+ ]*" ></div>
+			</div>	
+			<div class="DSEdit smallBorder"> 
 				<div class="DSFeld1">Spedition<br>
 				    <select name="parcelService" required>
 					<?php
