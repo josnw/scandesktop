@@ -67,7 +67,7 @@ class product {
 			$f_qry = $this->pg_pdo->prepare($fqry);
 			$f_qry->bindValue(':aamr',$indexvalue);
 		} elseif ($level == 'searchPrice') {
-			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, a.apjs, a.linr, asco, a.apkz, a.amgz, a.amgn, 
+			$fqry  = "select distinct a.arnr as arnr, abz1, abz2, abz3, a.qgrp, a.apjs, a.linr, asco, a.apkz, a.amgz, a.amgn, a.hsnr,
 								  case when a.amgn > 0 then cast((a.amgz/a.amgn) as decimal(8,2)) else 1 end as amgm, a.ameh, a.ageh, a.aart,
 								  cprs, abs(cprs - :price) as diff, 99 as askz 
 								  from cond_vk v inner join art_0 a using(arnr) inner join art_txt t on t.arnr = a.arnr and t.qscd = 'DEU' and t.xxak = '' and t.xyak =''

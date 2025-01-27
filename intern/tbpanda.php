@@ -53,7 +53,32 @@
 	//set uploadtime
 	$export->setUpdateTime();
 	
-} elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/convertOrders", $argv))) {
+ } elseif (isset($_POST["stockUpdate"]) or (isset($argv) and in_array("/stockUpdate", $argv))) {
+ 	$export = new tradebytePanda();
+ 	
+ 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+ 		$checkDate = '2000-01-01';
+ 	} else {
+ 		$checkDate = NULL;
+ 	}
+ 	
+ 	// select stock updates
+ 	$stockfile = $docpath."ARTICLE_stockup_".date("Ymd_His").".csv";
+ 	if (( $stockresult = $export->stockUpdate($stockfile, $checkDate) ) and ($stockresult['count'] > 0) ){
+ 		$rowCount = $stockresult['count'];
+ 		$exportfile = $docpath.$stockresult['filename'];
+ 		$filename = $stockresult['filename'];
+ 		if (php_sapi_name() != 'cli') {
+ 			include("./intern/views/tbpanda_result_view.php");
+ 		} else {
+ 			print $exportfile."\n";
+ 		}
+ 	}
+ 	
+ 	//set uploadtime
+ 	$export->setUpdateTime();
+ 	
+ } elseif (isset($_POST["orders2fac"]) or (isset($argv) and in_array("/convertOrders", $argv))) {
 	
 	if (php_sapi_name() != 'cli') {
 		$fname = $docpath."/ORDER_".uniqid().".csv";

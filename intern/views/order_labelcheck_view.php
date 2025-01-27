@@ -32,7 +32,7 @@
 			</div>	
 			<div class="DSEdit smallBorder"> 
 				<div class="DSFeld1">Telefon<br> <input name="qtel" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["phone"]); ?>" pattern="[0-9\+ ]*" ></div>
-				<div class="DSFeld1">Email<br> <input name="qema" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["email"]); ?>" pattern="[[a-zA-Z0-9._%+-]*" ></div>
+				<div class="DSFeld1">Email<br> <input name="qema" value="<?php  print($_SESSION["shipBlueprint"]["receiverAddress"]["email"]); ?>" pattern="[a-zA-Z0-9\._%+-@]*" ></div>
 			</div>	
 			<div class="DSEdit smallBorder"> 
 				<div class="DSFeld1">Spedition<br>
