@@ -147,7 +147,7 @@ class tradebytePanda {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select distinct a.arnr from art_0 a left join art_best b using (arnr) inner join web_art w using (arnr) where  w.wsnr = :wsnr and wson = 1 and
+			$fqry  = "select distinct a.arnr from art_0 a inner join art_best b using (arnr) inner join web_art w using (arnr) where  w.wsnr = :wsnr and wson = 1 and
 					  ( (b.qedt > w.wsdt) or (w.wsdt is null)
 						or (a.aart = 2 and a.arnr in (select s.arnr from art_stl s inner join art_best c on s.astl = c.arnr where s.arnr = a.arnr and c.qedt > w.wsdt) )
 					  )
