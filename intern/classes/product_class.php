@@ -445,7 +445,7 @@ class product {
 						from art_stl s left join art_0 a on s.astl = a.arnr
 							left join fil_0 f on coalesce(f.quse,0) < 2 
 							left join art_best b on s.astl = b.arnr and f.ifnr = b.ifnr
-						where s.arnr arnr || s.xxak || s.xyak  = :aamr
+						where s.arnr || s.xxak || s.xyak  = :aamr
 						group by f.ifnr
 						order by f.ifnr
 					";
