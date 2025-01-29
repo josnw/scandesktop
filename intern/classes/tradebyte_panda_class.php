@@ -150,7 +150,7 @@ class tradebytePanda {
 			$fqry  = "select distinct a.arnr from art_0 a inner join art_best b using (arnr) inner join web_art w using (arnr) where  w.wsnr = :wsnr and wson = 1 and
 					  ( (b.qedt > w.wsdt) or (w.wsdt is null)
 						or (a.aart = 2 and a.arnr in (select s.arnr from art_stl s inner join art_best c on s.astl = c.arnr where s.arnr = a.arnr and c.qedt > w.wsdt) )
-					  )
+					  ) and arnr in (select arnr from art_bestmut bm where bm.arnr = a.arnr limit 1)
 					";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
