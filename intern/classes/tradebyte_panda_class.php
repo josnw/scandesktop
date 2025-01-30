@@ -185,11 +185,11 @@ class tradebytePanda {
 		// select article list for export, create handle only for scaling up big artile lists
 		// if no CheckDate set, select only lines newer then last upload
 		if (($checkDate == NULL) or ( strtotime($checkDate) === FALSE)) {
-			$fqry  = "select disinct arnr from cond_vk c inner join web_art w using (arnr) 
+			$fqry  = "select distinct arnr from cond_vk c inner join web_art w using (arnr) 
 						where w.wsnr = :wsnr and c.qvon > w.wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >=6  and cbez = 'PR01' ";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 		} else {
-			$fqry  = "select disinct arnr from cond_vk c inner join web_art w using (arnr) 
+			$fqry  = "select distinct arnr from cond_vk c inner join web_art w using (arnr) 
 						where w.wsnr = :wsnr and c.qvon > :wsdt and c.qvon <= current_date and c.qbis > current_date and mprb >= 6 and cbez = 'PR01' ";	
 			$this->articleList_qry = $this->pg_pdo->prepare($fqry);
 			$this->articleList_qry->bindValue(':wsdt',$checkDate);
