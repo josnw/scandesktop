@@ -53,6 +53,33 @@
 	//set uploadtime
 	$export->setUpdateTime();
 	
+ } elseif (isset($_POST["priceUpdate"]) or (isset($argv) and in_array("/priceUpdate", $argv))) {
+ 	$export = new tradebytePanda();
+ 	
+ 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+ 		$checkDate = '2000-01-01';
+ 	} else {
+ 		$checkDate = NULL;
+ 	}
+ 	
+ 	// Select price updates
+ 	$pricefile = $docpath."ARTICLE_prices_".date("Ymd_His").".csv";
+ 	if (($priceresult = $export->priceUpdate($pricefile, $checkDate)) and ($priceresult['count'] > 0)) {
+ 		$rowCount = $priceresult['count'];
+ 		$exportfile = $docpath.$priceresult['filename'];
+ 		$filename = $priceresult['filename'];
+ 		if (php_sapi_name() != 'cli') {
+ 			include("./intern/views/tbpanda_result_view.php");
+ 		} else {
+ 			print $exportfile."\n";
+ 		}
+ 	}
+ 	
+ 	//set uploadtime
+ 	if (isset($_POST["fullLoad"]) or (isset($argv) and in_array("/fullLoad", $argv))) {
+ 		$export->setUpdateTime();
+ 	}
+ 	
  } elseif (isset($_POST["stockUpdate"]) or (isset($argv) and in_array("/stockUpdate", $argv))) {
  	$export = new tradebytePanda();
  	
