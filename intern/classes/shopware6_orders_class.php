@@ -403,6 +403,10 @@ class Shopware6Orders {
 			$fpid = $this->scanDeskFacFiliale * 1000000000 + $data["orderNumber"] * 100 +  $this->fpos;
 		}	
 		
+		if ($article->productData[0]['asnv'] > 0) {
+			$fakt =+ 4;											// Sereiennummernvergabe
+		}
+		
 		$facPos[$this->fpos] = [
 			'FXNR' => $customerNumber ,
 			'FXNS' => $customerNumber ,
