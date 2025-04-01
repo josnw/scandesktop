@@ -22,6 +22,8 @@ class product {
 	private $productHsnr;
 	private $clpData = [];
 	private $wwsPickBelegKz;
+	private $vParam;
+	private $vParamArticle;
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
@@ -29,6 +31,7 @@ class product {
 		include ("./intern/config.php");
 		
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
+		$this->vParam = $vparam;
 
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		
@@ -88,7 +91,8 @@ class product {
 		
 		$this->productData = $frow;
 		$this->resultCount = count($frow);
-
+		$this->vParamArticle = [];
+		
 		// if one resulte or index is article number, matrix number or gtin 
 		if (($this->resultCount == 1) or ($frow[0]["askz"] <= 2)){
 			$this->productId = $frow[0]["arnr"];
@@ -125,7 +129,17 @@ class product {
 					'a_nr' =>  $frow[0]["arnr"],
 				];
 			}
-
+			
+			// Wenn Versandparametr benutzt, dann einlesen. 
+			if (!empty($vparam)) {
+				$vpqry  = "select zxtx from art_verspara a where a.arnr = :aamr ";
+				$vp_qry = $this->pg_pdo->prepare($vpqry);
+				$vp_qry->bindValue(':aamr',$this->productId);
+				$vp_qry->execute() or die (print_r($cp_qry->errorInfo()));
+				while ($row = $vp_qry->fetch( PDO::FETCH_ASSOC )) {
+					$this->vParamArticle[] = $row["zxtx"];
+				}
+			}
 
 		} else {
 			$this->productId = NULL;
@@ -179,6 +193,7 @@ class product {
 
 		$this->productPrices = [] ;
 		$standardPrice = null;
+		$standardPriceKey = null;
 		
 		// sql check pricekey list
 		$priceqry  = "select mprb, qbez from mand_prsbas where (mprb >= 6 and qbez not like 'VK-Preis %') ";	
@@ -219,6 +234,7 @@ class product {
 				$this->productPrices[$row["mprn"]][$pcnt]["to"] = null;
 				if ($row["mprb"] == 6) {
 					$standardPrice = $this->productPrices[$row["mprn"]][$pcnt]["price"];
+					$standardPriceKey = $row["mprn"];
 					//default no export for standard price
 					if (! $withStdPrice ) {
 						unset($this->productPrices[$row["mprn"]]);
@@ -246,11 +262,20 @@ class product {
 		
 		// fill zero price with standard price
 		foreach($this->productPrices as $key => $value) {
+			// alle Bruttopreis mit Stdpreis auffüllen, wenn leer
 			if (($value == null) and ($key != $netPrice)) {
 				$this->productPrices[$key][0]["price"] = $standardPrice;
 				$this->productPrices[$key][0]["from"] = 1;
 				$this->productPrices[$key][0]["to"] = null;
 			}
+			// Preiszuschlag bei Versandkennzeichen SACK
+			if (($key != $standardPriceKey) and (in_array('SACK', $this->vParamArticle)) ) {
+				if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+					print " Versandparameter SACK: ".$this->productPrices[$key][0]["price"]." + ".$this->vParam["SACK"]."</br>\n";
+				}
+				$this->productPrices[$key][0]["price"] += $this->vParam["SACK"];
+			}
+			
 		}
 		
 	}
@@ -470,7 +495,7 @@ class product {
 				$this->productStocks[$row["ifnr"]] = $row["amgb"];
 			}	
 			if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
-				print $row["ifnr"].": =>".$row["amgb"]." | ".$affmge[$row['ifnr']]["fmge"]." | ".$this->productStocks[$row["ifnr"]]. "# ";
+				@print $row["ifnr"].": =>".$row["amgb"]." | ".$affmge[$row['ifnr']]["fmge"]." | ".$this->productStocks[$row["ifnr"]]. "# ";
 			}
 			
 		}

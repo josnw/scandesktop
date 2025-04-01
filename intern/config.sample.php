@@ -18,6 +18,11 @@ $channelFacData['DEFAULT']['formId'] = '0091';
 
 $tradebyte_charset = "latin1";
 
+$vparam = [
+//		"SACK"	=> 6.00,	// Preiszuschlag in Euro ab PB7
+];
+
+
 // Shopware 5 Config
 $ShopwareWebshopNumber = 2;
 $ShopwarePriceGroup = 'EK';
