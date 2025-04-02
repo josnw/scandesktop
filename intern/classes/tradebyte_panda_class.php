@@ -8,7 +8,6 @@ class tradebytePanda {
 	private $priceTypeList;
 	private $basepriceTypeList;
 	private $mdbTypesTypeList;
-	private $stockList;
 	private $TradebyteWebshopNumber;
 	private	$startTime;
 	

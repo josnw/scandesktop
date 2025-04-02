@@ -24,6 +24,7 @@ class product {
 	private $wwsPickBelegKz;
 	private $vParam;
 	private $vParamArticle;
+	private $StockList;
 	
 	// Artikeldaten einlesen
 	public function __construct($indexvalue, $level = 'basic', $searchoptions = []) {
@@ -32,7 +33,8 @@ class product {
 		
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
 		$this->vParam = $vparam;
-
+		(!empty($TradebyteStockList)) ?	$this->StockList = $TradebyteStockList : $this->StockList = null;
+		
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		
 		if ($level == 'basic') {
@@ -530,6 +532,12 @@ class product {
 			$TbParam = [];
 			
 			foreach($parameter as $key => $value) {
+				if  (($this->StockList !== null) and ($arrayName == "a_stock")) {
+					if (!in_array($key, $this->StockList)) {
+						$value = 0;
+					}
+				}
+					
 				if  ($arrayName == "a_vk") {
 					$TbParam[$arrayName."[".$key."]"] = $value[0]["price"];
 				} elseif (is_array($value )) {
