@@ -24,6 +24,7 @@ class product {
 	private $wwsPickBelegKz;
 	private $vParam;
 	private $vParamArticle;
+	private $calc_all;
 	private $StockList;
 	
 	// Artikeldaten einlesen
@@ -94,6 +95,7 @@ class product {
 		$this->productData = $frow;
 		$this->resultCount = count($frow);
 		$this->vParamArticle = [];
+		$this->calc_all = $calc_all;
 		
 		// if one resulte or index is article number, matrix number or gtin 
 		if (($this->resultCount == 1) or ($frow[0]["askz"] <= 2)){
@@ -271,12 +273,20 @@ class product {
 				$this->productPrices[$key][0]["to"] = null;
 			}
 			// Preiszuschlag bei Versandkennzeichen SACK
-			if (($key != $standardPriceKey) and (in_array('SACK', $this->vParamArticle)) ) {
+			if (($key != $standardPriceKey) and (in_array('SACK', $this->vParamArticle)) and (!empty($this->productPrices[$key][0]["price"]))) {
 				if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
 					print " Versandparameter SACK: ".$this->productPrices[$key][0]["price"]." + ".$this->vParam["SACK"]."</br>\n";
 				}
 				$this->productPrices[$key][0]["price"] += $this->vParam["SACK"];
 			}
+			//globaler Preiszuschlag 
+			if (($key != $standardPriceKey) and (!empty($this->calc_all)) and (!empty($this->productPrices[$key][0]["price"]))) {
+				if (isset($_SESSION['debug']) and ($_SESSION['debug'] == 1) and ($_SESSION["level"] == 9)) {
+					print " Globaler Aufschlag: ".$this->productPrices[$key][0]["price"]." + ".$this->calc_all."</br>\n";	
+				}
+				$this->productPrices[$key][0]["price"] += $this->calc_all;
+			}
+			
 			
 		}
 		

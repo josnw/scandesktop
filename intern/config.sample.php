@@ -9,6 +9,7 @@ $allianz_stock_url = 'apiurl';
 
 // Tradebyte Config
 $TradebyteWebshopNumber = 1;
+$TradebyteStockList = null;
 
 $isPaidPaymentTypes = ['otdm' , 'DEFAULT'];
 
