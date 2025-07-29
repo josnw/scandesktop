@@ -29,7 +29,7 @@ class order {
 
 		include ("./intern/config.php");
 		
-		$this->pack_weight_factor = !empty($this->pack_weight_factor) ? $pack_weight_factor : 0;
+		$this->pack_weight_factor = !empty($pack_weight_factor) ? $pack_weight_factor : 0;
 
 		$this->belegId = $belegnummer;
 
