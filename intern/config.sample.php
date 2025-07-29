@@ -22,7 +22,8 @@ $tradebyte_charset = "latin1";
 $vparam = [
 //		"SACK"	=> 6.00,	// Preiszuschlag in Euro ab PB7
 ];
-
+// absoluter Aufschlag auf alle Preise ab PB7
+$calc_all=1.00;
 
 // Shopware 5 Config
 $ShopwareWebshopNumber = 2;

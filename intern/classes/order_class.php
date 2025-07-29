@@ -10,6 +10,7 @@ class order {
 	private $itemByPackPointer;
 	private $itemsByPack;
 	private $totalQuantity;
+	private $pack_weight_factor;
 	private $api;
 	
 	public $orderHeader;
@@ -27,6 +28,8 @@ class order {
 	public function __construct($belegnummer) {
 
 		include ("./intern/config.php");
+		
+		$this->pack_weight_factor = !empty($this->pack_weight_factor) ? $pack_weight_factor : 0;
 
 		$this->belegId = $belegnummer;
 
@@ -497,7 +500,7 @@ class order {
 				$packList[$cnt]['agew'] = 0;
 			} 				
 			$packList[$cnt]['Liste'][] = [ 'arnr' => $item["arnr"], 'abz1' => $item["abz1"], 'agew' => $item["agew"] ];
-			$packList[$cnt]['agew'] += $item["agew"];
+			$packList[$cnt]['agew'] += $item["agew"] * $this->pack_weight_factor;
 			$this->totalQuantity++;
 		}
 		
