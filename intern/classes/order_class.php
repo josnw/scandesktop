@@ -597,6 +597,7 @@ class order {
 			$response = $api->get('pickware-shipping-shipment/'.$shippingId.'/tracking-codes');
 			foreach($response["data"] as $tracking) {
 				$tracklist[] = $tracking["attributes"]["trackingCode"];
+				$tracklist[] = substr($tracking["attributes"]["trackingCode"],-4);
 			}
 		} elseif ($type == "orderId") { 
 			$response = $api->get('order/'.$this->shopwareOrderId.'/deliveries');
