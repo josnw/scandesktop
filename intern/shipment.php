@@ -73,7 +73,19 @@
 		$_SESSION["shipBlueprint"]["receiverAddress"]["phone"] = $_POST["qtel"];
 		$_SESSION["shipBlueprint"]["receiverAddress"]["email"] = $_POST["qema"];
 		$_SESSION["shipBlueprint"]["carrierTechnicalName"] = $_POST["parcelService"];
-		$_SESSION["shipBlueprint"]["shipmentConfig"]["product"] = $_POST["parcelProduct"];
+
+		// Nicht Default Paketdienst koennen anderen Shipmentconfig haben, der wird 1:1 aus der config.php übernommen
+		// ein Platzhalter <PACELSERVICE> kann variabel gemappt werden
+		if (!empty($parcelShipmentConfig[$_POST["parcelService"]])) {
+			$_SESSION["shipBlueprint"]["shipmentConfig"] = $parcelShipmentConfig[$_POST["parcelService"]];
+			foreach ($_SESSION["shipBlueprint"]["shipmentConfig"] as $key=>$value ) {
+				if ($value == "<PACELSERVICE>") {
+					$_SESSION["shipBlueprint"]["shipmentConfig"][$key] = $_POST["parcelProduct"];
+				}
+			}
+		} else {
+			$_SESSION["shipBlueprint"]["shipmentConfig"]["product"] = $_POST["parcelProduct"];
+		}
 		
 		
 		$response = $packOrder->exportShipping();
