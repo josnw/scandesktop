@@ -17,29 +17,41 @@ class picklist {
 	public $itemList;
 	public $orderList;
 
-	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0, $placePattern = ".*") {
+	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0, $placePattern = ".*", $channel = null) {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
 		
 		if (isset($count) and isset($maxWeight) and isset($name)) {
-			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight, $placePattern );
+			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight, $placePattern, $channel );
 		} else {
 			$this->getPickList($Id);
 		}
 	}
 	
 	// Pickliste erzeugen
-	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0, $placePattern = '.*') {
+	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0, $placePattern = '.*',$channel) {
 		$this->pickUser = $userId;
 		$count = preg_replace("[^0-9]","",$count);
 
 		if ($placePattern == '') {
 			$placePattern = ".*";
 		}
+		
+		if(is_array($channel)) {
+			$channel = implode(",",$channel);
+		}
+		$channel = preg_replace('/[^0-9,]/', '', $channel);
+		
+		if (preg_match('/^\d+(,\d+)*$/', $channel)) {
+			$channel = 'and fxnr in (' . $channel .")";
+		} else {
+			$channel = '';
+		}
+		
 		if (DEBUG) {
-			print ($userId." | ".$count." | ".$maxWeight." | ".$name ." | ".$minWeight." | ". $placePattern."\n");
+			print ($userId." | ".$count." | ".$maxWeight." | ".$name ." | ".$minWeight." | ". $placePattern." | ". $channel."\n");
 		}
 		//Artikel der älteste Bestellungen und TopArtikel einlesen
 		$picArt_sql  = 'select p.arnr, min(ks.fdtm) as minDate , count(*) as ArtAnz from auftr_kopf ks 
@@ -51,7 +63,8 @@ class picklist {
 				    		and coalesce(a1.agew,0) >= :minWeight 
 							and fbkz = :BelegKz and ks.fprn is null
 							and coalesce(alag,\' \') ~ :pattern 
-							and coalesce(avsd,0) = 0 
+							and coalesce(avsd,0) = 0
+ 							'.$channel.'
 				  		group by p.arnr
 				  		order by minDate, ArtAnz desc limit :limit';
 
@@ -66,6 +79,7 @@ class picklist {
 								    and coalesce(a.agew,0) < :maxWeight
 									and fbkz = :BelegKz and k.fprn is null
 									and coalesce(avsd,0) = 0 
+ 						  '.$channel.'
 						  group by k.fnum, k.fblg
 						  having max(coalesce(a.agew,0)) < :maxWeight
 				    		 and max(coalesce(a.agew,0)) >= :minWeight 

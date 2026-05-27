@@ -16,6 +16,16 @@
 				?>
 			</select>		
 		</div>
+		<div class="DSFeld2">Channel:<br> 
+		   <?php 
+			foreach ($channelFacData['shopware6']['Customer'] as $ch) {
+			    echo '<label style="display:block;">';
+			    echo '<input style="width: auto;" type="checkbox" name="channel[]" value="'.htmlspecialchars($ch).'">';
+    			echo ' '.htmlspecialchars($channelName[$ch]);
+			    echo '</label>';
+			}
+			?>
+		</div>
 		<div class="DSFeld2 right" style="background: #AA5555;"><input type="submit" name="generatePicklist" value="Speichern"></div>
 	</div>
 </form>

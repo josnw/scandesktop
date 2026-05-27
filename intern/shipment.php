@@ -36,7 +36,7 @@
 	// neue Pickliste erstellen 
 
  	print "Pickliste wird generiert ...";
- 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"],$configStorePlace[$_POST["pickListPlacePattern"]]);
+ 	$pickListData = new picklist($_SESSION["uid"],$_POST["pickListCount"],$_POST["maxPickListWeight"], $_POST["pickListName"],$_POST["minPickListWeight"]??null,$configStorePlace[$_POST["pickListPlacePattern"]]??null,$_POST["channel"]??null);            
 	print " erstellt!<br>";
 	Proto("Shipment: Picklist erstellt");
 	// Pickliste anzeigen
