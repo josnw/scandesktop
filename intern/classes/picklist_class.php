@@ -31,7 +31,7 @@ class picklist {
 	}
 	
 	// Pickliste erzeugen
-	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0, $placePattern = '.*',$channel) {
+	private function createPickList($userId, $count = 20, $maxWeight = 99999, $name = NULL, $minWeight = 0, $placePattern = '.*',$channel= null) {
 		$this->pickUser = $userId;
 		$count = preg_replace("[^0-9]","",$count);
 
@@ -45,7 +45,7 @@ class picklist {
 		$channel = preg_replace('/[^0-9,]/', '', $channel);
 		
 		if (preg_match('/^\d+(,\d+)*$/', $channel)) {
-			$channel = 'and fxnr in (' . $channel .")";
+			$channel = 'and p.fxnr in (' . $channel .")";
 		} else {
 			$channel = '';
 		}
