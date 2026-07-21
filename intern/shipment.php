@@ -188,7 +188,7 @@
 					if (preg_match('/\[\$\$\$\$Kopf\$\$\$\$\](.*?Channel:[^\n]*)(.*?)\[\$\$\$\$Ende\$\$\$\$\]/s', $packOrder->orderHeader["qtxl"], $matches)) {
 						$kinfo = htmlspecialchars(trim($matches[2]));
 					} else {
-						$kinfo = 'X';
+						$kinfo = null;
 					} 
 					
 					include("./intern/views/order_head_view.php");
