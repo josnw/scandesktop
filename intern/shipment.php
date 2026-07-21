@@ -184,6 +184,12 @@
 			 } else {
 				
 				if ($packOrder->orderState == "in_progress") {
+					$matches = "";
+					if (preg_match('/\[\$\$\$\$Kopf\$\$\$\$\](.*?Channel:[^\n]*)(.*?)\[\$\$\$\$Ende\$\$\$\$\]/s', $packOrder->orderHeader["qtxl"], $matches)) {
+						$kinfo = htmlspecialchars(trim($matches[2]));
+					} else {
+						$kinfo = 'X';
+					} 
 					
 					include("./intern/views/order_head_view.php");
 					

@@ -11,6 +11,7 @@
 <div class=oderinfoitem><?php print($packOrder->orderHeader["fdtm"]);?></div>
 <div class=orderinfoname>Status</div>
 <div class=oderinfoitem><?php print($packOrder->orderHeader["ktos"]);?></div>
+<error><?php print($kinfo);?></error>
 <form action="#" method="POST" enctype="multipart/form-data" >
 	<div class="DSEdit noprint">
 		<input type = hidden name="orderId" value="<?php  print($packOrder->orderHeader["fblg"]); ?>"  required>
