@@ -405,9 +405,11 @@ class Shopware6Articles {
 		// select article list for export, create handle only for scaling up big artile lists
 		$fqry  = "update web_art w set wsdt = :wsdt where w.wsnr = :wsnr and arnr = :arnr";	
 		
-		if ($state) {
+		if ($state == 1 ) {
 			$updTime = date("Y-m-d H:i:s", $this->startTime);
-		} else {
+		} elseif ($state == 2) {
+			$updTime = "2001-01-01";
+		} else{
 			$updTime = NULL;
 		}
 		
@@ -867,10 +869,11 @@ class Shopware6Articles {
 	 * Shopware6 ready
 	 */
 	public function SingleUpload($api, $restdata, $type = "post") {
-	    
+	    $UpTimeType = 1; 
 	    try {
 	        if ($type == "post") {
 	            $result = $api->post('product', $restdata );
+	            $UpTimeType = 2;
 	        } elseif ($type == "patch") {
 	        	$result = $api->patch('product/'.$restdata["id"], $restdata );
 	        } elseif ($type == "delete") {
@@ -883,7 +886,7 @@ class Shopware6Articles {
 	    }
 	    
 	    if (! empty($result["success"])) {
-	        $this->setUpdateTime($restdata["productNumber"],1);
+	    	$this->setUpdateTime($restdata["productNumber"],$UpTimeType);
 	    } else {
 	    	$returnError = "Error Upload ".$restdata["productNumber"];
 	        foreach ($result["errors"] as $error) {
