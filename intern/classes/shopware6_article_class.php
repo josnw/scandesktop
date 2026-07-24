@@ -876,6 +876,7 @@ class Shopware6Articles {
 	            $UpTimeType = 2;
 	        } elseif ($type == "patch") {
 	        	$result = $api->patch('product/'.$restdata["id"], $restdata );
+	        	$UpTimeType = 2;
 	        } elseif ($type == "delete") {
 	            $result = $api->delete('product/'.$restdata["id"], $restdata );
 	        }
