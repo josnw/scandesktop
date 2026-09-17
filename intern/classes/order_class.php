@@ -126,7 +126,9 @@ class order {
 
 	public function checkItemTyp($Artikel) {
 		
-		$cntqry  = "select arnr, fart as typ from auftr_pos where fblg = :BelegID and arnr = :Artikel group by arnr,fart";
+		$cntqry  = "select arnr, fart as typ from auftr_pos 
+                        where fblg = :BelegID and arnr = :Artikel and coalesce(fmgl,0) < coalesce(fmge,0)  
+                     group by arnr,fart order by fart desc";
 					
 		$cnt_qry = $this->pg_pdo->prepare($cntqry);
 		$cnt_qry->bindValue(':BelegID', $this->belegId);
