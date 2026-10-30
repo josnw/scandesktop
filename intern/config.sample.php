@@ -160,6 +160,17 @@ $sender = "me and myself";
 $sender_email = "me@mydomain.xyz";
 $reply_email = "someone@mydomain.xyz"; 
 
+// Bestellexport an andere WWS Instanz
+$bestellData["Kundennummer"] = 999999;
+$bestellData["FilialID"] = 0;
+$bestellData["Name1"] = 'Scandesk Betreiber';
+$bestellData["Name2"] = '';
+$bestellData["Str"] = 'Lagerweg 1';
+$bestellData["PLZ"] = '12345';
+$bestellData["Ort"] = "Versandhausen";
+$bestellData["Preisbasis"] = "-1";
+$bestellData["Zahlungsart"] = "0";
+
 // Scandesktop intern 
 
 date_default_timezone_set("Europe/Berlin");

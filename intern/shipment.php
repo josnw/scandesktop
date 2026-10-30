@@ -161,7 +161,36 @@
 			}
 			exec('lp -d '.$_SESSION["printerA4"].' "'."./docs/".$picList.$_SESSION["pickid"].".txt".'"');
 		}
-
+		
+		if ((isset($_POST["pickListExport"])) and ($_POST["pickListExport"] == "Pickliste Bestellung exportieren")) {
+			Proto("Shipment: Exportiere Picklist ".$_SESSION["pickid"]);
+			print "<pre>";
+			$rowCount = 0;
+			$ordernumber = 
+			$facfile = new myfile($docpath."/BESTELL_SW".time().".FAC","new");
+			$facfile->writeUTF8BOM();
+			$facfile->facHead("AUFST_KOPF", $channelFacData['shopware6']['Filiale']);
+			$facfile->facData($pickListData->getFacHeadPurchase($_SESSION["pickid"]));
+			
+			;
+			foreach($pickListData->getItemList() as $item => $itemdata) {
+				print_r($itemdata);
+				$itemdata["orderNumber"] = $_SESSION["pickid"];
+			
+				$facfile->facHead("AUFST_POS",  $channelFacData['shopware6']['Filiale']);
+				$facfile->facData($pickListData->getFacPosPurchase($itemdata,$rowCount++));
+			}
+			$facfile->facfoot();
+			$exportfile = $docpath.$facfile->getCheckedName();
+			$filename = $facfile->getCheckedName();
+				
+			if (php_sapi_name() != 'cli') {
+				include("./intern/views/shopware_result_view.php");
+			} else {
+				print($filename."\n");
+			}
+		}
+		
 		if ( isset($_POST["showPickItems"]) ) {
 			// Pickliste anzeigen
 			include("./intern/views/picklist_head_view.php");

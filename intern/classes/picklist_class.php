@@ -16,12 +16,18 @@ class picklist {
 	public $pickLastEdit;
 	public $itemList;
 	public $orderList;
+	private $bestelldata;
 
 	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0, $placePattern = ".*", $channel = null) {
 		
 		include ("./intern/config.php");
 		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
+		
+		// Export Pickliste als FAC Bestellbeleg
+		if (!empty($bestellData)) {
+			$this->bestelldata = $bestellData;
+		}
 		
 		if (isset($count) and isset($maxWeight) and isset($name)) {
 			$this->createPickList($Id, $count, $maxWeight, $name, $minWeight, $placePattern, $channel );
@@ -174,6 +180,80 @@ class picklist {
 		return $this->itemList;
 	}
 
+	public function getFacHeadPurchase($orderNumber) {
+		
+		if (DEBUG == 1) { print_r($data); }
+		
+		$facHead = [
+				'FXNR' => $this->bestelldata["Kundennummer"],
+				'FXNS' => $this->bestelldata["Kundennummer"],
+				'FXNA' => $this->bestelldata["Kundennummer"],
+				'IFNR' => $this->bestelldata["FilialID"],
+				'FTYP' => 2,
+				'FPRJ' => '000000',
+				'CKSS' => '000000',
+				'OBNR' => '000000',
+				'FNUM' => $orderNumber,
+				'FBLG' => $orderNumber,
+				'FDTM' => date("d.m.Y",time()),
+				'FLDT' => date("d.m.Y", time()),
+				//'SIGS' => $data["amountTotal"],
+				//'SGES' => $data["amountTotal"],
+				'QNA1' => $this->bestelldata["Name1"],
+				'QNA2' => $this->bestelldata["Name2"],
+				'QSTR' => $this->bestelldata["Str"],
+				'QPLZ' => $this->bestelldata["PLZ"],
+				'QORT' => $this->bestelldata["Ort"],
+				'QUSS' => 1,
+				'QPRA' => 1,
+				'KPRP' => $this->bestelldata["Preisbasis"],
+				'KZBE' => $this->bestelldata["Zahlungsart"],
+				'QHWG' => 'EUR',
+				'QZWG' => 'EUR'
+		];
+		
+		return $facHead;
+	}	
+	
+	public function getFacPosPurchase($data,$fpos) {
+		
+		$facPos = [
+				'FXNR' => $this->bestelldata["Kundennummer"],
+				'FXNS' => $this->bestelldata["Kundennummer"],
+				'FXNA' => $this->bestelldata["Kundennummer"],
+				'IFNR' => $this->bestelldata["FilialID"],
+				'FTYP' => 2,
+				'FPRJ' => '000000',
+				'CKSS' => '000000',
+				'OBNR' => '000000',
+				'FNUM' => $data["orderNumber"],
+				'FBLG' => $data["orderNumber"],
+				'FDTM' => date("d.m.Y",time()),
+				'FLDT' => date("d.m.Y", time()),
+				'FPOS' => $fpos,
+				'AAMR' => $data["arnr"],
+				'ARNR' => $data["arnr"],
+				'QGRP' => '',
+				'FART' => 1,
+				'XXAK' => '',
+				'XYAK' => '',
+				'ALGO' => 'HL',
+				'APKZ' => '',
+				'ASMN' => 1,
+				'QPRA' => 1,
+				'ASMZ' => 1,
+				'ABZ1' => $data["abz1"],
+				'ABZ2' => $data["abz2"],
+				'FMGE' => $data["fmge"],
+				'AMEH' => $data["ameh"],
+				'FAKT' => 8195,
+				'FAKX' => 33554432
+		];
+		
+		return $facPos;
+	}
+	
+	
 	// Bestellungen der Pickliste ausgeben (Übersicht, keine Artikel)
 	public function getOrderList($status = '0,1,2') {
 

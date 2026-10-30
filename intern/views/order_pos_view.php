@@ -24,7 +24,9 @@ foreach($item as $itemrow) {
 	    print '<div class="DSFeld5">Stückliste '.$itemrow["arnr"].' /';
 	    print ' '.$itemrow["abz1"].' '.$itemrow["abz2"].'</div>';
 	 } else {
-	    print '<div class=DSFeld1>'.$itemrow["arnr"].'</div>';
+	 	print '<div class=DSFeld1>'.$itemrow["arnr"].$itemrow["apic"].'<br/>';
+	 	if (!empty($itemrow["apic"])) { print '<img src="'.$itemrow["apic"].'" height=150px>'; }
+	 	print '</div>';
 	    print '<div class="DSFeld2 bigFont">'.$itemrow["abz1"].' '.$itemrow["abz2"].' '.$itemrow["abz3"].'</div>';
 	 }
 	 if ($itemrow["astl"] != 1) {

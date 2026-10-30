@@ -13,7 +13,8 @@ foreach($pickListData->getItemList() as $item => $itemdata) {
 ?>
 <form action="#" method="POST" enctype="multipart/form-data" >
 <div class="DSEdit flexnowrap noprint">
-		<div class="DSFeld2" style="background: #AA5555;"><input type="button" onclick="window.print()" value="Pickliste lokal drucken"></div>
-		<div class="DSFeld2" style="background: #AA5555;"><input type="submit" name="pickListSrvPrint" value="Pickliste Serverprint"></div>
+		<div class="DSFeld2" style="background: #55AA55;"><input type="button" onclick="window.print()" value="Pickliste lokal drucken"></div>
+		<div class="DSFeld2" style="background: #55AA55;"><input type="submit" name="pickListSrvPrint" value="Pickliste Serverprint"></div>
+		<div class="DSFeld2" style="background: #AAAA55;"><input type="submit" name="pickListExport" value="Pickliste Bestellung exportieren"></div>
 </div>
 </form>

@@ -55,7 +55,9 @@ class order {
 		if (! empty($this->shopwareOrderId)) {
 	
 			// Belegpositionen einlesen
-			$iqry  = 'select p.*, a.aart, a.agew as gewicht from auftr_pos p left join art_0 a using (arnr) 
+			$iqry  = 'select p.*, a.aart, a.agew as gewicht,
+                      (select qurl from art_liefdok ld where ld.arnr = a.arnr and qurl like \'http%\' and adtp = 20 limit 1) apic 
+ 					  from auftr_pos p left join art_0 a using (arnr) 
 	                  where fblg = :BelegID and coalesce(avsd,0) = 0
 	                  order by fpos';
 	
@@ -87,6 +89,7 @@ class order {
 							"fmge" => $row["fmge"],
 							"fmgl" => $row["fmgl"], 
 							"ameh" => $row["ameh"] ,  
+							"apic" => $row["apic"] ,
 							"agew" => $row["agew"] 
 					];
 					$this->orderItems[$mainidx]["astl"] = 1;
