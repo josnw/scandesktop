@@ -108,10 +108,7 @@
 		    
 		}
 		
-		
-
-		
-		
+	
 		
 	} else {
 		print "<error>Fehler bei der Zuordnung der ScanID!</error>";

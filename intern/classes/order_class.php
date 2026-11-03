@@ -33,7 +33,11 @@ class order {
 
 		$this->belegId = $belegnummer;
 
-		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		if (isset($orderserver) and isset($orderuser) and isset($orderpass)) {
+			$this->pg_pdo = new PDO($orderserver, $orderuser, $orderpass, $options);
+		} else {
+			$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		}
 		
 		//Belegkopfdaten einlesen
 		$oqry  = 'select * from auftr_kopf where fblg = :BelegID and ftyp = 2';

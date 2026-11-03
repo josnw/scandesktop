@@ -134,6 +134,10 @@ $options  = null;
 $wwsserver	= "pgsql:host=;port=5432;dbname=";
 $wwsuser='';
 $wwspass='';
+#Abweichende DB für Versand und Bestellbearbeitung
+$orderserver	= "pgsql:host=;port=5432;dbname=";
+$orderuser='';
+$orderpass='';
 
 $wwsAdminUsers = [ 999, 998 ];
 $wwsChiefGroups = [ 1,2 ];

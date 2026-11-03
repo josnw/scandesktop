@@ -19,7 +19,11 @@ class factoOrders {
 
 		include ("./intern/config.php");
 
-		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		if (isset($orderserver) and isset($orderuser) and isset($orderpass)) {
+			$this->pg_pdo = new PDO($orderserver, $orderuser, $orderpass, $options);
+		} else {
+			$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		}
 		$this->ifnr = $orderIfnr;
 		$this->orderId = $orderId;
 		$this->Shipping = $Shipping;

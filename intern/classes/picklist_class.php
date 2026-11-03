@@ -21,7 +21,11 @@ class picklist {
 	public function __construct($Id, $count = NULL, $maxWeight = NULL, $name = NULL, $minWeight = 0, $placePattern = ".*", $channel = null) {
 		
 		include ("./intern/config.php");
-		$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		if (isset($orderserver) and isset($orderuser) and isset($orderpass)) {
+			$this->pg_pdo = new PDO($orderserver, $orderuser, $orderpass, $options);
+		} else {
+			$this->pg_pdo = new PDO($wwsserver, $wwsuser, $wwspass, $options);
+		}
 		$this->wwsPickBelegKz = $wwsPickBelegKz;
 		
 		// Export Pickliste als FAC Bestellbeleg
